@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme -->
+    <style name="Theme.Loggin_elecciones" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Personaliza tu tema aquí -->
+        <item name="colorPrimary">@color/your_primary_color</item>  <!-- Cambia por tu color preferido -->
+        <item name="colorPrimaryVariant">@color/your_primary_variant_color</item>
+        <item name="colorOnPrimary">@color/your_on_primary_color</item>
+        <item name="colorSecondary">@color/your_secondary_color</item>
+        <item name="colorOnSecondary">@color/your_on_secondary_color</item>
+        <item name="android:windowBackground">@color/your_background_color</item>
+    </style>
+
+</resources>

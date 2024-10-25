@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "136021554932",
+    "firebase_url": "https://elecciones-3773a-default-rtdb.firebaseio.com",
+    "project_id": "elecciones-3773a",
+    "storage_bucket": "elecciones-3773a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136021554932:android:5b821c0c85a422cc9e50a1",
+        "android_client_info": {
+          "package_name": "com.example.loggin_elecciones"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "136021554932-rik3m3l96in06vutdng4nevio741sk5g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.loggin_elecciones",
+            "certificate_hash": "c4d30dba9dd0c53f762ed91d2c6a615f4719955f"
+          }
+        },
+        {
+          "client_id": "136021554932-ormeh1jgcvm5h01g28ia7msgk52qn96p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-gEfIMIBQJkAhvMHipsq1qHn78M-LhC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "136021554932-kdkjtkm7qun29urtr4j3lln9n0usfvgr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

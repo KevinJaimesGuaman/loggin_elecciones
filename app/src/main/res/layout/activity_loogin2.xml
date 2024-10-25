@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".Loogin2">
+
+    <Space
+        android:id="@+id/sep_images"
+        android:layout_width="140dp"
+        android:layout_height="133dp"
+        android:layout_marginTop="59dp"
+        app:layout_constraintStart_toEndOf="@+id/imagen_fcyt"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/contenedor_loggin"
+        android:layout_width="407dp"
+        android:layout_height="136dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/textView_estudiate"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:text="Por favor Ingresar con la cuenta institucional"
+            android:textSize="20sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/signInButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Iniciar sesión con Google" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imagen_fcyt"
+        android:layout_width="130dp"
+        android:layout_height="133dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="59dp"
+        android:src="@drawable/logo_fcyt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imagen_umss"
+        android:layout_width="130dp"
+        android:layout_height="133dp"
+        android:layout_marginTop="59dp"
+        android:src="@drawable/umss"
+        app:layout_constraintStart_toEndOf="@+id/sep_images"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnknownId" />
+
+    <ImageView
+        android:id="@+id/TITULO_TEXT"
+        android:layout_width="417dp"
+        android:layout_height="181dp"
+        app:layout_constraintBottom_toTopOf="@+id/contenedor_loggin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sep_images"
+        app:srcCompat="@drawable/post" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

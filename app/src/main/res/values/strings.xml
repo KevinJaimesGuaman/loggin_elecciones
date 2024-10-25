@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">loggin_elecciones</string>
+    <string name="title_activity_loggin">loggin</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_crear_cuenta">crear_cuenta</string>
+    <string name="text_usuario_loggin">Texto Usuario Login</string>
+    <string name="perfs_file">com.example.loggin_elecciones.prefs_file_key</string>
+    <string name="Iniciar_Secion">Iniciar Secion Login</string>
+    <string name="default_web_client_id">136021554932-ormeh1jgcvm5h01g28ia7msgk52qn96p.apps.googleusercontent.com</string>
+</resources>
