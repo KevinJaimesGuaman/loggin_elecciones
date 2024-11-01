@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\layout_validar_correo.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\layout_validar_correo.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\activity_crear_cuenta.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\activity_crear_cuenta.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\fragment_home.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\fragment_home.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\activity_pag_principal.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\activity_pag_principal.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\fragment_notifications.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\fragment_notifications.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\fragment_dashboard.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\fragment_dashboard.xml"
+    },
+    {
+        "merged": "com.example.loggin_elecciones.app-mergeDebugResources-80:/layout/activity_loogin2.xml",
+        "source": "com.example.loggin_elecciones.app-main-83:/layout/activity_loogin2.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\activity_loogin2.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\activity_loogin2.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-mergeDebugResources-80:\\layout\\layout_pagina_principal.xml",
+        "source": "C:\\Users\\jaime\\.gradle\\daemon\\8.7\\com.example.loggin_elecciones.app-main-83:\\layout\\layout_pagina_principal.xml"
+    }
+]
