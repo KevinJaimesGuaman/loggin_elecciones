@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme -->
-    <style name="Theme.Loggin_elecciones" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Loggin_elecciones" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Personaliza tu tema aquí -->
         <item name="colorPrimary">@color/your_primary_color</item>  <!-- Cambia por tu color preferido -->
         <item name="colorPrimaryVariant">@color/your_primary_variant_color</item>
@@ -10,6 +10,9 @@
         <item name="colorSecondary">@color/your_secondary_color</item>
         <item name="colorOnSecondary">@color/your_on_secondary_color</item>
         <item name="android:windowBackground">@color/your_background_color</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 </resources>

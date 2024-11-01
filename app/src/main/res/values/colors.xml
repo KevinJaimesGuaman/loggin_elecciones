@@ -13,4 +13,9 @@
     <color name="your_secondary_color">#03DAC5</color>
     <color name="your_on_secondary_color">#000000</color>
     <color name="your_background_color">#FFFFFF</color>
+    <color name="fondo_login">#D88787</color>
+    <color name="primary_estudiante_color">#ED3B21</color>
+    <color name="secondary_estudiante_color">#F16242</color>
+    <color name="primary_docente_color">#f68964</color>
+    <color name="secondary_docente_color">#fab085</color>"
 </resources>
