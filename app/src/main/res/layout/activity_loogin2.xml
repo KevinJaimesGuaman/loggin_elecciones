@@ -5,71 +5,123 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/fondo_login"
     tools:context=".Loogin2">
-
-    <Space
-        android:id="@+id/sep_images"
-        android:layout_width="140dp"
-        android:layout_height="133dp"
-        android:layout_marginTop="59dp"
-        app:layout_constraintStart_toEndOf="@+id/imagen_fcyt"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/contenedor_loggin"
-        android:layout_width="407dp"
-        android:layout_height="136dp"
+        android:layout_width="411dp"
+        android:layout_height="609dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/textView_estudiate"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:text="Por favor Ingresar con la cuenta institucional"
-            android:textSize="20sp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="409dp"
+            android:layout_height="47dp" />
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/signInButton"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="133dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imagen_umss"
+                android:layout_width="130dp"
+                android:layout_height="133dp"
+                android:src="@drawable/umss"
+                tools:ignore="UnknownId" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/imagen_fcyt"
+                android:layout_width="130dp"
+                android:layout_height="133dp"
+                android:src="@drawable/logo_fcyt" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/TipoUsuario_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Iniciar sesión con Google" />
+            android:gravity="center"
+            android:text="Tipo de Usuario"
+            android:textSize="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_corte_electoral"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Corte Electoral" />
+
+            <Button
+                android:id="@+id/bt_Administrador"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Administrador" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="409dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_docente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Docente" />
+
+            <Button
+                android:id="@+id/bt_estudiante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Estudiante" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contenedor_btUsuario"
+            android:layout_width="match_parent"
+            android:layout_height="167dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView_login"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:text="Por favor Ingresar con la cuenta institucional"
+                android:textSize="20sp" />
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/signInButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Iniciar sesión con Google">
+
+            </com.google.android.gms.common.SignInButton>
+
+        </LinearLayout>
+
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imagen_fcyt"
-        android:layout_width="130dp"
-        android:layout_height="133dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="59dp"
-        android:src="@drawable/logo_fcyt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/imagen_umss"
-        android:layout_width="130dp"
-        android:layout_height="133dp"
-        android:layout_marginTop="59dp"
-        android:src="@drawable/umss"
-        app:layout_constraintStart_toEndOf="@+id/sep_images"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="UnknownId" />
-
-    <ImageView
-        android:id="@+id/TITULO_TEXT"
-        android:layout_width="417dp"
-        android:layout_height="181dp"
-        app:layout_constraintBottom_toTopOf="@+id/contenedor_loggin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep_images"
-        app:srcCompat="@drawable/post" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
