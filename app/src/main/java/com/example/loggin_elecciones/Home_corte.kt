@@ -13,8 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.widget.Toast
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -27,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-class home_elector : AppCompatActivity() {
+class home_corte : AppCompatActivity() {
 
 
     private lateinit var auth: FirebaseAuth
@@ -38,7 +36,7 @@ class home_elector : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
-        setContentView(R.layout.activity_home_elector)
+        setContentView(R.layout.activity_home_corte)
         auth = Firebase.auth
         // Configura GoogleSignInOptions
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -68,9 +66,7 @@ class home_elector : AppCompatActivity() {
         if (!userName.isNullOrEmpty()) {
             nombreTextView.text = "Nombre: $userName"
         }
-        //Para la carrera ejemplo SE DEBE MODIFICAR
-        val carreraTextView: TextView = findViewById(R.id.carrera)
-        carreraTextView.text = "Carrera: ING ELECTROMECANICA DE FLUIDOS"
+
         //Para habilitado IGUAL DE EJEMPLO
         val estadoTextView: TextView = findViewById(R.id.estado)
         estadoTextView.text = "Estado: HABILITADO"

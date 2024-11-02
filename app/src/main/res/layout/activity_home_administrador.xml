@@ -3,31 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view= "http://schemas.android.com/apk/res-auto"
+
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".home_elector">
 
     <LinearLayout
-        android:layout_width="409dp"
-        android:layout_height="729dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="1dp"
         android:layout_marginTop="1dp"
         android:layout_marginBottom="1dp"
+        android:background="#4e2b4b"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        android:background="#ED3B21">
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/elector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/purple_200"
+
+            android:background="#8a5689"
             android:fontFamily="sans-serif-condensed"
             android:text="Administrador"
             android:textColor="#000000"
@@ -37,33 +39,19 @@
             android:id="@+id/nombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:fontFamily="sans-serif-condensed"
             android:text="Nombre: "
-            android:textSize="20dp"
             android:textColor="#000000"
-            android:visibility="visible"
-            tools:visibility="visible"
-            android:background="#7049DF" />
-
-
-
-        <TextView
-            android:id="@+id/estado"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Estado: "
-            android:fontFamily="sans-serif-condensed"
             android:textSize="20dp"
-            android:textColor="#000000"
             android:visibility="visible"
-            tools:visibility="visible"
-            android:background="#7049DF"/>
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="188dp"
-            android:layout_weight="1"
-            android:background="#7049DF"
+            android:layout_height="wrap_content"
+
+            android:background="#4e2b4b"
             android:orientation="horizontal">
 
             <Button
@@ -71,6 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="16sp"
+
                 android:text="Añadir"></Button>
 
             <Button
@@ -90,54 +79,70 @@
 
         </LinearLayout>
 
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="188dp"
-            android:layout_weight="1"
-            android:background="#CA94F4"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#e4dce7"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/view2">
 
             <EditText
                 android:id="@+id/buscar_votaciones"
-                android:layout_width="272dp"
-                android:layout_height="68dp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+
+
+                android:layout_marginEnd="5dp"
                 android:ems="10"
                 android:fontFamily="sans-serif-condensed"
+                android:hint="Buscar Votaciones"
                 android:inputType="text"
-                android:text="Buscar Votaciones"
+                android:maxWidth="200dp"
+                android:minHeight="48dp"
                 android:textColor="#000000"
-                android:visibility="visible"
-                tools:visibility="visible" />
+                android:textColorHint="#000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imageView7"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="wrap_content"
-                android:layout_height="72dp"
-                android:layout_weight="1"
-                android:contentDescription="El logo de la lupita"
-                android:scaleType="centerInside"
-                card_view:srcCompat="@drawable/logo_buscador" />
-        </LinearLayout>
+                android:id="@+id/buscador"
+                android:layout_width="52dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp"
+                android:layout_margin="4dp"
+                android:background="#00000000"
+                android:contentDescription="Imagen boton para buscar alguna votacion"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logo_buscador">
 
+            </ImageButton>
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="344dp"
+            android:layout_height="250dp"
             android:background="@color/white"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintHeight_max="250dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"></LinearLayout>
-
-            <ListView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/lista_votaciones"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:cacheColorHint="#000000">
-
-            </ListView>
+                android:layout_margin="8dp"/>
 
         </LinearLayout>
 
@@ -146,14 +151,10 @@
             android:layout_width="match_parent"
             android:layout_height="63dp"
             android:layout_gravity="center"
-            android:background="#4324D4"
+            android:background="#00000000"
             android:fontFamily="sans-serif-condensed"
-            android:shadowColor="#F44336"
             android:text="Cerrar Sesion"
             android:textColor="#FFFFFF"
-            android:textColorHighlight="#F44336"
-            android:textColorHint="#F44336"
-            android:textColorLink="#F44336"
             android:textSize="24sp"
             android:visibility="visible"
             app:rippleColor="#F44336"

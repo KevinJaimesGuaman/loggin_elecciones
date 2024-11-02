@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Loggin_elecciones"
         tools:targetApi="31">
-
+        <activity android:name=".DetalleVotacionActivity" />
         <activity
             android:name=".home_elector"
             android:exported="true" />

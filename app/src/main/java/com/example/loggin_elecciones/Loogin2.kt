@@ -114,26 +114,28 @@ class Loogin2 : AppCompatActivity() {
         return email?.endsWith("@est.umss.edu") ?: false // Reemplaza con tu dominio
     }
 
-    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount){
-        val credential= GoogleAuthProvider.getCredential(account.idToken, null)
-            firebaseAuth.signInWithCredential(credential)
+    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
-                    updateUI(user?.email)
+                    val displayName = user?.displayName  // Obtiene el nombre del usuario
 
                     val intent = Intent(this, home_elector::class.java)
+                    intent.putExtra("USER_NAME", displayName)  // Envía el nombre del usuario
                     startActivity(intent)
                     finish()
-                }else{
-                    Toast.makeText(this,"Error al autenticar con firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Error al autenticar con Firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-
     }
     private fun updateUI(email: String?) {
         Toast.makeText(this, "Bienvenido $email", Toast.LENGTH_SHORT).show()
     }
+    data class Votacion(val nombre: String, val estado: String, val color: Int)
+
 }
 
 
