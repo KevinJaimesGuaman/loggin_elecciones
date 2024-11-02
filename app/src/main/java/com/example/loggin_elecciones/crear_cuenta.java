@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -70,7 +69,7 @@ public class crear_cuenta extends AppCompatActivity {
                     Toast.makeText(crear_cuenta.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
                 }
                 insertarUsuarioFirestore(nombre, apellidos, siss, contraseña);
-                Intent intent = new Intent(crear_cuenta.this, pag_principal.class);
+                Intent intent = new Intent(crear_cuenta.this, home_elector.class);
                 startActivity(intent);
             }
         });

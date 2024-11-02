@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view= "http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".home_elector">
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:background="#3C7B2F">
+
+        <TextView
+            android:id="@+id/elector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:background="#3C7B2F"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Corte Electoral"
+            android:textColor="#000000"
+            android:textSize="60sp" />
+
+        <TextView
+            android:id="@+id/nombre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Nombre: "
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="#699C5A" />
+
+
+
+        <TextView
+            android:id="@+id/estado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Estado: "
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="#699C5A"/>
+
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="83dp"
+            android:background="#699C5A"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="186dp"
+            android:layout_weight="1"
+            android:background="#95BD84"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/buscar_votaciones"
+                android:layout_width="272dp"
+                android:layout_height="68dp"
+                android:ems="10"
+                android:fontFamily="sans-serif-condensed"
+                android:inputType="text"
+                android:text="Buscar Votaciones"
+                android:textColor="#000000"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                card_view:srcCompat="@drawable/logo_buscador"
+                android:contentDescription="El logo de la lupita" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="344dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:cacheColorHint="#000000">
+
+            </ListView>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/boton_cerrar_secion"
+            android:layout_width="match_parent"
+            android:layout_height="63dp"
+            android:layout_gravity="center"
+            android:fontFamily="sans-serif-condensed"
+            android:shadowColor="#F44336"
+            android:text="Cerrar Sesion"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:visibility="visible"
+            android:background="#00000000"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

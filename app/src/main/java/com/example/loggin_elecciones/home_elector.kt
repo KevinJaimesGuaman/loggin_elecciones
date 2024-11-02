@@ -12,10 +12,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-class pag_principal : AppCompatActivity() {
+
+
+class home_elector : AppCompatActivity() {
+    private val votaciones = arrayOf("votación 1", "votacion 2")
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -23,7 +29,7 @@ class pag_principal : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
-        setContentView(R.layout.activity_pag_principal)
+        setContentView(R.layout.activity_home_elector)
         auth = Firebase.auth
         // Configura GoogleSignInOptions
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -45,6 +51,11 @@ class pag_principal : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val listView: ListView = findViewById<ListView>(R.id.lista_votaciones)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, votaciones)
+        listView.adapter = adapter
+
 
     }
 
@@ -69,5 +80,3 @@ class pag_principal : AppCompatActivity() {
         }
     }
 }
-
-
