@@ -16,36 +16,115 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:background="#ED3B21">
 
-        <Space
+        <TextView
+            android:id="@+id/elector"
             android:layout_width="match_parent"
-            android:layout_height="142dp" />
+            android:layout_height="wrap_content"
+
+            android:background="#ED3B21"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Elector"
+            android:textColor="#000000"
+            android:textSize="60sp" />
 
         <TextView
             android:id="@+id/nombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:fontFamily="sans-serif-condensed"
             android:text="Nombre: "
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="#F16242" />
 
-        <EditText
-            android:id="@+id/editTextText"
+        <TextView
+            android:id="@+id/carrera"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:padding="16dp"
-            android:hint="Buscar Votacion" />
+            android:text="Carrera: "
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="#F16242"/>
+
+        <TextView
+            android:id="@+id/estado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Estado: "
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="#F16242"/>
+
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="83dp"
+            android:background="#F16242"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="95dp"
+            android:layout_weight="1"
+            android:background="#FFD7A7"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/buscar_votaciones"
+                android:layout_width="272dp"
+                android:layout_height="68dp"
+                android:ems="10"
+                android:fontFamily="sans-serif-condensed"
+                android:inputType="text"
+                android:text="Buscar Votaciones"
+                android:textColor="#000000"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="344dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:cacheColorHint="#000000"></ListView>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/boton_cerrar_secion"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="63dp"
             android:layout_gravity="center"
-            android:text="Button" />
+
+            android:fontFamily="sans-serif-condensed"
+            android:text="Cerrar Sesion"
+            android:textSize="24sp"
+            android:visibility="visible"
+            tools:visibility="visible" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

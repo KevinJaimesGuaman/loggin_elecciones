@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,8 +27,7 @@ class Loogin2 : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-
-
+    private lateinit var tipoUsuario: String
     companion object {
         private const val RC_SIGN_IN = 9001
         private const val TAG = "GoogleSignIn"
@@ -44,12 +44,69 @@ class Loogin2 : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        db = FirebaseFirestore.getInstance()
-        //inicio para el boton de google
-
         //enlaza con la vista principal usando view BIDING
         binding = ActivityLoogin2Binding.inflate(layoutInflater)
         setContentView(binding.root)
+        //boton docente
+        val clickListener= View.OnClickListener { view ->
+            when (view.id) {
+                R.id.bt_docente -> {
+                    tipoUsuario = "docente"
+                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Docente Institucional"
+                    if(binding.Administradorcontenedor.visibility == View.VISIBLE){
+                        binding.Administradorcontenedor.visibility = View.GONE
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                    if(binding.contenedorInicioSecion.visibility != View.VISIBLE){
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                }
+
+                R.id.bt_estudiante -> {
+                    tipoUsuario = "estudiante"
+                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Institucional Estudiantil"
+                    if(binding.Administradorcontenedor.visibility == View.VISIBLE){
+                        binding.Administradorcontenedor.visibility = View.GONE
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                    if(binding.contenedorInicioSecion.visibility != View.VISIBLE){
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                }
+                R.id.bt_corte_electoral -> {
+                    tipoUsuario = "corte electoral"
+                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Corte Electoral"
+                    if(binding.Administradorcontenedor.visibility == View.VISIBLE){
+                        binding.Administradorcontenedor.visibility = View.GONE
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                    if(binding.contenedorInicioSecion.visibility != View.VISIBLE){
+                        binding.contenedorInicioSecion.visibility = View.VISIBLE
+                    }
+                }
+
+                R.id.bt_Administrador -> {
+                    tipoUsuario = "administrador"
+                    binding.AdministradorTextLogin.text = "Por favor, ingresar con la cuenta Administrador"
+                    if(binding.contenedorInicioSecion.visibility == View.VISIBLE){
+                        binding.contenedorInicioSecion.visibility = View.GONE
+                        binding.Administradorcontenedor.visibility = View.VISIBLE
+                    }
+                    if(binding.Administradorcontenedor.visibility != View.VISIBLE){
+                        binding.Administradorcontenedor.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+        binding.btEstudiante.setOnClickListener(clickListener)
+        binding.btDocente.setOnClickListener(clickListener)
+        binding.btAdministrador.setOnClickListener(clickListener)
+        binding.btCorteElectoral.setOnClickListener(clickListener)
+        //boton docente fin
+        db = FirebaseFirestore.getInstance()
+        //inicio para el boton de google
+
+
 
         //iniciar firebase auth
         firebaseAuth = FirebaseAuth.getInstance()
@@ -83,13 +140,15 @@ class Loogin2 : AppCompatActivity() {
         }
 
 
-
+    //iniciar sesion con google
     private fun signIn(){
         val signInIntent= googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
 
     }
+    //fin de iniciar sesion con google
 
+    //manejar el resultado de la actividad
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -98,7 +157,7 @@ class Loogin2 : AppCompatActivity() {
             try {
                 val account = task.getResult(Exception::class.java)
                 account?.let {
-                    if (isInstitutionalEmail(it.email)) {
+                    if (isInstitutionalEmail(it.email,tipoUsuario)) {
                         firebaseAuthWithGoogle(it)
                     }else{
                         googleSignInClient.signOut()
@@ -112,10 +171,22 @@ class Loogin2 : AppCompatActivity() {
             }
         }
     }
-    private fun isInstitutionalEmail(email: String?): Boolean {
-        return email?.endsWith("@est.umss.edu") ?: false // Reemplaza con tu dominio
-    }
+    //fin de manejar el resultado de la actividad
 
+    //verificar si el correo es institucional
+    private fun isInstitutionalEmail(email: String?,tipoUsuario: String?): Boolean {
+        return when (tipoUsuario) {
+            "estudiante" -> email?.endsWith("@est.umss.edu") ?: false
+            "docente" -> email?.endsWith("@fcyt.umss.edu.bo") ?: false
+            "corte electoral" -> email?.endsWith("@est.umss.edu") ==true ||
+                    email?.endsWith("@fcyt.umss.edu.bo") ==true
+            else -> false
+
+        }
+    }
+    //fin de verificar si el correo es institucional
+
+    //autenticar con firebase
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount){
         val credential= GoogleAuthProvider.getCredential(account.idToken, null)
             firebaseAuth.signInWithCredential(credential)
@@ -124,7 +195,7 @@ class Loogin2 : AppCompatActivity() {
                     val user = firebaseAuth.currentUser
                     updateUI(user?.email)
 
-                    val intent = Intent(this, pag_principal::class.java)
+                    val intent = Intent(this, crear_cuenta::class.java)
                     startActivity(intent)
                     finish()
                 }else{
@@ -133,9 +204,13 @@ class Loogin2 : AppCompatActivity() {
             }
 
     }
+    //fin de autenticar con firebase
+
+    //actualizar la UI
     private fun updateUI(email: String?) {
         Toast.makeText(this, "Bienvenido $email", Toast.LENGTH_SHORT).show()
     }
+    //fin de actualizar la UI
 }
 
 

@@ -18,4 +18,6 @@
     <color name="secondary_estudiante_color">#F16242</color>
     <color name="primary_docente_color">#f68964</color>
     <color name="secondary_docente_color">#fab085</color>"
+    <color name="primary_corte_electoral_color">#4324d4</color>"
+    <color name="secondary_corte_electoral_color">#7049df</color>"
 </resources>
