@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <Button
+        android:id="@+id/nombreVotacion"
+        android:contentDescription="Nombre de la votación"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:gravity="start"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="@android:color/black"
+        android:background="@android:color/transparent" />
+
+    <TextView
+        android:id="@+id/estadoVotacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="16sp" />
+</LinearLayout>
