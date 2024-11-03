@@ -1,12 +1,9 @@
 package com.example.loggin_elecciones
 
-import android.accounts.Account
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -50,18 +47,6 @@ class Loogin2 : AppCompatActivity() {
         //boton docente
         val clickListener= View.OnClickListener { view ->
             when (view.id) {
-                R.id.bt_docente -> {
-                    tipoUsuario = "docente"
-                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Docente Institucional"
-                    if(binding.Administradorcontenedor.visibility == View.VISIBLE){
-                        binding.Administradorcontenedor.visibility = View.GONE
-                        binding.contenedorInicioSecion.visibility = View.VISIBLE
-                    }
-                    if(binding.contenedorInicioSecion.visibility != View.VISIBLE){
-                        binding.contenedorInicioSecion.visibility = View.VISIBLE
-                    }
-                }
-
                 R.id.bt_estudiante -> {
                     tipoUsuario = "estudiante"
                     binding.textViewLogin.text = "Por favor, ingresar con la cuenta Institucional Estudiantil"
@@ -99,7 +84,7 @@ class Loogin2 : AppCompatActivity() {
             }
         }
         binding.btEstudiante.setOnClickListener(clickListener)
-        binding.btDocente.setOnClickListener(clickListener)
+
         binding.btAdministrador.setOnClickListener(clickListener)
         binding.btCorteElectoral.setOnClickListener(clickListener)
         //boton docente fin
@@ -116,7 +101,7 @@ class Loogin2 : AppCompatActivity() {
         if (currentUser != null) {
             //si el usuario ya ha iniciado sesion, actualiza la UI
             updateUI(currentUser.email)
-            val intent= Intent(this, pag_principal::class.java)
+            val intent= Intent(this, home_elector::class.java)
             startActivity(intent)
             finish()
         }
