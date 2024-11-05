@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +27,11 @@ class Loogin2 : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var tipoUsuario: String
+
+    private lateinit var usuario_administrador: EditText
+    private lateinit var contraseña_administrador: EditText
+    private lateinit var button_iniciar_admin: Button
+
     companion object {
         private const val RC_SIGN_IN = 9001
         private const val TAG = "GoogleSignIn"
@@ -96,14 +103,49 @@ class Loogin2 : AppCompatActivity() {
         //iniciar firebase auth
         firebaseAuth = FirebaseAuth.getInstance()
 
-        //verificar si el usuario ya ha iniciado sesion
+        // Verificar si el usuario ha iniciado sesión
         val currentUser = firebaseAuth.currentUser
+
         if (currentUser != null) {
-            //si el usuario ya ha iniciado sesion, actualiza la UI
-            updateUI(currentUser.email)
-            val intent= Intent(this, home_elector::class.java)
-            startActivity(intent)
-            finish()
+            val email = currentUser.email // Obtener el email del usuario actual
+            val usuarioElector = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
+
+            // Asegúrate de que usuarioElector no sea null
+            if (usuarioElector != null) {
+                val db = FirebaseFirestore.getInstance() // Inicializar Firestore
+                val usuariosRef = db.collection("Elector") // Referencia a la colección "Elector"
+
+                // Buscar el documento en Firestore
+                usuariosRef.document(usuarioElector).get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            /* Documento existe, puedes procesar los datos
+                            val carrera = document.getString("carrera")
+                            val carnetDeIdentidad = document.getString("carnetDeIdentidad")
+                            val habilitado = document.getBoolean("habilitado")*/
+
+                            // Aquí puedes manejar la redirección según tus necesidades
+                            val intent = Intent(this, home_elector::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            // Documento no existe, redirigir a crear_cuenta
+                            val intent = Intent(this, crear_cuenta::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Manejo de error al buscar el documento
+                        Toast.makeText(this, "Error al verificar usuario: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                // Manejar el caso donde usuarioElector es null
+                Toast.makeText(this, "No se pudo obtener el nombre de usuario.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Manejar el caso donde no hay usuario autenticado
+            Toast.makeText(this, "No hay usuario autenticado.", Toast.LENGTH_SHORT).show()
         }
 
         //sign in
@@ -122,7 +164,22 @@ class Loogin2 : AppCompatActivity() {
             binding.signInButton.setOnClickListener {
                 signIn()
             }
+        //inicio sesion administrador
+        usuario_administrador = findViewById(R.id.usuario_Administrador_loggin)
+        contraseña_administrador = findViewById(R.id.contraseña_Administrador_loggin)
+        button_iniciar_admin = findViewById(R.id.button_iniciar_admin)
+
+        button_iniciar_admin.setOnClickListener {
+            val usuario = usuario_administrador.text.toString().trim()
+            val contraseña = contraseña_administrador.text.toString().trim()
+            if (usuario.isNotEmpty() && contraseña.isNotEmpty()){
+                login(usuario, contraseña)
+            }else{
+                Toast.makeText(this, "Por favor ingrese su usuario y contraseña", Toast.LENGTH_SHORT).show()
+
+            }
         }
+    }
 
 
     //iniciar sesion con google
@@ -143,7 +200,11 @@ class Loogin2 : AppCompatActivity() {
                 val account = task.getResult(Exception::class.java)
                 account?.let {
                     if (isInstitutionalEmail(it.email,tipoUsuario)) {
-                        firebaseAuthWithGoogle(it)
+                        if (tipoUsuario == "corte electoral") {
+                            firebaseAuthWithGoogleCorteElectoral(it)
+                        }else{
+                            firebaseAuthWithGoogle(it)
+                        }
                     }else{
                         googleSignInClient.signOut()
                         Toast.makeText(this,"Correo no institucional", Toast.LENGTH_SHORT).show()
@@ -170,8 +231,56 @@ class Loogin2 : AppCompatActivity() {
         }
     }
     //fin de verificar si el correo es institucional
+    //autenticar con firebase corte Electoral
+    private fun firebaseAuthWithGoogleCorteElectoral(account: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = firebaseAuth.currentUser
+                    val email = user?.email
 
-    //autenticar con firebase
+                    if (email != null) {
+                        val usuarioElector = email.substringBefore("@") // Extraer parte antes del '@'
+                        val db = FirebaseFirestore.getInstance()
+                        val usuariosRef = db.collection("CorteElectoral")
+
+                        usuariosRef.document(usuarioElector).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    // Si el documento existe, redirigir a la pantalla principal
+                                    val intent = Intent(this, home_elector::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    // Si no es parte de la Corte Electoral
+                                    signOutAndRedirectToLogin("Usuario no habilitado.")
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Manejo de error en la consulta a Firestore
+                                Toast.makeText(this, "Error al verificar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "No se pudo obtener el email del usuario.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    // Manejar error de autenticación con Firebase
+                    Toast.makeText(this, "Error al autenticar con Firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+    private fun signOutAndRedirectToLogin(message: String) {
+        FirebaseAuth.getInstance().signOut()
+        googleSignInClient.signOut().addOnCompleteListener {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, Loogin2::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    //autenticar con firebase elector
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount){
         val credential= GoogleAuthProvider.getCredential(account.idToken, null)
             firebaseAuth.signInWithCredential(credential)
@@ -179,10 +288,23 @@ class Loogin2 : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     updateUI(user?.email)
-
-                    val intent = Intent(this, crear_cuenta::class.java)
-                    startActivity(intent)
-                    finish()
+                    //si el usuario ya ha iniciado sesion, actualiza la UI 21:16 ultima actualizacion
+                    val email = user?.email // Obtener el email del usuario actual
+                    val usuarioElector = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
+                    val db = FirebaseFirestore.getInstance() // Inicializar Firestore
+                    val usuariosRef = db.collection("Elector") // Referencia a la colección "Elector"
+                    usuariosRef.document(usuarioElector!!).get() // Buscar el documento en Firestore
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                val intent = Intent(this, home_elector::class.java)
+                                startActivity(intent)
+                                finish()
+                            }else{
+                                val intent = Intent(this, crear_cuenta::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
                 }else{
                     Toast.makeText(this,"Error al autenticar con firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -196,6 +318,23 @@ class Loogin2 : AppCompatActivity() {
         Toast.makeText(this, "Bienvenido $email", Toast.LENGTH_SHORT).show()
     }
     //fin de actualizar la UI
+    //iniciar sesion administrador
+    private fun login(usuario: String, contraseña: String) {
+        firebaseAuth.signInWithEmailAndPassword(usuario, contraseña)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Inicio de sesión exitoso
+                    val user = firebaseAuth.currentUser
+                    Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, home_elector::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // Error en el inicio de sesión
+                    Toast.makeText(this, "Error en el inicio de sesión: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
 }
 
 
