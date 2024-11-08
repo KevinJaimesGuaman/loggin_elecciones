@@ -89,11 +89,7 @@ class crear_cuenta : AppCompatActivity() {
 
             validarEntradas()
         }
-
-
-
     }
-
     // Validar entradas
     private fun validarEntradas() {
         val datosF=FirebaseFirestore.getInstance()
@@ -103,12 +99,14 @@ class crear_cuenta : AppCompatActivity() {
         nombreCompleto = currentUser?.displayName.toString()
         codigoSiss = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
         carrera_usuario = spinnerCarrera!!.selectedItem.toString() // Obtener la carrera seleccionada
+        habilitado = true
         val datos = hashMapOf(
             "carnet" to Carnet,
             "complementoCI" to complementoCI,
             "carrera" to carrera_usuario,
             "habilitado" to habilitado,
-            "Nombre" to nombreCompleto
+            "Nombre" to nombreCompleto,
+
         )
         if(Carnet.isEmpty()){
             Toast.makeText(this, "Por favor ingrese su carnet", Toast.LENGTH_SHORT).show()

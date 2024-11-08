@@ -149,21 +149,21 @@ class Loogin2 : AppCompatActivity() {
         }
 
         //sign in
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
 
-           //crear cliente de google
-            googleSignInClient = GoogleSignIn.getClient(this, gso)
+        //crear cliente de google
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-            //iniciar firebase auth
-            firebaseAuth = FirebaseAuth.getInstance()
+        //iniciar firebase auth
+        firebaseAuth = FirebaseAuth.getInstance()
 
-            // inicio de conf de google boton
-            binding.signInButton.setOnClickListener {
-                signIn()
-            }
+        // inicio de conf de google boton
+        binding.signInButton.setOnClickListener {
+            signIn()
+        }
         //inicio sesion administrador
         usuario_administrador = findViewById(R.id.usuario_Administrador_loggin)
         contraseña_administrador = findViewById(R.id.contraseña_Administrador_loggin)
@@ -248,25 +248,28 @@ class Loogin2 : AppCompatActivity() {
                         usuariosRef.document(usuarioElector).get()
                             .addOnSuccessListener { document ->
                                 if (document.exists()) {
-                                    // Si el documento existe, redirigir a la pantalla principal
-                                    val intent = Intent(this, home_elector::class.java)
+                                    // Cambio aquí: redirigir a home_corte en lugar de home_elector
+                                    val intent = Intent(this, home_corte::class.java)
                                     startActivity(intent)
                                     finish()
                                 } else {
                                     // Si no es parte de la Corte Electoral
-                                    signOutAndRedirectToLogin("Usuario no habilitado.")
+                                    signOutAndRedirectToLogin("Usuario no autorizado para acceder como Corte Electoral.")
                                 }
                             }
                             .addOnFailureListener { e ->
                                 // Manejo de error en la consulta a Firestore
                                 Toast.makeText(this, "Error al verificar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+                                signOutAndRedirectToLogin("Error en la verificación del usuario.")
                             }
                     } else {
                         Toast.makeText(this, "No se pudo obtener el email del usuario.", Toast.LENGTH_SHORT).show()
+                        signOutAndRedirectToLogin("Error al obtener información del usuario.")
                     }
                 } else {
                     // Manejar error de autenticación con Firebase
                     Toast.makeText(this, "Error al autenticar con Firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    signOutAndRedirectToLogin("Error en la autenticación.")
                 }
             }
     }
@@ -283,7 +286,7 @@ class Loogin2 : AppCompatActivity() {
     //autenticar con firebase elector
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount){
         val credential= GoogleAuthProvider.getCredential(account.idToken, null)
-            firebaseAuth.signInWithCredential(credential)
+        firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
@@ -326,9 +329,15 @@ class Loogin2 : AppCompatActivity() {
                     // Inicio de sesión exitoso
                     val user = firebaseAuth.currentUser
                     Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, home_elector::class.java)
+
+
+                    val nombreUsuario = usuario.substringBefore('@')
+
+                    // Pasar el nombre de usuario (sin el dominio del correo) a la siguiente actividad
+                    val intent = Intent(this, home_administrador::class.java)
+                    intent.putExtra("USER_NAME", nombreUsuario)  // Agregar el nombre del usuario sin '@'
                     startActivity(intent)
-                    finish()
+                    finish() // Cierra la actividad de login para no volver atrás
                 } else {
                     // Error en el inicio de sesión
                     Toast.makeText(this, "Error en el inicio de sesión: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
@@ -336,7 +345,3 @@ class Loogin2 : AppCompatActivity() {
             }
     }
 }
-
-
-
-
