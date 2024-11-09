@@ -195,6 +195,8 @@ class home_corte : AppCompatActivity() {
                     }
 
 
+                    
+
                     // Agrega la votación a la lista
                     votacionesOriginales.add(Votacion(tipoVotacion, estadoTexto, color))
                 }
