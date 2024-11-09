@@ -1,0 +1,5 @@
+<!-- rounded_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#c63637" /> <!-- Color del botón -->
+    <corners android:radius="16dp" /> <!-- Radio para los bordes redondeados -->
+</shape>

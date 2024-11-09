@@ -9,7 +9,6 @@
     tools:context=".Loogin2">
 
     <LinearLayout
-        android:id="@+id/contenedor_loggin"
         android:layout_width="411dp"
         android:layout_height="609dp"
         android:orientation="vertical"
@@ -20,7 +19,7 @@
 
         <Space
             android:layout_width="409dp"
-            android:layout_height="47dp" />
+            android:layout_height="20dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,55 +52,104 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Tipo de Usuario"
-            android:textSize="20dp" />
+            android:textSize="40dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/bt_corte_electoral"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:padding="1dp"
+                android:backgroundTint="@color/primary_corte_electoral_color"
                 android:layout_weight="1"
                 android:text="Corte Electoral" />
 
             <Button
                 android:id="@+id/bt_Administrador"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:padding="1dp"
                 android:text="Administrador" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="409dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/bt_docente"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Docente" />
 
             <Button
                 android:id="@+id/bt_estudiante"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Estudiante" />
+                android:layout_height="match_parent"
+                android:fontFamily="sans-serif-condensed"
+                android:backgroundTint="@color/primary_estudiante_color"
+                android:layout_marginBottom="8dp"
+                android:text="Elector"
+                android:onClick="onElectorClic" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/contenedor_btUsuario"
+            android:id="@+id/Administradorcontenedor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/Administrador_text_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Ingrese su Usuario y contraseña de Administrador"
+                android:textSize="20dp" />
+
+            <EditText
+                android:id="@+id/usuario_Administrador_loggin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Usuario"
+                android:inputType="text"
+                android:minHeight="48dp" />
+
+            <EditText
+                android:id="@+id/contraseña_Administrador_loggin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:minHeight="48dp" />
+
+            <Button
+                android:id="@+id/button_iniciar_admin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="100dp"
+                android:text="INICIAR SECION" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contenedorInicioSecion"
             android:layout_width="match_parent"
             android:layout_height="167dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/textView_login"

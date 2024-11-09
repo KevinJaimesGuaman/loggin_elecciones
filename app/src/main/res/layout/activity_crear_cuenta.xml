@@ -5,195 +5,130 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fondo_login"
     tools:context=".crear_cuenta">
 
-    <EditText
-        android:id="@+id/editText_crear_siss"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="2dp"
-        android:ems="10"
-        android:hint="Inserte su codigo Siss"
-        android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/texto_crear_contraseña"
-        app:layout_constraintEnd_toStartOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_usuario" />
-
-    <EditText
-        android:id="@+id/editText_contraseña_loggin"
-        android:layout_width="241dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginEnd="118dp"
-        android:ems="10"
-        android:hint="Inserte su contraseña"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/texto_repetir_contraseña"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_crear_contraseña" />
-
-    <TextView
-        android:id="@+id/texto_nombres"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="41dp"
-        android:layout_marginEnd="297dp"
-        android:text="Nombres"
-        app:layout_constraintBottom_toTopOf="@+id/editText_nombre"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/texto_repetir_contraseña"
-        android:layout_width="wrap_content"
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="54dp" />
+
+        <TextView
+            android:id="@+id/text_titulo_crear_cuenta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Datos Adicionales"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/texto_nombres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombres"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/textView_nombre_firebase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/texto_correo_institucional"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cuenta Institucional"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/textView_institucional_firebase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/texto_input_carrera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Carrera"
+            android:textSize="20dp" />
+
+        <Spinner
+            android:id="@+id/spinner_carreras"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/text_carnet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Carnet de Identidad"
+            android:textColorHighlight="#E91E63"
+            android:textSize="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextText_carnet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="8"
+                android:hint="Numero de Carnet"
+                android:inputType="number"
+                android:padding="12dp" />
+
+            <EditText
+                android:id="@+id/editTextText_complemento_ci"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="3"
+                android:hint="Complemento"
+                android:inputType="text" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="54dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="380dp"
-        android:layout_marginEnd="239dp"
-        android:text="Repetir Contraseña"
-        app:layout_constraintBottom_toTopOf="@+id/editText_repetir_crear_contraseña"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_nombre"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="146dp"
-        android:ems="10"
-        android:hint="Ingrese su Nombre"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/texto_apellidos"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_nombres" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="144dp"
-        android:layout_height="27dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="253dp"
-        android:layout_marginBottom="46dp"
-        android:src="@drawable/dominioumss"
-        app:layout_constraintBottom_toTopOf="@+id/editText_contraseña_loggin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/editText_crear_siss"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_repetir_crear_contraseña"
-        android:layout_width="247dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="408dp"
-        android:layout_marginEnd="112dp"
-        android:layout_marginBottom="33dp"
-        android:ems="10"
-        android:hint="Repita la contraseña"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/boton_crear_cuenta"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/texto_apellidos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="297dp"
-        android:text="Apellidos"
-        app:layout_constraintBottom_toTopOf="@+id/editText_apellido"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_nombre" />
-
-    <TextView
-        android:id="@+id/texto_usuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="281dp"
-        android:text="Codigo Siss"
-        app:layout_constraintBottom_toTopOf="@+id/editText_crear_siss"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_apellido" />
-
-    <TextView
-        android:id="@+id/texto_crear_contraseña"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="283dp"
-        android:text="Contraseña"
-        app:layout_constraintBottom_toTopOf="@+id/editText_contraseña_loggin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_crear_siss" />
-
-    <Button
-        android:id="@+id/boton_crear_cuenta"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="108dp"
-        android:layout_marginBottom="80dp"
-        android:text="Crear"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/boton_cancelar_creacion_cuenta"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_repetir_crear_contraseña" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-    <EditText
-        android:id="@+id/editText_apellido"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="146dp"
-        android:ems="10"
-        android:hint="Ingrese su Apellido"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/texto_usuario"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_apellidos" />
+        <Button
+            android:id="@+id/bt_cancel_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancelar" />
 
-    <Button
-        android:id="@+id/bt_cancel_create"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="252dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginEnd="64dp"
-        android:layout_marginBottom="50dp"
-        android:text="Cancelar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_repetir_crear_contraseña" />
+        <Button
+            android:id="@+id/boton_crear_cuenta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Crear" />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/mensj_rep_contraseña"
-        android:layout_width="247dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginBottom="52dp"
-        android:text="TextView"
-        android:textColorHighlight="#E91E63"
-        app:layout_constraintBottom_toTopOf="@+id/boton_crear_cuenta"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_repetir_crear_contraseña"
-        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>
