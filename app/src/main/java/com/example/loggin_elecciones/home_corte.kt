@@ -194,6 +194,7 @@ class home_corte : AppCompatActivity() {
                         else -> Color.BLACK
                     }
 
+
                     // Agrega la votación a la lista
                     votacionesOriginales.add(Votacion(tipoVotacion, estadoTexto, color))
                 }
