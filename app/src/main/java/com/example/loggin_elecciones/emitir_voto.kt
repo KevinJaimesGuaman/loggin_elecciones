@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Intent
+import com.google.firebase.firestore.CollectionReference
+import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
 
 class emitir_voto : AppCompatActivity() {
 
@@ -23,10 +26,15 @@ class emitir_voto : AppCompatActivity() {
     private lateinit var iconoInfoButton: ImageButton
     private lateinit var textoNombreCandidato: TextView
     private lateinit var checkboxCandidato: CheckBox
+    private lateinit var db: FirebaseFirestore
+    private lateinit var TipoEleccionRef: CollectionReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.emitir_voto)
+
+        // Inicializar la base de datos
+        db = FirebaseFirestore.getInstance()
 
         // Recibir el nombre de la votación desde el Intent
         tituloTextView = findViewById(R.id.Tipo_Votacion)
@@ -39,9 +47,11 @@ class emitir_voto : AppCompatActivity() {
 
         // Configurar el RecyclerView con la lista de candidatos
         listaCandidatosRecyclerView.layoutManager = LinearLayoutManager(this)
-        listaCandidatosRecyclerView.adapter =
-            CandidatosAdapter(getCandidatos()) // Configura con una lista de candidatos
-
+        // Llamar a getCandidatos2 para obtener candidatos desde Firestore
+        getCandidatos2 { candidatos ->
+            // Configurar el adaptador cuando la lista de candidatos esté lista
+            listaCandidatosRecyclerView.adapter = CandidatosAdapter(candidatos)
+        }
         // Configurar el botón de emitir voto
         emitirVotoButton.setOnClickListener {
             mostrarDialogoConfirmacion()
@@ -53,23 +63,34 @@ class emitir_voto : AppCompatActivity() {
             onBackPressed()  // Esto hace que regrese a la pantalla anterior
         }
     }
+    // Función para obtener la lista de candidatos con un callback
+    private fun getCandidatos2(callback: (List<Candidato>) -> Unit) {
+        val candidatosList = mutableListOf<Candidato>()
+        val partidosRef = db.collection("TipoEleccion")
+            .document("Rectorado")
+            .collection("Partido")
 
-    private fun getCandidatos(): List<Candidato> {
-        // Lista de candidatos
-        return listOf(
-            Candidato("Nombre del Partido 1", "más info"),
-            Candidato("Nombre del Partido 2", "más info"),
-            Candidato("Nombre del Partido 3", "más info"),
-            Candidato("Nombre del Partido 4", "más info"),
-            Candidato("Nombre del Partido 5", "más info"),
-            Candidato("Nombre del Partido 6", "más info"),
-            Candidato("Nombre del Partido 7", "más info"),
-            Candidato("Nombre del Partido 8", "más info"),
-            Candidato("Nombre del Partido 9", "más info"),
-            Candidato("Nombre del Partido 10", "más info")
-        )
+        partidosRef.get()
+            .addOnSuccessListener { documents ->
+                for (partidoDoc in documents) {
+                    // Obtiene el ID del documento (nombre del partido)
+                    val partidoId = partidoDoc.id
+
+                    // Crea un objeto Candidato y lo añade a la lista
+                    val candidato = Candidato(partidoId, "más info")
+                    candidatosList.add(candidato)
+                }
+
+                // Llama al callback con la lista de candidatos
+                callback(candidatosList)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error al obtener partidos", exception)
+                callback(emptyList()) // En caso de error, devuelve una lista vacía
+            }
     }
 
+// Función para mostrar el diálogo de confirmación
     private fun mostrarDialogoConfirmacion() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.ventana_emergente)
@@ -91,7 +112,7 @@ class emitir_voto : AppCompatActivity() {
     }
 
     // Data class de Candidato
-    data class Candidato(val nombre: String, val partido: String)
+    data class Candidato(val nombrePartido: String, val info: String)
 
     // Adaptador para la lista de Candidatos
     class CandidatosAdapter(private val candidatos: List<Candidato>) :
@@ -104,15 +125,15 @@ class emitir_voto : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: CandidatoViewHolder, position: Int) {
             val candidato = candidatos[position]
-            holder.nombreTextView.text = candidato.nombre
-            holder.partidoTextView.text = candidato.partido
+            holder.nombreTextView.text = candidato.nombrePartido
+            holder.partidoTextView.text = candidato.info
             holder.checkBox.isChecked = false
 
             // Establecer un listener para el clic en el nombre del partido
             holder.partidoTextView.setOnClickListener {
                 // Crear el Intent para abrir la actividad DatosPartido
                 val intent = Intent(holder.itemView.context, DatosPartido::class.java)
-                intent.putExtra("PARTIDO_NOMBRE", candidato.nombre)  // Pasar el nombre del candidato
+                intent.putExtra("PARTIDO_NOMBRE", candidato.nombrePartido)  // Pasar el nombre del candidato
 
                 // Iniciar la actividad
                 holder.itemView.context.startActivity(intent)
