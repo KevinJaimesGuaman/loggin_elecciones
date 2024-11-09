@@ -94,6 +94,7 @@ class home_corte : AppCompatActivity() {
                             estadoTextView.setTextColor(Color.GRAY)
                         }
                     }
+                    
                     .addOnFailureListener { exception ->
                         Toast.makeText(this, "Error al verificar el estado: ${exception.message}", Toast.LENGTH_SHORT).show()
                         estadoTextView.text = "Error al verificar estado"
