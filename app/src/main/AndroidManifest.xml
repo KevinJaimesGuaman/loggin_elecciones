@@ -18,6 +18,10 @@
             android:exported="true" />
         <activity android:name=".DatosPartido"
             android:exported="true" />
+        <activity android:name=".home_corte"
+            android:exported="true" />
+        <activity android:name=".home_administrador"
+            android:exported="true" />
         <activity
             android:name=".emitir_voto"
             android:exported="true" />

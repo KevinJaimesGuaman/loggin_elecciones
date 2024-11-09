@@ -249,7 +249,7 @@ class Loogin2 : AppCompatActivity() {
                             .addOnSuccessListener { document ->
                                 if (document.exists()) {
                                     // Si el documento existe, redirigir a la pantalla principal
-                                    val intent = Intent(this, home_elector::class.java)
+                                    val intent = Intent(this, home_corte::class.java)
                                     startActivity(intent)
                                     finish()
                                 } else {
@@ -326,7 +326,12 @@ class Loogin2 : AppCompatActivity() {
                     // Inicio de sesión exitoso
                     val user = firebaseAuth.currentUser
                     Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, home_elector::class.java)
+                    // Obtener el correo y extraer solo el nombre (parte antes del '@')
+                    val email = user?.email ?: ""
+                    val nombreUsuario = email.substringBefore("@") // Extrae la parte antes del '@'
+                    // Pasa el nombre del usuario al siguiente activity
+                    val intent = Intent(this, home_administrador::class.java)
+                    intent.putExtra("USER_NAME", nombreUsuario) // Pasar el nombre del usuario
                     startActivity(intent)
                     finish()
                 } else {
@@ -335,6 +340,7 @@ class Loogin2 : AppCompatActivity() {
                 }
             }
     }
+
 }
 
 

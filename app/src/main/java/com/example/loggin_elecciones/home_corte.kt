@@ -28,7 +28,6 @@ import com.google.firebase.ktx.Firebase
 
 class home_corte : AppCompatActivity() {
 
-
     private lateinit var auth: FirebaseAuth
     private val currentUser = FirebaseAuth.getInstance().currentUser
     private var binding: ActivityCrearCuentaBinding? = null
@@ -42,92 +41,68 @@ class home_corte : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
         setContentView(R.layout.activity_home_corte)
+
+        // Inicialización de Firebase
         auth = Firebase.auth
-        val authget= FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
         // Configura GoogleSignInOptions
-        // Infla el binding y establece el contenido de la actividad
-        binding = ActivityCrearCuentaBinding.inflate(layoutInflater)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de tener el ID correcto en tu archivo strings.xml
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        // Crea el GoogleSignInClient
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        // Configura el botón de cerrar sesión
         val buttonCerrarSecion = findViewById<Button>(R.id.boton_cerrar_secion)
         buttonCerrarSecion.setOnClickListener {
-            // Cerrar sesión de Firebase
             signOut()
-            // Mostrar un mensaje de cierre de sesión
             Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
         }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v: View, insets: WindowInsetsCompat ->
+
+        // Configura la interfaz de usuario
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        // Para nombre automatica desel e firebase que lo sacaa
+
+        // Inicializa las vistas
         val nombreTextView: TextView = findViewById(R.id.nombre)
-        val userName = intent.getStringExtra("USER_NAME")
+        val estadoTextView: TextView = findViewById(R.id.estado)
 
         if (currentUser != null) {
-            // Obtiene el nombre del usuario
             val displayName = currentUser.displayName
-            // Asigna el nombre del usuario al TextView
             if (displayName != null) {
                 nombreTextView.text = "Nombre: $displayName"
             }
-        }
 
-        // para saber si esta habilitado o no
-        val estadoTextView: TextView = findViewById(R.id.estado)  // El TextView donde mostrarás el estado
-
-        // Verificar si el usuario está autenticado
-        if (currentUser != null) {
-            // Obtener el correo del usuario y extraer el ID antes del '@'
+            // Verificar el estado del usuario
             val email = currentUser.email
-            val userId = email?.substringBefore('@')  // Esto te da el ID del usuario
-
+            val userId = email?.substringBefore('@')
             if (userId != null) {
-                // Accede a Firestore para verificar el estado de habilitación
-                val db = FirebaseFirestore.getInstance()
                 db.collection("CorteElectoral")
-                    .document(userId)  // Usa el ID como nombre del documento
+                    .document(userId)
                     .get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // Obtener el campo "habilitado" de Firestore
                             val habilitado = document.getBoolean("habilitado") ?: false
-                            // Mostrar el estado basado en el valor "habilitado"
-                            if (habilitado) {
-                                estadoTextView.text = "Estado: HABILITADO"
-                                estadoTextView.setTextColor(Color.GREEN)
-                            } else {
-                                estadoTextView.text = "Estado: NO HABILITADO"
-                                estadoTextView.setTextColor(Color.RED)
-                            }
+                            estadoTextView.text = if (habilitado) "Estado: HABILITADO" else "Estado: NO HABILITADO"
+                            estadoTextView.setTextColor(if (habilitado) Color.GREEN else Color.RED)
                         } else {
-                            // Si el documento no existe
                             estadoTextView.text = "Usuario no encontrado"
                             estadoTextView.setTextColor(Color.GRAY)
                         }
                     }
                     .addOnFailureListener { exception ->
-                        // Si ocurre un error al obtener el documento
                         Toast.makeText(this, "Error al verificar el estado: ${exception.message}", Toast.LENGTH_SHORT).show()
                         estadoTextView.text = "Error al verificar estado"
                         estadoTextView.setTextColor(Color.GRAY)
                     }
-            } else {
-                Toast.makeText(this, "No se pudo obtener el ID del usuario.", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(this, "Usuario no autenticado.", Toast.LENGTH_SHORT).show()
         }
-
-        // Inicialización de Firebase
-        auth = Firebase.auth
-        db = FirebaseFirestore.getInstance()
 
         // Inicialización del RecyclerView
         recyclerView = findViewById(R.id.lista_votaciones)
@@ -135,47 +110,36 @@ class home_corte : AppCompatActivity() {
 
         // Lista vacía para las votaciones
         votacionesOriginales = mutableListOf()
-
-        // Inicializa el adaptador con la lista vacía
         votacionAdapter = VotacionAdapter(votacionesOriginales)
         recyclerView.adapter = votacionAdapter
 
         // Cargar votaciones desde Firestore
         cargarVotaciones()
 
-
-        // Configura el botón de búsqueda
+        // Configurar el buscador
         val buscadorButton = findViewById<ImageButton>(R.id.buscador)
         val buscarVotaciones = findViewById<EditText>(R.id.buscar_votaciones)
         buscadorButton.setOnClickListener {
             val textoBuscado = buscarVotaciones.text.toString().trim()
             filtrarVotaciones(textoBuscado)
         }
-
     }
 
     data class Votacion(val nombre: String, val estado: String, val color: Int)
 
     // Función para cerrar sesión
     private fun signOut() {
-        // Cerrar sesión de Firebase
         auth.signOut()
-
-
-        // Cerrar sesión de Google
         googleSignInClient.signOut().addOnCompleteListener {
-            // También puedes revocar el acceso para que no recuerde el correo
             googleSignInClient.revokeAccess().addOnCompleteListener {
-                // Mostrar un mensaje de cierre de sesión
                 Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
-
-                // Redirige al layout de inicio de sesión (Loggin2Activity)
                 val intent = Intent(this, Loogin2::class.java)
                 startActivity(intent)
-                finish() // Cierra la actividad actual para que no pueda volver con el botón "atrás"
+                finish()
             }
         }
     }
+
     class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -194,17 +158,55 @@ class home_corte : AppCompatActivity() {
             holder.estadoTextView.text = votacion.estado
             holder.estadoTextView.setTextColor(votacion.color)
 
-            // Manejar el clic del botón
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, DetalleVotacionActivity::class.java)
-                intent.putExtra("VOTACION_NOMBRE", votacion.nombre) // Pasar el nombre o cualquier otra información necesaria
+                intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
                 context.startActivity(intent)
             }
         }
 
         override fun getItemCount() = votaciones.size
     }
+
+    // Función para cargar las votaciones desde Firestore
+    private fun cargarVotaciones() {
+        db.collection("Votacion")
+            .get() // Obtiene todos los documentos de la colección "Votacion"
+            .addOnSuccessListener { result ->
+                votacionesOriginales.clear() // Limpia la lista antes de agregar los nuevos datos
+
+                for (document in result) {
+                    val tipoVotacion = document.getString("tipoVotacion") ?: "Desconocido"
+                    val estado = document.getLong("estado")?.toInt() ?: 0
+
+                    // Determina el texto y el color basado en el estado
+                    val estadoTexto = when (estado) {
+                        0 -> "ACTIVO"
+                        1 -> "AUN NO EMPEZO"
+                        2 -> "YA PASO"
+                        else -> "DESCONOCIDO"
+                    }
+                    val color = when (estado) {
+                        0 -> Color.GREEN
+                        1 -> Color.GRAY
+                        2 -> Color.RED
+                        else -> Color.BLACK
+                    }
+
+                    // Agrega la votación a la lista
+                    votacionesOriginales.add(Votacion(tipoVotacion, estadoTexto, color))
+                }
+
+                // Notifica al adaptador que los datos han cambiado
+                votacionAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al cargar votaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Función para filtrar las votaciones
     private fun filtrarVotaciones(textoBuscado: String) {
         val listaFiltrada = if (textoBuscado.isEmpty()) {
             votacionesOriginales // Mostrar todas si no hay texto
@@ -214,28 +216,4 @@ class home_corte : AppCompatActivity() {
         votacionAdapter = VotacionAdapter(listaFiltrada)
         recyclerView.adapter = votacionAdapter
     }
-    // Función para cargar las votaciones desde Firebase Firestore
-    private fun cargarVotaciones() {
-        db.collection("Votacion")
-            .get() // Obtiene todos los documentos de la colección "Votacion"
-            .addOnSuccessListener { result ->
-                votacionesOriginales.clear() // Limpia la lista antes de agregar los nuevos datos
-
-                for (document in result) {
-                    val tipoVotacion = document.getString("tipoVotacion") ?: "Desconocido"
-                    val estado = document.getBoolean("estado") ?: false
-
-                    // Agrega la votación a la lista
-                    votacionesOriginales.add(Votacion(tipoVotacion, if (estado) "ACTIVO" else "VENCIDO", if (estado) Color.GREEN else Color.RED))
-                }
-
-                // Notifica al adaptador que los datos han cambiado
-                votacionAdapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { exception ->
-                // Si ocurre un error al obtener los documentos
-                Toast.makeText(this, "Error al cargar votaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
 }
