@@ -1,133 +1,84 @@
 package com.example.loggin_elecciones
 
+// Importaciones necesarias
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import androidx.activity.enableEdgeToEdge
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import android.widget.Toast
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.loggin_elecciones.databinding.ActivityCrearCuentaBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import android.graphics.Color
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 class home_elector : AppCompatActivity() {
-
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var recyclerView: RecyclerView
     private lateinit var votacionAdapter: VotacionAdapter
     private val votacionesOriginales = mutableListOf<Votacion>()
+    private val db = FirebaseFirestore.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.enableEdgeToEdge()
         setContentView(R.layout.activity_home_elector)
         auth = Firebase.auth
-        // Configura GoogleSignInOptions
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de tener el ID correcto en tu archivo strings.xml
-            .requestEmail()
-            .build()
-        // Crea el GoogleSignInClient
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         val buttonCerrarSecion = findViewById<Button>(R.id.boton_cerrar_secion)
-        buttonCerrarSecion.setOnClickListener {
-            // Cerrar sesión de Firebase
-            signOut()
-            // Mostrar un mensaje de cierre de sesión
-            Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v: View, insets: WindowInsetsCompat ->
+        buttonCerrarSecion.setOnClickListener { signOut() }
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        // Para nombre automatica desel e firebase que lo sacaa
-        val nombreTextView: TextView = findViewById(R.id.nombre)
-        val userName = intent.getStringExtra("USER_NAME")
 
-        // Asigna el nombre del usuario al TextView
-        if (!userName.isNullOrEmpty()) {
-            nombreTextView.text = "Nombre: $userName"
-        }
-        //Para la carrera ejemplo SE DEBE MODIFICAR
-        val carreraTextView: TextView = findViewById(R.id.carrera)
-        carreraTextView.text = "Carrera: ING ELECTROMECANICA DE FLUIDOS"
-        //Para habilitado IGUAL DE EJEMPLO
-        val estadoTextView: TextView = findViewById(R.id.estado)
-        estadoTextView.text = "Estado: HABILITADO"
-        // para el edit text de buscar votaciones
-        val buscarVotaciones = findViewById<EditText>(R.id.buscar_votaciones)
-        //para el boton de buscar
-        val buscadorButton = findViewById<ImageButton>(R.id.buscador)
-        // Inicializa el RecyclerView
         recyclerView = findViewById(R.id.lista_votaciones)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Datos de votación y estados
-        votacionesOriginales.addAll(listOf(
-            Votacion("VOTACION 1", "ACTIVO", Color.GREEN),
-            Votacion("VOTACION 2", "VENCIDO", Color.RED),
-            Votacion("VOTACION 3", "AUN NO EMPEZO", Color.GRAY),
-            Votacion("VOTACION 4", "ACTIVO", Color.GREEN),
-            Votacion("VOTACION 5", "ACTIVO", Color.GREEN),
-            Votacion("VOTACION 6", "ACTIVO", Color.GREEN),
-            Votacion("Votacion de  Rector", "ACTIVO", Color.GREEN),
-        ))
-        // Inicializa el adaptador con todas las votaciones
         votacionAdapter = VotacionAdapter(votacionesOriginales)
         recyclerView.adapter = votacionAdapter
 
-        // Configura el botón de búsqueda
+        val buscarVotaciones = findViewById<EditText>(R.id.buscar_votaciones)
+        val buscadorButton = findViewById<ImageButton>(R.id.buscador)
         buscadorButton.setOnClickListener {
             val textoBuscado = buscarVotaciones.text.toString().trim()
             filtrarVotaciones(textoBuscado)
         }
 
-        // Muestra todas las votaciones al cargar
-        filtrarVotaciones("") // Mostrar todas las votaciones
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val email = currentUser.email ?: ""
+            val userId = email.substringBefore("@")
+            obtenerDatosElector(userId)
+        }
     }
 
     data class Votacion(val nombre: String, val estado: String, val color: Int)
 
-    // Función para cerrar sesión
     private fun signOut() {
-        // Cerrar sesión de Firebase
         auth.signOut()
-
-
-        // Cerrar sesión de Google
         googleSignInClient.signOut().addOnCompleteListener {
-            // También puedes revocar el acceso para que no recuerde el correo
             googleSignInClient.revokeAccess().addOnCompleteListener {
-                // Mostrar un mensaje de cierre de sesión
                 Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
-
-                // Redirige al layout de inicio de sesión (Loggin2Activity)
                 val intent = Intent(this, Loogin2::class.java)
                 startActivity(intent)
-                finish() // Cierra la actividad actual para que no pueda volver con el botón "atrás"
+                finish()
             }
         }
     }
+
     class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -146,25 +97,113 @@ class home_elector : AppCompatActivity() {
             holder.estadoTextView.text = votacion.estado
             holder.estadoTextView.setTextColor(votacion.color)
 
-            // Manejar el clic del botón
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
-                val intent = Intent(context, DetalleVotacionActivity::class.java)
-                intent.putExtra("VOTACION_NOMBRE", votacion.nombre) // Pasar el nombre o cualquier otra información necesaria
+                val intent = Intent(context, emitir_voto::class.java)
+                intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
                 context.startActivity(intent)
             }
         }
 
         override fun getItemCount() = votaciones.size
     }
+
+    private fun cargarVotacionesFiltradasPorCarrera(carreraElector: String) {
+        db.collection("Votacion")
+            .get()
+            .addOnSuccessListener { votaciones ->
+                votacionesOriginales.clear() // Limpiamos la lista original
+
+                // Recorremos todas las votaciones
+                for (votacionDoc in votaciones) {
+
+                    val tipoVotacion = votacionDoc.getString("tipoVotacion") ?: "Desconocido"
+                    val estado = votacionDoc.getLong("estado")?.toInt() ?: 0
+                    val carrerasDestinadasId = votacionDoc.getString("carrerasDestinadas") ?: ""
+
+                    // Buscamos el documento correspondiente en "CarrerasDestinadas" usando el ID
+                    db.collection("CarrerasDestinadas").document(carrerasDestinadasId)
+                        .get()
+                        .addOnSuccessListener { carrerasDestinadasDoc ->
+                            if (carrerasDestinadasDoc.exists()) {
+                                // Verificar si la carrera del elector está en las carreras del documento
+                                val carreras = carrerasDestinadasDoc.data?.filterKeys { it.startsWith("carrera") }
+                                if (carreras != null) {
+                                    for ((key, value) in carreras) {
+                                        if (value == carreraElector) {
+                                            // Si encontramos la carrera, la agregamos a la lista de votaciones
+                                            val estadoTexto = when (estado) {
+                                                0 -> "ACTIVO"
+                                                1 -> "AUN NO EMPEZO"
+                                                2 -> "YA PASO"
+                                                else -> "DESCONOCIDO"
+                                            }
+
+                                            val color = when (estado) {
+                                                0 -> Color.GREEN
+                                                1 -> Color.GRAY
+                                                2 -> Color.RED
+                                                else -> Color.BLACK
+                                            }
+
+                                            votacionesOriginales.add(Votacion(tipoVotacion, estadoTexto, color))
+                                            votacionAdapter.notifyDataSetChanged()
+                                            break // Si ya encontramos la carrera, no necesitamos seguir buscando
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(this, "Error al cargar carreras: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al cargar votaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
     private fun filtrarVotaciones(textoBuscado: String) {
         val listaFiltrada = if (textoBuscado.isEmpty()) {
-            votacionesOriginales // Mostrar todas si no hay texto
+            votacionesOriginales
         } else {
             votacionesOriginales.filter { it.nombre.contains(textoBuscado, ignoreCase = true) }
         }
         votacionAdapter = VotacionAdapter(listaFiltrada)
         recyclerView.adapter = votacionAdapter
+        votacionAdapter.notifyDataSetChanged()
+    }
+
+    private fun obtenerDatosElector(userId: String) {
+        val estadoTextView: TextView = findViewById(R.id.estado)
+        val carreraTextView: TextView = findViewById(R.id.carrera)
+        val nombreTextView: TextView = findViewById(R.id.nombre)
+
+        db.collection("Elector").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val nombre = document.getString("Nombre") ?: "Nombre no encontrado"
+                    val carrera = document.getString("carrera") ?: "Carrera no encontrada"
+                    val estado = document.getBoolean("habilitado") ?: false
+
+                    nombreTextView.text = "Nombre: $nombre"
+                    carreraTextView.text = "Carrera: $carrera"
+                    estadoTextView.text = "Estado: ${if (estado) "HABILITADO" else "NO HABILITADO"}"
+                    estadoTextView.setTextColor(if (estado) Color.GREEN else Color.RED)
+
+                    // Llama a cargarVotacionesFiltradasPorCarrera con la carrera obtenida
+                    cargarVotacionesFiltradasPorCarrera(carrera)
+                } else {
+                    carreraTextView.text = "Carrera: No disponible"
+                    estadoTextView.text = "Estado: No disponible"
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al obtener datos: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
 }

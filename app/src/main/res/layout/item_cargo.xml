@@ -24,7 +24,7 @@
 
         <!-- Nombre del miembro -->
         <TextView
-            android:id="@+id/nombreTextView"
+            android:id="@+id/valorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/public_sans"

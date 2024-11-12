@@ -94,6 +94,7 @@ class home_corte : AppCompatActivity() {
                             estadoTextView.setTextColor(Color.GRAY)
                         }
                     }
+
                     .addOnFailureListener { exception ->
                         Toast.makeText(this, "Error al verificar el estado: ${exception.message}", Toast.LENGTH_SHORT).show()
                         estadoTextView.text = "Error al verificar estado"
@@ -193,9 +194,6 @@ class home_corte : AppCompatActivity() {
                         2 -> Color.RED
                         else -> Color.BLACK
                     }
-
-
-                    
 
                     // Agrega la votación a la lista
                     votacionesOriginales.add(Votacion(tipoVotacion, estadoTexto, color))
