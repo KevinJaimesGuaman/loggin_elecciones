@@ -27,6 +27,7 @@ class DatosPartido : AppCompatActivity() {
         // Recuperar el nombre del partido que se pasó desde la actividad anterior
         val nombrePartido = intent.getStringExtra("PARTIDO_NOMBRE")
         nombrePartidoTextView.text = nombrePartido ?: "Nombre del Partido no disponible"
+        val tipoVotacionNombre = intent.getStringExtra("Tipo_De_Votacion")
 
         // Configurar el RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -36,7 +37,7 @@ class DatosPartido : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         // Obtener los cargos del partido desde Firestore
-        getCargos(nombrePartido)
+        getCargos(nombrePartido, tipoVotacionNombre.toString())
 
         // Configurar el botón de regreso
         volverButton.setOnClickListener {
@@ -45,10 +46,10 @@ class DatosPartido : AppCompatActivity() {
     }
 
     // Función para obtener cargos desde Firestore
-    private fun getCargos(nombrePartido: String?) {
+    private fun getCargos(nombrePartido: String?, tipoVotacionNombre: String) {
         val db = FirebaseFirestore.getInstance()
         val cargoRef = db.collection("TipoEleccion")
-            .document("Rectorado")
+            .document(tipoVotacionNombre)
             .collection("Partido")
             .document(nombrePartido ?: "")
             .collection("Puestos")
