@@ -102,6 +102,7 @@ class home_elector : AppCompatActivity() {
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nombreButton: Button = view.findViewById(R.id.nombreVotacion)
             val estadoTextView: TextView = view.findViewById(R.id.estadoVotacion)
+            val votacionItem: LinearLayout = view.findViewById(R.id.votacionItem)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VotacionViewHolder {
@@ -113,6 +114,24 @@ class home_elector : AppCompatActivity() {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
             holder.estadoTextView.text = votacion.estado
+
+            // Verifica si el estado es reconocido y asigna el color al LinearLayout
+            when (votacion.estado) {
+                "ACTIVO" -> {
+                    holder.votacionItem.setBackgroundColor(Color.GREEN)
+                }
+                "AUN NO EMPEZO" -> {
+                    holder.votacionItem.setBackgroundColor(Color.GRAY)
+                }
+                "YA PASO" -> {
+                    holder.votacionItem.setBackgroundColor(Color.RED)
+                }
+                else -> {
+                    holder.votacionItem.setBackgroundColor(Color.TRANSPARENT)
+                }
+            }
+
+            // El TextView también puede tener un color, como lo estás haciendo
             holder.estadoTextView.setTextColor(votacion.color)
 
             holder.nombreButton.setOnClickListener {
@@ -158,9 +177,9 @@ class home_elector : AppCompatActivity() {
                                             }
 
                                             val color = when (estado) {
-                                                0 -> Color.GREEN
-                                                1 -> Color.GRAY
-                                                2 -> Color.RED
+                                                0 -> Color.BLACK
+                                                1 -> Color.BLACK
+                                                2 -> Color.BLACK
                                                 else -> Color.BLACK
                                             }
 
