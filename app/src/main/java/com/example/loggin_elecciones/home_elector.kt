@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.loggin_elecciones.databinding.ActivityCrearCuentaBinding
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -30,6 +30,7 @@ class home_elector : AppCompatActivity() {
     private lateinit var votacionAdapter: VotacionAdapter
     private val votacionesOriginales = mutableListOf<Votacion>()
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,9 @@ class home_elector : AppCompatActivity() {
             signOut()
             Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
         }
+        // Configuración de SwipeRefreshLayout
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout) // Asignación de SwipeRefreshLayout
+
         // Configurar el RecyclerView
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -72,6 +76,10 @@ class home_elector : AppCompatActivity() {
             val email = currentUser.email ?: ""
             val userId = email.substringBefore("@")
             obtenerDatosElector(userId)
+        }
+        // Configuración de la acción de refresco en SwipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener {
+            refrescarVotaciones() // Método añadido para refrescar la lista
         }
     }
 
@@ -168,13 +176,21 @@ class home_elector : AppCompatActivity() {
                             Toast.makeText(this, "Error al cargar carreras: ${exception.message}", Toast.LENGTH_SHORT).show()
                         }
                 }
+                swipeRefreshLayout.isRefreshing = false // Finaliza la animación de refresco
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Error al cargar votaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                swipeRefreshLayout.isRefreshing = false // Finaliza la animación de refresco en caso de error
             }
     }
 
-
+    private fun refrescarVotaciones() {
+        val currentUser = auth.currentUser
+        currentUser?.email?.let { email ->
+            val userId = email.substringBefore("@")
+            obtenerDatosElector(userId) // Llama de nuevo para refrescar las votaciones
+        }
+    }
     private fun filtrarVotaciones(textoBuscado: String) {
         val listaFiltrada = if (textoBuscado.isEmpty()) {
             votacionesOriginales
