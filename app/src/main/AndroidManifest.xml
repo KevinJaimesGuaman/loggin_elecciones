@@ -16,6 +16,15 @@
         <activity
             android:name=".home_elector"
             android:exported="true" />
+        <activity android:name=".DatosPartido"
+            android:exported="true" />
+        <activity android:name=".home_corte"
+            android:exported="true" />
+        <activity android:name=".home_administrador"
+            android:exported="true" />
+        <activity
+            android:name=".emitir_voto"
+            android:exported="true" />
         <activity
             android:name=".crear_cuenta"
             android:exported="true"
@@ -41,6 +50,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/cardview_light_background" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

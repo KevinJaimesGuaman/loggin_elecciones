@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white"
+    android:gravity="center">
+
+    <!-- Texto informativo -->
+    <TextView
+        android:id="@+id/texto_ya_voto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="USTED YA VOTÓ EN ESTAS ELECCIONES"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        android:textStyle="bold"/>
+
+    <!-- Botón para regresar a home -->
+    <Button
+        android:id="@+id/btn_regresar_a_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regresar a Home"
+        android:backgroundTint="@color/primary_estudiante_color"
+        android:textColor="@android:color/white"
+        />
+
+</LinearLayout>

@@ -103,6 +103,7 @@ class crear_cuenta : AppCompatActivity() {
         nombreCompleto = currentUser?.displayName.toString()
         codigoSiss = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
         carrera_usuario = spinnerCarrera!!.selectedItem.toString() // Obtener la carrera seleccionada
+        habilitado= true;
         val datos = hashMapOf(
             "carnet" to Carnet,
             "complementoCI" to complementoCI,

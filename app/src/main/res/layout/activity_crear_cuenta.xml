@@ -5,130 +5,152 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fondo_login"
     tools:context=".crear_cuenta">
+    <!-- ScrollView permite hacer scroll en el contenido -->
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="54dp" />
-
-        <TextView
-            android:id="@+id/text_titulo_crear_cuenta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Datos Adicionales"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/texto_nombres"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nombres"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/textView_nombre_firebase"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/texto_correo_institucional"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Cuenta Institucional"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/textView_institucional_firebase"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/texto_input_carrera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Carrera"
-            android:textSize="20dp" />
-
-        <Spinner
-            android:id="@+id/spinner_carreras"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/text_carnet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Carnet de Identidad"
-            android:textColorHighlight="#E91E63"
-            android:textSize="20dp" />
+        android:layout_height="match_parent"
+        android:background="#FAB946"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_titulo_crear_cuenta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Crear Cuenta"
+                android:textSize="40dp" />
+
+            <TextView
+                android:id="@+id/texto_nombres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:hint="*Nombres"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_nombre_firebase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="TextView"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/texto_correo_institucional"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:hint="Cuenta Institucional"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_institucional_firebase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="TextView"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/texto_input_carrera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="Carrera"
+                android:textSize="20dp" />
+
+            <Spinner
+                android:id="@+id/spinner_carreras"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/text_carnet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="Carnet de Identidad"
+                android:textColorHighlight="#E91E63"
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/editTextText_carnet"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:ems="8"
                 android:hint="Numero de Carnet"
                 android:inputType="number"
                 android:padding="12dp" />
 
+            <TextView
+                android:id="@+id/textView_complemento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="*Complemento (Opcional)"
+                android:textColorHighlight="#E91E63"
+                android:textSize="20dp" />
+
             <EditText
                 android:id="@+id/editTextText_complemento_ci"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:ems="3"
                 android:hint="Complemento"
                 android:inputType="text" />
+
+            <Button
+                android:id="@+id/boton_crear_cuenta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:backgroundTint="#FAB946"
+                android:text="Continuar"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/bt_cancel_create"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:backgroundTint="#FAB946"
+                android:text="Cancelar"
+                android:textColor="#000000" />
+
         </LinearLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="54dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
-
-        <Button
-            android:id="@+id/bt_cancel_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cancelar" />
-
-        <Button
-            android:id="@+id/boton_crear_cuenta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Crear" />
-    </LinearLayout>
-
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
