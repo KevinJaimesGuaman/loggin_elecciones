@@ -69,7 +69,7 @@ class home_corte : AppCompatActivity() {
 
         // Inicializa las vistas
         val nombreTextView: TextView = findViewById(R.id.nombre)
-        val estadoTextView: TextView = findViewById(R.id.estado)
+        val estadoTextView= findViewById<TextView>(R.id.textView_estado)
 
         if (currentUser != null) {
             val displayName = currentUser.displayName

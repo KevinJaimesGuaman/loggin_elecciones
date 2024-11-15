@@ -222,7 +222,7 @@ class home_elector : AppCompatActivity() {
     }
 
     private fun obtenerDatosElector(userId: String) {
-        val estadoTextView: TextView = findViewById(R.id.estado)
+        val estadoTextView: TextView = findViewById(R.id.textView_estado)
         val carreraTextView: TextView = findViewById(R.id.carrera)
         val nombreTextView: TextView = findViewById(R.id.nombre)
 
