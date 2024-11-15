@@ -2,139 +2,253 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".home_elector">
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginBottom="1dp"
-        android:background="@color/white"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintBottom_toTopOf="@id/boton_cerrar_secion"
+    tools:context=".home_elector"
+    android:id="@+id/main"
+    android:background="#353A40">
+
+    <!-- Encabezado "ADMINISTRADOR" -->
+    <TextView
+        android:id="@+id/corte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/public_sans_bold"
+        android:text="Administrador"
+        android:textColor="@color/white"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
-        <TextView
-            android:id="@+id/elector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/rounded_button_administrador"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:text="Administrador"
-            android:textColor="#000000"
-            android:textSize="30sp" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Panel de información del elector -->
+    <LinearLayout
+        android:id="@+id/panel_informacion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/rounded_border_corte"
+        app:layout_constraintTop_toBottomOf="@id/corte"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="10dp">
+
         <TextView
             android:id="@+id/nombre"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autoSizeMaxTextSize="20sp"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:background="@color/white"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-condensed"
-            android:maxLines="1"
-            android:text="Nombre: "
+            android:text="Nombre Completo"
             android:textColor="#000000"
-            android:textSize="20dp"
-            android:visibility="visible"
-            tools:visibility="visible" />
+            android:textSize="18sp"
+            android:fontFamily="@font/public_sans" />
+    </LinearLayout>
+
+    <!-- LinearLayout de los 3 botones, dispuestos en vertical, entre panel_informacion y busqueda -->
+    <LinearLayout
+        android:id="@+id/botones_sin_borde"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/panel_informacion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Botón 1 -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/rounded_background"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/view2">
+            android:layout_marginBottom="0dp">
 
-            <ImageButton
-                android:id="@+id/buscador"
-                android:layout_width="52dp"
-                android:layout_height="48dp"
-                android:layout_margin="4dp"
-                android:layout_marginEnd="16dp"
-                android:background="#00000000"
-                android:contentDescription="Imagen boton para buscar alguna votacion"
-                android:scaleType="fitCenter"
-                android:src="@drawable/buscador">
-
-            </ImageButton>
-
-            <EditText
-                android:id="@+id/buscar_votaciones"
-
-                android:layout_width="178dp"
+            <Button
+                android:id="@+id/añadir"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="5dp"
-                android:ems="10"
-                android:fontFamily="sans-serif-condensed"
-                android:hint="Buscar Votaciones"
-                android:inputType="text"
-                android:maxWidth="200dp"
-                android:minHeight="48dp"
-                android:textColor="#000000"
-                android:textColorHint="#000000"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView7"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/public_sans_bold"
+                android:text="Añadir"
+                android:textSize="18sp"
+                android:padding="0dp"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
 
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/add" />
 
         </LinearLayout>
 
+        <!-- Botón 2 -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/boton_cerrar_secion"
-            app:layout_constraintHeight_max="386dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/lista_votaciones"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="8dp"
-                android:background="#00000000"
-                app:layout_constraintBottom_toTopOf="@id/boton_cerrar_secion"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="0dp">
+            <Button
+                android:id="@+id/editar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Editar"
+                android:textAllCaps="false"
+                android:textSize="18sp"
+                android:padding="0dp"
+                android:textColor="@color/white"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/public_sans_bold" />
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/borrar"
+                android:layout_gravity="center"/>
         </LinearLayout>
 
+        <!-- Botón 3 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/borrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Borrar"
+                android:textSize="18sp"
+                android:textAllCaps="false"
+                android:padding="0dp"
+                android:textColor="@color/white"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/public_sans_bold" />
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/edit"
+                android:layout_gravity="center"/>
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- LinearLayout de búsqueda -->
+    <LinearLayout
+        android:id="@+id/busqueda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:elevation="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_background"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/botones_sin_borde"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/buscador"
+            android:layout_width="52dp"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:layout_marginEnd="16dp"
+            android:background="#00000000"
+            android:contentDescription="Imagen boton para buscar alguna votacion"
+            android:scaleType="fitCenter"
+            android:src="@drawable/buscador" />
+
+        <EditText
+            android:id="@+id/buscar_votaciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="5dp"
+            android:ems="10"
+            android:fontFamily="@font/public_sans"
+            android:hint="Buscar Votaciones"
+            android:inputType="text"
+            android:maxWidth="200dp"
+            android:minHeight="48dp"
+            android:textColor="#000000"
+            android:textColorHint="#000000" />
+    </LinearLayout>
+
+    <!-- Contenedor de título y RecyclerView -->
+    <LinearLayout
+        android:id="@+id/contenedor_elecciones"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:elevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/busqueda"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@id/boton_cerrar_secion"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_border2">
+
+        <!-- Título "Elecciones" -->
+        <TextView
+            android:id="@+id/titulo_elecciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elecciones:"
+            android:textSize="20sp"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:layout_margin="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/public_sans_bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Lista de votaciones -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lista_votaciones"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp" />
+    </LinearLayout>
+
+    <!-- Botón "Cerrar Sesión" -->
     <Button
         android:id="@+id/boton_cerrar_secion"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="1dp"
-        android:backgroundTint="#5d83ae"
-        android:fontFamily="sans-serif-condensed"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:text="Cerrar Sesion"
-        android:textColor="#000000"
-        android:textSize="24sp"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        app:backgroundTint="@color/white"
+        app:cornerRadius="12dp"
+        android:fontFamily="@font/public_sans_bold"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintVertical_bias="1.0"
+        android:elevation="4dp"
+        android:letterSpacing="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
