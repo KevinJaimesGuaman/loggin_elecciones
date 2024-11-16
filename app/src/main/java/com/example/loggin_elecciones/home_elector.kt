@@ -86,6 +86,24 @@ class home_elector : AppCompatActivity() {
     }
 
     data class Votacion(val nombre: String, val color: Int)
+    // Método para mostrar el mensaje de no habilitado en forma de un dialogo
+    private fun mostrarDialogoNoHabilitado() {
+        val dialogView = layoutInflater.inflate(R.layout.no_habilitado, null)
+
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false) // Hacer que el diálogo no se cierre tocando fuera de él
+            .create()
+
+        val botonAceptar = dialogView.findViewById<Button>(R.id.btn_aceptar)
+        botonAceptar.setOnClickListener {
+            // Al hacer clic en "Aceptar", cerramos sesión y regresamos a la pantalla de login
+            signOut()
+            dialog.dismiss()  // Cerrar el diálogo
+        }
+
+        dialog.show()
+    }
 
     private fun signOut() {
         auth.signOut()
@@ -146,7 +164,7 @@ class home_elector : AppCompatActivity() {
                     val estado = votacionDoc.getLong("estado")?.toInt() ?: 0
 
                     // Obtener las fechas de inicio y fin como Timestamp
-                    val fechaInicio = votacionDoc.getTimestamp("fechaInicio")?.toDate() ?: Date()  // Convierte a Date
+                    val fechaInicio = votacionDoc.getTimestamp("fechaIni")?.toDate() ?: Date()  // Convierte a Date
                     val fechaFin = votacionDoc.getTimestamp("fechaFin")?.toDate() ?: Date()        // Convierte a Date
 
                     // Obtener el estado de la votación (ACTIVO, AUN NO EMPEZO, YA PASO)
@@ -156,7 +174,7 @@ class home_elector : AppCompatActivity() {
                     val color = when (estadoVotacion) {
                         "EMPEZO" -> Color.GRAY
                         "ACTIVO" -> Color.GREEN             // Votación activa: verde
-                         // Votación aún no empieza: plomo (gris claro)
+                        // Votación aún no empieza: plomo (gris claro)
                         "YA PASO" -> Color.RED             // Votación ya pasó: rojo
                         else -> Color.BLACK                // Caso por defecto
                     }
@@ -240,10 +258,15 @@ class home_elector : AppCompatActivity() {
                     nombreTextView.text = "Nombre: $nombre"
                     carreraTextView.text = "Carrera: $carrera"
                     estadoTextView.text = "Estado: ${if (estado) "HABILITADO" else "NO HABILITADO"}"
-                    estadoTextView.setTextColor(if (estado) Color.BLACK else Color.BLACK)
+                    estadoTextView.setTextColor(if (estado) Color.BLACK else Color.RED)
 
-                    // Llama a cargarVotacionesFiltradasPorCarrera con la carrera obtenida
-                    cargarVotacionesFiltradasPorCarrera(carrera)
+                    if (!estado) {
+                        // Si el elector no está habilitado, mostramos el layout de no habilitado
+                        mostrarDialogoNoHabilitado()
+                    } else {
+                        // Llama a cargarVotacionesFiltradasPorCarrera con la carrera obtenida
+                        cargarVotacionesFiltradasPorCarrera(carrera)
+                    }
                 } else {
                     carreraTextView.text = "Carrera: No disponible"
                     estadoTextView.text = "Estado: No disponible"
