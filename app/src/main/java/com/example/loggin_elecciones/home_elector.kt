@@ -132,23 +132,80 @@ class home_elector : AppCompatActivity() {
         override fun onBindViewHolder(holder: VotacionViewHolder, position: Int) {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
+
             val drawable = GradientDrawable()
             drawable.shape = GradientDrawable.RECTANGLE
             drawable.cornerRadius = 40f
-            // Asignamos el color según el estado de la votación
             drawable.setColor(votacion.color)
             holder.votacionItem.background = drawable
 
+            // Establecer el color del botón según el estado de la votación
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
-                val intent = Intent(context, emitir_voto::class.java)
-                intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
-                context.startActivity(intent)
+
+                // Verificar el estado de la votación (EMPEZO o YA PASO)
+                val estadoVotacion = when (votacion.color) {
+                    Color.GRAY -> "EMPEZO"
+                    Color.RED -> "YA PASO"
+                    else -> "ACTIVO"
+                }
+
+                when (estadoVotacion) {
+                    "YA PASO" -> {
+                        // Mostrar el diálogo de que la votación ya pasó
+                        (context as home_elector).mostrarDialogoYaPaso()
+                    }
+                    "EMPEZO" -> {
+                        // Mostrar el diálogo de que la votación aún no ha comenzado
+                        (context as home_elector).mostrarDialogoAunNoEmpezo()
+                    }
+                    else -> {
+                        // En el caso de que la votación esté activa, ir a la actividad de emitir voto
+                        val intent = Intent(context, emitir_voto::class.java)
+                        intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
+                        context.startActivity(intent)
+                    }
+                }
             }
         }
 
 
+
         override fun getItemCount() = votaciones.size
+    }
+
+    // Método para mostrar el mensaje cuando la votación YA PASO
+    private fun mostrarDialogoYaPaso() {
+        val dialogView = layoutInflater.inflate(R.layout.ya_paso, null)
+
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false) // Hacer que el diálogo no se cierre tocando fuera de él
+            .create()
+
+        val botonAceptar = dialogView.findViewById<Button>(R.id.btn_aceptar)
+        botonAceptar.setOnClickListener {
+            dialog.dismiss()  // Cerrar el diálogo
+        }
+
+        dialog.show()
+    }
+
+    // Método para mostrar el mensaje cuando la votación AUN NO EMPEZO
+    private fun mostrarDialogoAunNoEmpezo() {
+        val dialogView = layoutInflater.inflate(R.layout.aun_no_empezo, null)
+
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false) // Hacer que el diálogo no se cierre tocando fuera de él
+            .create()
+
+        val botonAceptar = dialogView.findViewById<Button>(R.id.btn_aceptar)
+        botonAceptar.setOnClickListener {
+            dialog.dismiss()  // Cerrar el diálogo
+        }
+
+        dialog.show()
     }
 
 
