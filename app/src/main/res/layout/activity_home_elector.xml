@@ -146,19 +146,24 @@
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        <!-- Título "Elecciones" -->
-
-            <!-- Lista de votaciones -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/lista_votaciones"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:layout_margin="16dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp">
+                <!-- Título "Elecciones" -->
+
+
+            <!-- Lista de votaciones -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/lista_votaciones"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_margin="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="10dp" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
     <!-- Botón "Cerrar Sesión" -->

@@ -1,0 +1,6 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp" android:elevation="8dp" android:layout_margin="16dp" android:background="@drawable/contenedor_ventana_emergente" android:gravity="center">
+    <!--  Texto informativo  -->
+    <TextView android:id="@+id/texto_no_esta_habilitado" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USTED NO ESTA HABILITADO PARA VOTAR" android:textSize="18sp" android:textColor="@android:color/black" android:gravity="center" android:paddingBottom="16dp" android:textStyle="bold"/>
+    <!--  Botón para regresar a home  -->
+    <Button android:id="@+id/btn_aceptar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:backgroundTint="#FAB946" android:layout_marginEnd="16dp" android:text="Aceptar" android:textAllCaps="false" android:textColor="@color/black" android:elevation="4dp"/>
+</LinearLayout>
