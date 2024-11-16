@@ -21,4 +21,9 @@
     <color name="primary_corte_electoral_color">#4324d4</color>"
     <color name="secondary_corte_electoral_color">#7049df</color>"
     <color name="color_plomo">#E8EDF2</color>"
+    <color name="green">#7CB342</color>
+    <color name="default_gris">#9B9B9B</color>
+    <color name="seleccion_elector">#FAB946</color>
+    <color name="seleccion_admin">#426185</color>"
+    <color name="seleccion_corte">#355326</color>"
 </resources>

@@ -1,0 +1,8 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:elevation="8dp" android:layout_gravity="center" android:layout_margin="16dp" android:clipToOutline="true" android:backgroundTintMode="src_in" android:background="@drawable/contenedor_ventana_emergente">
+    <!--  Título de la ventana emergente  -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/public_sans_bold" android:text="Emitiste tu voto Exitosamente" android:textColor="#000000" android:textSize="18sp" android:layout_gravity="center" android:layout_marginBottom="8dp"/>
+    <!--  Texto de advertencia  -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginBottom="16dp" android:fontFamily="@font/public_sans" android:gravity="center" android:text="Felicidades tu voto fue emitido exitosamente" android:textColor="#000000" android:textSize="14sp"/>
+    <!--  Botones para cancelar y confirmar  -->
+    <Button android:id="@+id/btn_regresar_a_home" android:layout_width="wrap_content" android:layout_height="wrap_content" android:backgroundTint="#FAB946" android:layout_marginStart="16dp" android:text="Regresar a la Pantalla Principal" android:fontFamily="@font/public_sans_bold" android:textAllCaps="false" android:textColor="@color/black" android:padding="8dp" android:radius="16dp"/>
+</LinearLayout>

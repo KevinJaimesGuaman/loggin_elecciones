@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Intent
 import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -25,6 +27,9 @@ class emitir_voto : AppCompatActivity() {
     private lateinit var iconoInfoButton: ImageButton
     private lateinit var db: FirebaseFirestore
     private lateinit var usuarioId: String
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private val currentUser = FirebaseAuth.getInstance().currentUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +39,8 @@ class emitir_voto : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         // Obtener el correo institucional del usuario (suponiendo que el usuario ya está logueado)
-        val usuarioCorreo = "201904903@est.umss.edu"  // Este es un valor de ejemplo, usa el correo del usuario logueado
-        usuarioId = usuarioCorreo.substringBefore("@")  // Esto obtiene el número antes de "@"
+        val email = currentUser?.email // Obtener el email del usuario actual
+        usuarioId = email?.substringBefore("@").toString() // Extraer el nombre de usuario antes del @
 
         // Recibir el nombre de la votación desde el Intent
         tituloTextView = findViewById(R.id.Tipo_Votacion)
@@ -104,7 +109,7 @@ class emitir_voto : AppCompatActivity() {
     private fun obtenerCandidatosYMostrar(votacionNombre: String) {
         getCandidatos2(votacionNombre) { candidatos ->
             if (candidatos.isNotEmpty()) {
-                listaCandidatosRecyclerView.adapter = CandidatosAdapter(candidatos)
+                listaCandidatosRecyclerView.adapter = CandidatosAdapter(candidatos, tituloTextView)
             } else {
                 Log.d("Candidatos", "No se encontraron candidatos.")
             }
@@ -176,31 +181,15 @@ class emitir_voto : AppCompatActivity() {
         estadoVotacionRef.set(mapOf("votacion1" to true)) // Marcar como votado
     }
 
-    private fun mostrarDialogoExito() {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.exito_votacion_ventana_emergente)
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.setCancelable(true)
-
-        val btRegresar = dialog.findViewById<Button>(R.id.btn_regresar_a_home)
-
-        btRegresar.setOnClickListener {
-            val intent = Intent(this, home_elector::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        dialog.show()
-    }
-
     // Data class de Candidato
     data class Candidato(val nombrePartido: String, val info: String)
 
     // Adaptador para la lista de Candidatos
-    class CandidatosAdapter(private val candidatos: List<Candidato>) :
+    class CandidatosAdapter(private val candidatos: List<Candidato>, val tituloTextView: TextView) :
         RecyclerView.Adapter<CandidatosAdapter.CandidatoViewHolder>() {
 
-        var candidatoSeleccionado: Candidato? = null  // Variable para almacenar el CheckBox seleccionado
+        var candidatoSeleccionado: Candidato? = null
+        private var selectedPosition = -1  // Variable para almacenar la posición seleccionada
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidatoViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.item_candidato, parent, false)
@@ -211,17 +200,29 @@ class emitir_voto : AppCompatActivity() {
             val candidato = candidatos[position]
             holder.nombreTextView.text = candidato.nombrePartido
             holder.partidoTextView.text = candidato.info
-            holder.checkBox.isChecked = false // Establecer el CheckBox como desmarcado
 
-            // Establecer un listener para el clic en el CheckBox
+            // Establecer el estado del CheckBox basado en la posición seleccionada
+            holder.checkBox.isChecked = position == selectedPosition
+
+            // Listener para el CheckBox
             holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    candidatoSeleccionado = candidato  // Almacenar el candidato seleccionado
-                } else {
-                    if (candidatoSeleccionado == candidato) {
-                        candidatoSeleccionado = null
-                    }
+                    selectedPosition = position  // Actualizar la posición seleccionada
+                    candidatoSeleccionado = candidato
+                    notifyDataSetChanged()  // Notificar para actualizar todos los elementos
+                } else if (selectedPosition == position) {
+                    selectedPosition = -1  // Desmarcar si el mismo CheckBox se deselecciona
+                    candidatoSeleccionado = null
                 }
+            }
+
+            // Listener para el clic en el nombre del partido
+            holder.partidoTextView.setOnClickListener {
+                val intent = Intent(holder.itemView.context, DatosPartido::class.java)
+                val tipoVotacionNombre = tituloTextView.text.toString()
+                intent.putExtra("PARTIDO_NOMBRE", candidato.nombrePartido)
+                intent.putExtra("Tipo_De_Votacion", tipoVotacionNombre)
+                holder.itemView.context.startActivity(intent)
             }
         }
 
@@ -260,6 +261,25 @@ class emitir_voto : AppCompatActivity() {
                 Log.w("Firestore", "Error al obtener partidos", exception)
                 callback(emptyList()) // En caso de error, devuelve una lista vacía
             }
+    }
+    private fun mostrarDialogoExito() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.exito_votacion_ventana_emergente)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.setCancelable(true)
+
+        val btRegresar = dialog.findViewById<Button>(R.id.btn_regresar_a_home)
+
+        btRegresar.setOnClickListener {
+            // Iniciar la actividad de la página principal
+            val intent = Intent(this, home_elector::class.java)
+            startActivity(intent)
+
+            // Cerrar la actividad actual
+            finish()
+        }
+
+        dialog.show()
     }
 
 }

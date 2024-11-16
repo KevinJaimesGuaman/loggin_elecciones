@@ -1,71 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:elevation="8dp"
-    android:layout_gravity="center"
-    android:layout_margin="16dp"
-    android:clipToOutline="true"
-    android:backgroundTintMode="src_in"
-    android:background="@drawable/contenedor_ventana_emergente">
-
-    <!-- Título de la ventana emergente -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/public_sans_bold"
-        android:text="¿Estás seguro de emitir tu voto?"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Texto de advertencia -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="@font/public_sans"
-        android:gravity="center"
-        android:text="Una vez emitido su voto no podrá ser cambiado"
-        android:textColor="#000000"
-        android:textSize="14sp" />
-
-    <!-- Botones para cancelar y confirmar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <!-- Botón de cancelar -->
-        <Button
-            android:id="@+id/btn_cancelar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:fontFamily="@font/public_sans_bold"
-            android:text="Cancelar"
-            android:textAllCaps="false"
-            android:drawablePadding="8dp"
-            android:textColor="#000000"
-            android:padding="8dp" />
-
-        <!-- Botón de confirmar -->
-        <Button
-            android:id="@+id/btn_confirmar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#2985E5"
-            android:layout_marginStart="16dp"
-            android:text="Confirmar"
-            android:fontFamily="@font/public_sans_bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:padding="8dp" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:elevation="8dp" android:layout_gravity="center" android:layout_margin="16dp" android:clipToOutline="true" android:backgroundTintMode="src_in" android:background="@drawable/contenedor_ventana_emergente">
+    <!--  Título de la ventana emergente  -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/public_sans_bold" android:text="¿Estás seguro de emitir tu voto?" android:textColor="#000000" android:textSize="18sp" android:layout_gravity="center" android:layout_marginBottom="8dp"/>
+    <!--  Texto de advertencia  -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginBottom="16dp" android:fontFamily="@font/public_sans" android:gravity="center" android:text="Una vez emitido su voto no podrá ser cambiado" android:textColor="#000000" android:textSize="14sp"/>
+    <!--  Botones para cancelar y confirmar  -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
+        <!--  Imagen de Volver que no es boton  -->
+        <ImageButton android:id="@+id/flecha" android:layout_width="20dp" android:layout_height="48dp" android:layout_margin="4dp" android:background="#00000000" android:contentDescription="Imagen boton para buscar alguna votacion" android:scaleType="fitCenter" android:src="@drawable/flecha"> </ImageButton>
+        <!--  Botón de cancelar  -->
+        <Button android:id="@+id/btn_cancelar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="?attr/selectableItemBackground" android:fontFamily="@font/public_sans_bold" android:text="Cancelar" android:textAllCaps="false" android:drawablePadding="8dp" android:textColor="#000000" android:padding="8dp"/>
+        <!--  Botón de confirmar  -->
+        <Button android:id="@+id/btn_confirmar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:backgroundTint="#FAB946" android:layout_marginStart="16dp" android:text="Confirmar" android:fontFamily="@font/public_sans_bold" android:textAllCaps="false" android:textColor="@color/black" android:padding="8dp"/>
     </LinearLayout>
-
 </LinearLayout>

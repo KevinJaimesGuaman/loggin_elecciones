@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.loggin_elecciones.databinding.ActivityLoogin2Binding
@@ -48,15 +49,21 @@ class Loogin2 : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         //enlaza con la vista principal usando view BIDING
         binding = ActivityLoogin2Binding.inflate(layoutInflater)
         setContentView(binding.root)
         //boton docente
         val clickListener= View.OnClickListener { view ->
+            binding.btEstudiante.setBackgroundColor(ContextCompat.getColor(this, R.color.default_gris))
+            binding.btCorteElectoral.setBackgroundColor(ContextCompat.getColor(this, R.color.default_gris))
+            binding.btAdministrador.setBackgroundColor(ContextCompat.getColor(this, R.color.default_gris))
+
             when (view.id) {
                 R.id.bt_estudiante -> {
                     tipoUsuario = "estudiante"
-                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Institucional Estudiantil"
+                    binding.textViewLogin.text = "Por favor, ingresar con la cuenta Institucional"
+                    binding.btEstudiante.setBackgroundColor(ContextCompat.getColor(this, R.color.seleccion_elector)) // Color seleccionado
                     if(binding.Administradorcontenedor.visibility == View.VISIBLE){
                         binding.Administradorcontenedor.visibility = View.GONE
                         binding.contenedorInicioSecion.visibility = View.VISIBLE
@@ -68,6 +75,7 @@ class Loogin2 : AppCompatActivity() {
                 R.id.bt_corte_electoral -> {
                     tipoUsuario = "corte electoral"
                     binding.textViewLogin.text = "Por favor, ingresar con la cuenta Corte Electoral"
+                    binding.btCorteElectoral.setBackgroundColor(ContextCompat.getColor(this, R.color.seleccion_corte)) // Color seleccionado
                     if(binding.Administradorcontenedor.visibility == View.VISIBLE){
                         binding.Administradorcontenedor.visibility = View.GONE
                         binding.contenedorInicioSecion.visibility = View.VISIBLE
@@ -80,6 +88,7 @@ class Loogin2 : AppCompatActivity() {
                 R.id.bt_Administrador -> {
                     tipoUsuario = "administrador"
                     binding.AdministradorTextLogin.text = "Por favor, ingresar con la cuenta Administrador"
+                    binding.btAdministrador.setBackgroundColor(ContextCompat.getColor(this, R.color.seleccion_admin)) // Color seleccionado
                     if(binding.contenedorInicioSecion.visibility == View.VISIBLE){
                         binding.contenedorInicioSecion.visibility = View.GONE
                         binding.Administradorcontenedor.visibility = View.VISIBLE
@@ -91,7 +100,6 @@ class Loogin2 : AppCompatActivity() {
             }
         }
         binding.btEstudiante.setOnClickListener(clickListener)
-
         binding.btAdministrador.setOnClickListener(clickListener)
         binding.btCorteElectoral.setOnClickListener(clickListener)
         //boton docente fin
