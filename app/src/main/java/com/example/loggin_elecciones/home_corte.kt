@@ -177,7 +177,7 @@ class home_corte : AppCompatActivity() {
 
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
-                val intent = Intent(context, emitir_voto::class.java)
+                val intent = Intent(context, corte_votos::class.java)
                 intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
                 context.startActivity(intent)
             }

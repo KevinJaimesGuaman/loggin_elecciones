@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/Contenedor"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
@@ -59,7 +59,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/white">
 
             <TextView
@@ -79,7 +79,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_de_votos_partidos"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="25dp"
                 android:background="#00000000"
                 app:layout_constraintBottom_toTopOf="@id/emitir_voto"
@@ -90,7 +90,7 @@
             <com.anychart.AnyChartView
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"/>
+                android:layout_height="match_parent"/>
         </LinearLayout>
 
     </LinearLayout>
