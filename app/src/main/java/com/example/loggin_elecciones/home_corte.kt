@@ -177,8 +177,7 @@ class home_corte : AppCompatActivity() {
 
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
-                val intent = Intent(context, corte_votos::class.java)
-
+                val intent = Intent(context, emitir_voto::class.java)
                 intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
                 context.startActivity(intent)
             }
@@ -190,7 +189,6 @@ class home_corte : AppCompatActivity() {
 
     // Función para cargar las votaciones desde Firestore
     private fun cargarVotaciones() {
-
         val email = auth.currentUser?.email ?: return
         val userId = email.substringBefore('@')
 
@@ -255,10 +253,10 @@ class home_corte : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Error al consultar CorteElectoral: ${exception.message}", Toast.LENGTH_SHORT).show()
-
                 swipeRefreshLayout.isRefreshing = false
             }
     }
+
 
 
     private fun obtenerEstadoVotacion(fechaIni: Date, fechaFin: Date): String {
@@ -270,6 +268,7 @@ class home_corte : AppCompatActivity() {
             else -> "ACTIVO"
         }
     }
+
 
     // Función para filtrar las votaciones
     private fun filtrarVotaciones(textoBuscado: String) {
@@ -289,4 +288,3 @@ class home_corte : AppCompatActivity() {
         }
     }
 }
-
