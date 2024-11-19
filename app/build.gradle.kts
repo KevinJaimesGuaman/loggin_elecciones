@@ -80,7 +80,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     // Import the BoM for the Firebase platform
     implementation(platform(libs.firebase.bom))
-
+    implementation ("com.github.AnyChart:AnyChart-Android:1.1.5" )
     implementation("com.google.firebase:firebase-analytics:22.1.2")
     implementation("com.google.firebase:firebase-auth:23.1.0")
     implementation(libs.play.services.auth)
