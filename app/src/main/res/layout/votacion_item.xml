@@ -1,25 +1,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/votacionItem"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="@drawable/background_rounded">
 
-    <Button
-        android:id="@+id/nombreVotacion"
-        android:contentDescription="Nombre de la votación"
+    <LinearLayout
+        android:id="@+id/votacionItem"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:gravity="start"
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="@android:color/black"
-        android:background="@android:color/transparent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@drawable/background_rounded"
+        >
 
-    <TextView
-        android:id="@+id/estadoVotacion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="16sp" />
+        <LinearLayout
+            android:id="@+id/contendorVotacion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/background_rounded">
+
+            <!-- Botón con el nombre de la votación -->
+            <Button
+                android:id="@+id/nombreVotacion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="Nombre de la votación"
+                android:fontFamily="sans-serif-condensed"
+                android:gravity="start"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:stateListAnimator="@null"/>
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

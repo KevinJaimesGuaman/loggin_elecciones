@@ -12,15 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Loggin_elecciones"
         tools:targetApi="31">
-
+        <activity
+            android:name=".corte_votos"
+            android:exported="false" />
         <activity
             android:name=".home_elector"
             android:exported="true" />
-        <activity android:name=".DatosPartido"
+        <activity
+            android:name=".DatosPartido"
             android:exported="true" />
-        <activity android:name=".home_corte"
+        <activity
+            android:name=".home_corte"
             android:exported="true" />
-        <activity android:name=".home_administrador"
+        <activity
+            android:name=".home_administrador"
             android:exported="true" />
         <activity
             android:name=".emitir_voto"
@@ -44,6 +49,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Loggin_elecciones" />
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/icons8_logo_de_google_48" />

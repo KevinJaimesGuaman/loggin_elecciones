@@ -20,10 +20,10 @@
     <color name="secondary_docente_color">#fab085</color>"
     <color name="primary_corte_electoral_color">#4324d4</color>"
     <color name="secondary_corte_electoral_color">#7049df</color>"
-    <color name="color_plomo">#E8EDF2</color>"
+    <color name="color_plomo">#EFE9E9</color>"
     <color name="green">#7CB342</color>
     <color name="default_gris">#9B9B9B</color>
-    <color name="seleccion_elector">#ED3B21</color>
+    <color name="seleccion_elector">#FAB946</color>
     <color name="seleccion_admin">#426185</color>"
     <color name="seleccion_corte">#355326</color>"
 </resources>
