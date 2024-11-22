@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Loggin_elecciones"
         tools:targetApi="31">
         <activity
+            android:name=".administrador_CrearEditar"
+            android:exported="false" />
+        <activity
             android:name=".corte_votos"
             android:exported="false" />
         <activity

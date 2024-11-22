@@ -80,7 +80,7 @@
                 android:textColor="@color/white" />
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/imageView_añadir"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
