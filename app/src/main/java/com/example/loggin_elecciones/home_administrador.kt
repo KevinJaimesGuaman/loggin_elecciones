@@ -111,7 +111,19 @@ class home_administrador : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
+    private fun eliminarVotacion(votacionId: String) {
+        db.collection("Votacion").document(votacionId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Votación eliminada correctamente", Toast.LENGTH_SHORT).show()
+                // Actualizar la lista local eliminando la votación eliminada
+                votacionesOriginales.removeAll { it.id == votacionId }
+                votacionAdapter.notifyDataSetChanged() // Notificar que los datos han cambiado
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al eliminar votación: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     // Función para cerrar sesión
     private fun signOut() {
@@ -125,37 +137,64 @@ class home_administrador : AppCompatActivity() {
             }
         }
     }
-    data class Votacion(val nombre: String, val color: Int)
+
+    data class Votacion(val nombre: String, val color: Int, val id: String) // Agregar id
+
 
     class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nombreButton: Button = view.findViewById(R.id.nombreVotacion)
-            val votacionItem: LinearLayout = view.findViewById(R.id.votacionItem)
+            val editarButton: ImageButton = view.findViewById(R.id.btnEditar)
+            val borrarButton: ImageButton = view.findViewById(R.id.btnBorrar)
+            val votacionItem: LinearLayout = view.findViewById(R.id.admin_item)
         }
 
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VotacionViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.votacion_item, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.admin_item, parent, false)
             return VotacionViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: VotacionViewHolder, position: Int) {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
+
+            holder.borrarButton.setOnClickListener {
+                // Crear el diálogo
+                val dialogView = LayoutInflater.from(holder.itemView.context).inflate(R.layout.dialog_eliminar, null)
+                val dialog = android.app.AlertDialog.Builder(holder.itemView.context)
+                    .setView(dialogView)
+                    .create()
+
+                // Configurar botones del diálogo
+                val btnCancelar = dialogView.findViewById<Button>(R.id.btn_cancelar)
+                val btnConfirmar = dialogView.findViewById<Button>(R.id.btn_confirmar)
+
+                btnCancelar.setOnClickListener {
+                    dialog.dismiss() // Cerrar el diálogo
+                }
+
+                btnConfirmar.setOnClickListener {
+                    // Obtener el contexto como una instancia de home_administrador
+                    val activity = holder.itemView.context as? home_administrador
+                    activity?.eliminarVotacion(votacion.id) // Llamar a eliminarVotacion con el ID
+                    dialog.dismiss() // Cerrar el diálogo
+                }
+
+                dialog.show() // Mostrar el diálogo
+            }
+
+            // Configurar el fondo del item
             val drawable = GradientDrawable()
             drawable.shape = GradientDrawable.RECTANGLE
             drawable.cornerRadius = 40f
-            // Asignar el color según el estado de la votación
             drawable.setColor(votacion.color)
             holder.votacionItem.background = drawable
-
-            holder.nombreButton.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, emitir_voto::class.java)
-                intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
-                context.startActivity(intent)
-            }
         }
+
+
+
 
         override fun getItemCount() = votaciones.size
     }
@@ -183,7 +222,8 @@ class home_administrador : AppCompatActivity() {
                         }
 
                         // Agregar la votación a la lista
-                        votacionesOriginales.add(Votacion(tipoVotacion, color))
+                        votacionesOriginales.add(Votacion(tipoVotacion, color, document.id))  // Guardar el ID
+
                     }
                 }
 
