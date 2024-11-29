@@ -47,6 +47,8 @@ class home_corte : AppCompatActivity() {
         this.enableEdgeToEdge()
         setContentView(R.layout.activity_home_corte)
 
+
+
         // Inicialización de Firebase
         auth = Firebase.auth
         db = FirebaseFirestore.getInstance()
