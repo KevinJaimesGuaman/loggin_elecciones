@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,25 +61,10 @@ class home_elector : AppCompatActivity() {
             insets
         }
 
-
         recyclerView = findViewById(R.id.lista_votaciones)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            // El usuario está autenticado, continuamos con la carga de los datos
-            val email = currentUser.email ?: ""
-            val userId = email.substringBefore("@")
-            obtenerDatosElector(userId)  // Obtén los datos del elector
-            votacionAdapter = VotacionAdapter(votacionesOriginales, userId)  // Pasa el userId al adaptador
-            recyclerView.adapter = votacionAdapter
-        } else {
-            // Si el usuario no está autenticado, redirige al login
-            Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, Loogin2::class.java)
-            startActivity(intent)
-            finish()
-        }
-
+        votacionAdapter = VotacionAdapter(votacionesOriginales)
+        recyclerView.adapter = votacionAdapter
 
         val buscarVotaciones = findViewById<EditText>(R.id.buscar_votaciones)
         val buscadorButton = findViewById<ImageButton>(R.id.buscador)
@@ -89,6 +73,12 @@ class home_elector : AppCompatActivity() {
             filtrarVotaciones(textoBuscado)
         }
 
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val email = currentUser.email ?: ""
+            val userId = email.substringBefore("@")
+            obtenerDatosElector(userId)
+        }
         // Configuración de la acción de refresco en SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener {
             refrescarVotaciones() // Método añadido para refrescar la lista
@@ -127,12 +117,11 @@ class home_elector : AppCompatActivity() {
         }
     }
 
-    class VotacionAdapter(private var votaciones: List<Votacion>, private val userId: String) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
+    class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nombreButton: Button = view.findViewById(R.id.nombreVotacion)
             val votacionItem: LinearLayout = view.findViewById(R.id.votacionItem)
-            val checkBox: CheckBox = view.findViewById(R.id.votoCheckBox)  // El CheckBox
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VotacionViewHolder {
@@ -144,23 +133,17 @@ class home_elector : AppCompatActivity() {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
 
-            // Asignar el color del fondo del item
             val drawable = GradientDrawable()
             drawable.shape = GradientDrawable.RECTANGLE
             drawable.cornerRadius = 40f
             drawable.setColor(votacion.color)
             holder.votacionItem.background = drawable
 
-            // Comprobar si el usuario ya ha votado
-            verificarVotacion(votacion.nombre, holder.checkBox)
-
-            // Deshabilitar el checkbox para que no pueda ser modificado
-            holder.checkBox.isEnabled = false
-
+            // Establecer el color del botón según el estado de la votación
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
 
-                // Lógica para manejar la votación, dependiendo del estado
+                // Verificar el estado de la votación (EMPEZO o YA PASO)
                 val estadoVotacion = when (votacion.color) {
                     Color.GRAY -> "EMPEZO"
                     Color.RED -> "YA PASO"
@@ -169,12 +152,15 @@ class home_elector : AppCompatActivity() {
 
                 when (estadoVotacion) {
                     "YA PASO" -> {
+                        // Mostrar el diálogo de que la votación ya pasó
                         (context as home_elector).mostrarDialogoYaPaso()
                     }
                     "EMPEZO" -> {
+                        // Mostrar el diálogo de que la votación aún no ha comenzado
                         (context as home_elector).mostrarDialogoAunNoEmpezo()
                     }
                     else -> {
+                        // En el caso de que la votación esté activa, ir a la actividad de emitir voto
                         val intent = Intent(context, emitir_voto::class.java)
                         intent.putExtra("VOTACION_NOMBRE", votacion.nombre)
                         context.startActivity(intent)
@@ -183,52 +169,9 @@ class home_elector : AppCompatActivity() {
             }
         }
 
-        override fun getItemCount(): Int {
-            return votaciones.size
-        }
-
-        // Método para actualizar la lista de votaciones en el adaptador
-        fun actualizarLista(nuevaLista: List<Votacion>) {
-            votaciones = nuevaLista
-            notifyDataSetChanged()  // Notificar al RecyclerView que los datos han cambiado
-        }
-
-        // Método para verificar si el usuario ya votó
-        private fun verificarVotacion(votacionNombre: String, checkBox: CheckBox) {
-            // Verifica el estado de votación del usuario en Firestore
-            val estadoVotacionRef = FirebaseFirestore.getInstance().collection("Votaciones")
-                .document(votacionNombre)  // Aquí se accede al documento de la votación
-                .collection("EstadoVotacion")
-                .document(userId)  // Aquí se accede al estado de votación del usuario
-
-            estadoVotacionRef.get().addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val yaVoto = document.getBoolean("votacion1") ?: false  // Comprobar si el campo 'votacion1' existe y es verdadero
-                    checkBox.isChecked = yaVoto  // Marcar el checkbox si el usuario ya votó
-                } else {
-                    checkBox.isChecked = false  // Si no existe el documento, se desmarca
-                }
-            }.addOnFailureListener { e ->
-                Log.w("Firestore", "Error al verificar estado de votación", e)
-            }
-        }
-    }
 
 
-
-    private fun verificarVotacion(votacionNombre: String, usuarioId: String): Boolean {
-        var yaVoto = false
-        val estadoVotacionRef = db.collection("Votaciones")
-            .document(votacionNombre)  // Aquí se accede al documento de la votación
-            .collection("EstadoVotacion")
-            .document(usuarioId)  // Aquí se accede al estado de votación del usuario
-
-        estadoVotacionRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                yaVoto = document.getBoolean("votacion1") ?: false  // Comprobar si el campo 'votacion1' existe y es verdadero
-            }
-        }
-        return yaVoto
+        override fun getItemCount() = votaciones.size
     }
 
     // Método para mostrar el mensaje cuando la votación YA PASO
@@ -345,20 +288,14 @@ class home_elector : AppCompatActivity() {
             obtenerDatosElector(userId) // Llama de nuevo para refrescar las votaciones
         }
     }
-    // Método para filtrar las votaciones por el texto de búsqueda
     private fun filtrarVotaciones(textoBuscado: String) {
         val listaFiltrada = if (textoBuscado.isEmpty()) {
-            // Si el texto de búsqueda está vacío, mostrar todas las votaciones
             votacionesOriginales
         } else {
-            // Filtrar las votaciones que contienen el texto buscado en su nombre (sin distinguir entre mayúsculas y minúsculas)
             votacionesOriginales.filter { it.nombre.contains(textoBuscado, ignoreCase = true) }
         }
-
-        // Actualizar el adaptador con la lista filtrada
-        votacionAdapter.actualizarLista(listaFiltrada)
-
-        // Notificar al adaptador que los datos han cambiado para que la vista se actualice
+        votacionAdapter = VotacionAdapter(listaFiltrada)
+        recyclerView.adapter = votacionAdapter
         votacionAdapter.notifyDataSetChanged()
     }
 

@@ -27,8 +27,11 @@
                 android:id="@+id/text_titulo_crear_cuenta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/public_sans_bold"
                 android:gravity="center"
                 android:text="Crear Cuenta"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="40dp" />
 
             <TextView
@@ -38,7 +41,10 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans_bold"
                 android:hint="*Nombres"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <TextView
@@ -47,7 +53,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans"
                 android:text="TextView"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <TextView
@@ -57,7 +66,10 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans_bold"
                 android:hint="Cuenta Institucional"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <TextView
@@ -66,7 +78,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans"
                 android:text="TextView"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <TextView
@@ -76,7 +91,10 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans_bold"
                 android:text="Carrera"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <Spinner
@@ -84,6 +102,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="20dp"
+                android:textColor="#000000"
+                android:textColorHint="#000000"
                 android:layout_marginEnd="20dp"
                 android:textSize="20dp" />
 
@@ -94,8 +114,11 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans_bold"
                 android:text="Carnet de Identidad"
+                android:textColor="#000000"
                 android:textColorHighlight="#E91E63"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <EditText
@@ -105,9 +128,12 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:ems="8"
+                android:fontFamily="@font/public_sans"
                 android:hint="Numero de Carnet"
                 android:inputType="number"
-                android:padding="12dp" />
+                android:padding="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#403D3D" />
 
             <TextView
                 android:id="@+id/textView_complemento"
@@ -116,8 +142,11 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
+                android:fontFamily="@font/public_sans_bold"
                 android:text="*Complemento (Opcional)"
+                android:textColor="#000000"
                 android:textColorHighlight="#E91E63"
+                android:textColorHint="#000000"
                 android:textSize="20dp" />
 
             <EditText
@@ -127,17 +156,21 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:ems="3"
+                android:fontFamily="@font/public_sans"
                 android:hint="Complemento"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="#000000"
+                android:textColorHint="#D1BDBD" />
 
             <Button
                 android:id="@+id/boton_crear_cuenta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
                 android:backgroundTint="#FAB946"
+                android:fontFamily="@font/public_sans_bold"
                 android:text="Continuar"
                 android:textColor="#000000" />
 
@@ -148,6 +181,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:backgroundTint="#FAB946"
+                android:fontFamily="@font/public_sans_bold"
                 android:text="Cancelar"
                 android:textColor="#000000" />
 

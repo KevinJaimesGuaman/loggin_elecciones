@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -102,6 +103,12 @@ class home_administrador : AppCompatActivity() {
         filtrarVotaciones("") // Mostrar todas las votaciones
         swipeRefreshLayout.setOnRefreshListener {
             refrescarVotaciones()
+        }
+        //botin añadir
+        val imageView_añadir = findViewById<ImageView>(R.id.imageView_añadir)
+        imageView_añadir.setOnClickListener {
+            val intent = Intent(this, administrador_CrearEditar::class.java)
+            startActivity(intent)
         }
     }
 

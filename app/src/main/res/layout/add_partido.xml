@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#353A40">
+
+    <!-- Contenedor principal con bordes redondeados -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contenedor_principal"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardElevation="8dp"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#91A5A7"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/boton_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_general"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toTopOf="@id/boton_add"
+            android:padding="16dp">
+
+            <!-- Header con botón volver e título -->
+            <LinearLayout
+                android:id="@+id/layout_titulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginBottom="16dp">
+
+                <!-- Botón de volver -->
+                <ImageButton android:id="@+id/volver" android:layout_width="38dp" android:layout_height="29dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:scaleType="fitCenter" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Información" android:src="@drawable/flecha"/>
+
+
+                <!-- Título -->
+                <TextView
+                    android:id="@+id/tv_titulo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Añadir/Editar Partido"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/public_sans"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <!-- Label: Nombre del partido -->
+            <TextView
+                android:id="@+id/tv_nombre_partido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre del Partido"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/public_sans"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_titulo"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Campo: Nombre del partido -->
+
+            <!-- Label: Acrónimo del partido -->
+            <EditText
+                android:id="@+id/et_nombre_partido"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginTop="8dp"
+                app:cardElevation="8dp"
+                android:textColorHint="#403D3D"
+                android:background="@drawable/rounded_background4"
+                android:fontFamily="@font/public_sans"
+                android:hint="Ej, Alianza Universitaria"
+                android:padding="12dp"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_nombre_partido" />
+
+            <TextView
+                android:id="@+id/tv_acronimo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Acrónimo del Partido"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/public_sans"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_nombre_partido"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Campo: Acrónimo -->
+            <EditText
+                android:id="@+id/et_acronimo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="@drawable/rounded_background4"
+                android:fontFamily="@font/public_sans"
+                android:hint="Ej, ALU"
+                android:padding="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#403D3D"
+                app:cardElevation="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_acronimo" />
+
+            <!-- Label: Color del partido -->
+            <TextView
+                android:id="@+id/tv_color_partido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Color del Partido"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/public_sans"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_acronimo"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Botón para seleccionar color -->
+            <Button
+                android:id="@+id/btn_seleccionar_color"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:backgroundTint="@android:color/darker_gray"
+                android:text="Seleccionar Color"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/public_sans"
+                android:padding="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_color_partido" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_candidatos"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/layout_botones"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_seleccionar_color" />
+
+            <LinearLayout
+                android:id="@+id/layout_botones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rv_candidatos">
+
+                <Button
+                    android:id="@+id/btn_add_candidato"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#6B9BFD"
+                    android:fontFamily="@font/public_sans"
+                    android:text="+"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/btn_remove_candidato"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#FF6B6B"
+                    android:fontFamily="@font/public_sans"
+                    android:text="-"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+    <Button
+        android:id="@+id/boton_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Añadir"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        app:backgroundTint="@color/white"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:elevation="4dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

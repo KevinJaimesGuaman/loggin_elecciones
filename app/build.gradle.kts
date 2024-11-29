@@ -53,7 +53,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -78,9 +77,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    // Import the BoM for the Firebase platform
+    // Firebase y otras dependencias
     implementation(platform(libs.firebase.bom))
-
+    implementation("com.github.AnyChart:AnyChart-Android:1.1.5")
     implementation("com.google.firebase:firebase-analytics:22.1.2")
     implementation("com.google.firebase:firebase-auth:23.1.0")
     implementation(libs.play.services.auth)
@@ -88,8 +87,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
-
+    implementation ("com.github.yukuku:ambilwarna:2.0.1")
 }
