@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Loggin_elecciones"
         tools:targetApi="31">
         <activity
+            android:name=".editar_eleccion_Administrador"
+            android:exported="false" />
+        <activity
             android:name=".administrador_CrearEditar"
             android:exported="false" />
         <activity

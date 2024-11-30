@@ -105,7 +105,7 @@ class home_administrador : AppCompatActivity() {
             refrescarVotaciones()
         }
         //botin añadir
-        val imageView_añadir = findViewById<ImageView>(R.id.imageView_añadir)
+        val imageView_añadir = findViewById<ImageView>(R.id.imageButton_accion)
         imageView_añadir.setOnClickListener {
             val intent = Intent(this, administrador_CrearEditar::class.java)
             startActivity(intent)
@@ -137,10 +137,10 @@ class home_administrador : AppCompatActivity() {
             }
         }
     }
-
+    // Clase para representar las votaciones
     data class Votacion(val nombre: String, val color: Int, val id: String) // Agregar id
 
-
+// Adaptador para la lista de votaciones
     class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -159,6 +159,15 @@ class home_administrador : AppCompatActivity() {
         override fun onBindViewHolder(holder: VotacionViewHolder, position: Int) {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
+
+            holder.editarButton.setOnClickListener {
+                // Crear un Intent para iniciar la actividad de edición
+                val datoEnviar=votacion.nombre
+                val intent = Intent(holder.itemView.context, editar_eleccion_Administrador::class.java)
+                intent.putExtra("votacionId", datoEnviar) // Pasar el ID de la votación
+                holder.itemView.context.startActivity(intent)
+
+            }
 
             holder.borrarButton.setOnClickListener {
                 // Crear el diálogo

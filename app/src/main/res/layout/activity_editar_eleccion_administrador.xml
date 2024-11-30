@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#353A40"
-    tools:context=".administrador_CrearEditar">
+    tools:context=".editar_eleccion_Administrador">
 
-    <!-- Contenedor Principal -->
     <LinearLayout
         android:id="@+id/Contenedor"
         android:layout_width="0dp"
@@ -17,10 +14,10 @@
         android:layout_margin="20dp"
         android:background="#91A5A7"
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/añadir_Eleccion"
+        app:layout_constraintBottom_toTopOf="@+id/botonEleccion_editar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Encabezado con Botón Volver y Título -->
 
@@ -53,7 +50,7 @@
                     android:layout_toEndOf="@id/volver"
                     android:fontFamily="@font/public_sans_bold"
                     android:gravity="center"
-                    android:text="Añadir una Elección"
+                    android:text="Editar una Elección"
                     android:textColor="@color/white"
                     android:textSize="18sp" />
             </RelativeLayout>
@@ -63,9 +60,9 @@
         <!-- Contenido Principal -->
 
         <LinearLayout
-            android:id="@+id/Crear_Eleccion"
+            android:id="@+id/Editar_Eleccion"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
@@ -75,7 +72,7 @@
             android:visibility="visible">
 
             <TextView
-                android:id="@+id/nombre_tipoEleccion_crear"
+                android:id="@+id/nombre_tipoEleccion_editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nombre de la Eleccion"
@@ -83,23 +80,17 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <Spinner
-                android:id="@+id/spinnerTipoEleccion_crear"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@color/default_gris" />
 
-            <EditText
-                android:id="@+id/editTextText_eleccionOtro"
+            <Button
+                android:id="@+id/tipoEleccion_editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Nombre de la eleccion"
-                android:inputType="text"
-                android:visibility="gone" />
+                android:backgroundTint="@color/default_gris"
+                android:textColor="@color/black"
+                android:text="Button" />
 
             <TextView
-                android:id="@+id/textViewCarrerasDestinadas"
+                android:id="@+id/textViewCarrerasDestinadas_editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Carreras Destinadas"
@@ -109,16 +100,16 @@
 
 
             <Button
-                android:id="@+id/carrerasDestinadas_crear"
+                android:id="@+id/BotonCarrerasDestinadas_editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity=""
                 android:backgroundTint="#91A5A7"
                 android:textColor="@color/black"
-                android:text="Carreras Seleccionadas: " />
+                android:gravity="start"
+                android:text="Nro de Carreras destinadas: " />
 
             <TextView
-                android:id="@+id/textView_fechaInicio"
+                android:id="@+id/textView_fechaInicio_editar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Fecha y Hora Inicio"
@@ -135,7 +126,7 @@
 
                 <!-- Botón para seleccionar la fecha -->
                 <Button
-                    android:id="@+id/button_fecha_inicio_crear"
+                    android:id="@+id/button_fecha_inicio_editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -148,13 +139,25 @@
                     android:textSize="16sp" />
 
                 <!-- Botón para seleccionar la hora -->
+                <Button
+                    android:id="@+id/button_timepicker_inicio_editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#91A5A7"
+                    android:gravity="center"
+                    android:hint="hh:mm"
+                    android:padding="8dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/black"
+                    android:textSize="16sp" />
 
                 <!-- Spinner para seleccionar AM/PM -->
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView8"
+                android:id="@+id/textView8_EDITAR"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Fecha y Hora Fin"
@@ -170,7 +173,7 @@
                 android:orientation="horizontal">
                 <!-- Botón para seleccionar la fecha -->
                 <Button
-                    android:id="@+id/button_fecha_fin_crear"
+                    android:id="@+id/button_fecha_fin_editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -183,6 +186,18 @@
                     android:textSize="16sp" />
 
                 <!-- Botón para seleccionar la hora -->
+                <Button
+                    android:id="@+id/button_timepicker_fin_editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#91A5A7"
+                    android:gravity="center"
+                    android:hint="hh:mm"
+                    android:padding="8dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/black"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
@@ -192,7 +207,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textView9"
+                    android:id="@+id/textView9_editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -202,7 +217,7 @@
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/imageView"
+                    android:id="@+id/añadirPartido_editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -211,7 +226,7 @@
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/lista_de_partidos_añadidos"
+                android:id="@+id/lista_de_partidos_añadidos_editar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
 
@@ -221,16 +236,13 @@
 
     </LinearLayout>
 
-    <!-- Botón para Añadir Elección -->
-
     <Button
-        android:id="@+id/añadir_Eleccion"
+        android:id="@+id/botonEleccion_editar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:background="#5A68E6"
-        android:text="Añadir"
-        android:visibility="visible"
+        android:text="EDITAR"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
