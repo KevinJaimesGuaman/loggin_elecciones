@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">loggin_elecciones</string>
+    <string name="app_name">EleccionesFCyT</string>
     <string name="title_activity_loggin">loggin</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>

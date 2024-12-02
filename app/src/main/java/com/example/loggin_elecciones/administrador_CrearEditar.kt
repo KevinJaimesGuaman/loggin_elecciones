@@ -379,9 +379,47 @@ class administrador_CrearEditar : AppCompatActivity() {
             }
         }
         //  ..............................................................................................................
-        //Añador los partidos
-    }
 
+    }
+    // Adapter para el RecyclerView
+    class PartidosAdapter(private val partidos: List<Partido>) : RecyclerView.Adapter<PartidosAdapter.PartidoViewHolder>() {
+
+        // ViewHolder para cada item de la lista
+        class PartidoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val partidoNombre: TextView = itemView.findViewById(R.id.textView_nombrePartido)
+            val editarPartido: ImageView = itemView.findViewById(R.id.imageView_editar_partido)
+            val borrarPartido: ImageView = itemView.findViewById(R.id.imageView_borrar_partido)
+        }
+
+        // Inflar el layout para cada item
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PartidoViewHolder {
+            // Asegúrate de que el layout sea el correcto
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_crear_editar_administrador, parent, false)
+            return PartidoViewHolder(itemView)
+        }
+
+        // Enlazar los datos con las vistas
+        override fun onBindViewHolder(holder: PartidoViewHolder, position: Int) {
+            val partido = partidos[position]
+
+            // Asigna el nombre del partido
+            holder.partidoNombre.text = partido.nombre
+
+            // Puedes agregar listeners o lógica adicional para los iconos de editar y borrar si lo necesitas
+            holder.editarPartido.setOnClickListener {
+                // Acción para editar el partido
+                Log.d("Partido", "Editar partido: ${partido.nombre}")
+            }
+
+            holder.borrarPartido.setOnClickListener {
+                // Acción para borrar el partido
+                Log.d("Partido", "Borrar partido: ${partido.nombre}")
+            }
+        }
+
+        // Número total de items en la lista
+        override fun getItemCount(): Int = partidos.size
+    }
 
 }
 
