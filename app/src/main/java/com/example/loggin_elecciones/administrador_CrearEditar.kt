@@ -379,8 +379,43 @@ class administrador_CrearEditar : AppCompatActivity() {
             }
         }
         //  ..............................................................................................................
-
+        //boton añadir
+        val imageViewAñadirPartido= findViewById<ImageView>(R.id.imageView_añadir_editar)
+        imageViewAñadirPartido.setOnClickListener {
+            //Precrear eleccion
+            precrear(tipoVotacion.tipoVotacionnombre)
+            val intent = Intent(this, home_administrador::class.java)
+            startActivity(intent)
+        }
     }
+
+    private fun precrear(nombreEleccion: String) {
+        if (nombreEleccion.isNullOrEmpty()) {
+            Log.e("Firestore", "El nombre de la elección no es válido.")
+            return
+        }
+
+        val coleccionTipoEleccion = db.collection("TipoEleccion")
+        val documentoNombreEleccion = coleccionTipoEleccion.document(nombreEleccion)
+        val documentoBlanco= mapOf(
+            "color" to "GRIS",
+            "votos" to 0,
+            "acronimo" to "BLANCO"
+        )
+        // Crear el documento dinámico vacío
+        documentoNombreEleccion.set(mapOf<String, Any>()) // Guardamos un documento vacío
+            .addOnSuccessListener {
+                Log.d("Firestore", "Documento '$nombreEleccion' creado exitosamente.")
+                // Crear la subcolección "Partido" (sin documentos iniciales)
+                val partidosRef = documentoNombreEleccion.collection("Partido")
+                partidosRef.document("Blanco").set(documentoBlanco)
+                Log.d("Firestore", "Subcolección 'Partido' creada en '$nombreEleccion'.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error al crear documento '$nombreEleccion': $e")
+            }
+    }
+
     // Adapter para el RecyclerView
     class PartidosAdapter(private val partidos: List<Partido>) : RecyclerView.Adapter<PartidosAdapter.PartidoViewHolder>() {
 
