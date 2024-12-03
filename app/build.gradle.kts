@@ -89,4 +89,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation ("com.github.yukuku:ambilwarna:2.0.1")
+    implementation ("androidx.drawerlayout:drawerlayout:1.1.1")
+    implementation ("com.google.android.material:material:1.5.0")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 }
