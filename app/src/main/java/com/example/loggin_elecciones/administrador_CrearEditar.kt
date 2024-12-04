@@ -553,3 +553,19 @@ data class TipoVotacion(
     var carrerasDestinadas: List<String>, // Lista de carreras a las que está destinada la votación
     var partidos: MutableList<Partido> // Lista mutable de partidos asociados
 )
+data class Partido(
+    val nombre: String,
+    var votos: Int, // Los votos pueden variar
+)
+
+
+data class paraEneviar(
+    val tipoDeVotacion: String,
+    val fechaIni: String,
+    val fechaFin: String,
+    val estado: String,
+    var otro: String,
+    val carrerasDestinadas: List<String>,
+    val partidos: MutableList<Partido>
+)
+

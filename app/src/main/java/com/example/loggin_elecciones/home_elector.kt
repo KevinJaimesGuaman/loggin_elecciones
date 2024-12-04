@@ -3,6 +3,7 @@ package com.example.loggin_elecciones
 // Importaciones necesarias
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
@@ -11,14 +12,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,6 +38,13 @@ class home_elector : AppCompatActivity() {
     private val votacionesOriginales = mutableListOf<Votacion>()
     private val db = FirebaseFirestore.getInstance()
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var botonDatos: ImageButton
+    private lateinit var navNombre: TextView
+    private lateinit var navCarrera: TextView
+    private lateinit var navEstado: TextView
+    private lateinit var navCloseSession: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +71,28 @@ class home_elector : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+        // Configura el DrawerLayout y NavigationView
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigationView)
+        botonDatos = findViewById(R.id.boton_datos)
+
+        // Referencias a los TextViews del Navigation Drawer
+        val navTitulo: TextView = findViewById(R.id.nav_titulo)
+        navTitulo.paintFlags = navTitulo.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        navNombre = navigationView.findViewById(R.id.nav_nombre)
+        navCarrera = navigationView.findViewById(R.id.nav_carrera)
+        navEstado = navigationView.findViewById(R.id.nav_estado)
+        navCloseSession = navigationView.findViewById(R.id.nav_close_session)
+
+        // Configura el botón de datos para abrir el drawer
+        botonDatos.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // Cerrar sesión desde el Navigation Drawer
+        navCloseSession.setOnClickListener {
+            signOut()
         }
 
 
@@ -136,7 +169,7 @@ class home_elector : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VotacionViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.votacion_item_elector, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.votacion_item, parent, false)
             return VotacionViewHolder(view)
         }
 
@@ -144,23 +177,27 @@ class home_elector : AppCompatActivity() {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
 
-            // Asignar el color del fondo del item
             val drawable = GradientDrawable()
             drawable.shape = GradientDrawable.RECTANGLE
             drawable.cornerRadius = 40f
-            drawable.setColor(votacion.color)
+
+            drawable.setColor(
+                when (votacion.color) {
+                    Color.GRAY -> Color.parseColor("#a3a8b7")   // EMPEZO
+                    Color.RED -> Color.parseColor("#C62828")    // YA PASO
+                    Color.GREEN -> Color.parseColor("#64c27b")  // ACTIVO
+                    else -> Color.BLACK
+                }
+            )
             holder.votacionItem.background = drawable
 
-            // Comprobar si el usuario ya ha votado
             verificarVotacion(votacion.nombre, holder.checkBox)
 
-            // Deshabilitar el checkbox para que no pueda ser modificado
             holder.checkBox.isEnabled = false
 
             holder.nombreButton.setOnClickListener {
                 val context = holder.itemView.context
 
-                // Lógica para manejar la votación, dependiendo del estado
                 val estadoVotacion = when (votacion.color) {
                     Color.GRAY -> "EMPEZO"
                     Color.RED -> "YA PASO"
@@ -187,7 +224,6 @@ class home_elector : AppCompatActivity() {
             return votaciones.size
         }
 
-        // Método para actualizar la lista de votaciones en el adaptador
         fun actualizarLista(nuevaLista: List<Votacion>) {
             votaciones = nuevaLista
             notifyDataSetChanged()  // Notificar al RecyclerView que los datos han cambiado
@@ -267,60 +303,40 @@ class home_elector : AppCompatActivity() {
 
 
     private fun cargarVotacionesFiltradasPorCarrera(carreraElector: String) {
-        db.collection("Votacion")
+        db.collection("TipoEleccion")
             .get()
-            .addOnSuccessListener { votaciones ->
+            .addOnSuccessListener { tipoElecciones ->
                 votacionesOriginales.clear() // Limpiamos la lista original
 
-                // Recorremos todas las votaciones
-                for (votacionDoc in votaciones) {
-                    val tipoVotacion = votacionDoc.getString("tipoVotacion") ?: "Desconocido"
-                    val estado = votacionDoc.getLong("estado")?.toInt() ?: 0
+                for (tipoEleccionDoc in tipoElecciones) {
+                    val tipoVotacion = tipoEleccionDoc.id // El ID del documento es el tipo de votación
 
-                    // Obtener las fechas de inicio y fin como Timestamp
-                    val fechaInicio = votacionDoc.getTimestamp("fechaIni")?.toDate() ?: Date()  // Convierte a Date
-                    val fechaFin = votacionDoc.getTimestamp("fechaFin")?.toDate() ?: Date()        // Convierte a Date
+                    val carrerasDestinadas = tipoEleccionDoc.get("carrerasDestinadas") as? List<String> ?: listOf()
 
-                    // Obtener el estado de la votación (ACTIVO, AUN NO EMPEZO, YA PASO)
-                    val estadoVotacion = obtenerEstadoVotacion(fechaInicio, fechaFin)
+                    if (carrerasDestinadas.contains(carreraElector)) {
+                        val fechaInicio = tipoEleccionDoc.getTimestamp("fechaInicio")?.toDate() ?: Date()
+                        val fechaFin = tipoEleccionDoc.getTimestamp("fechaFin")?.toDate() ?: Date()
 
-                    // Asignar el color según el estado
-                    val color = when (estadoVotacion) {
-                        "EMPEZO" -> Color.GRAY
-                        "ACTIVO" -> Color.GREEN             // Votación activa: verde
-                        // Votación aún no empieza: plomo (gris claro)
-                        "YA PASO" -> Color.RED             // Votación ya pasó: rojo
-                        else -> Color.BLACK                // Caso por defecto
+                        val estadoVotacion = obtenerEstadoVotacion(fechaInicio, fechaFin)
+
+                        val color = when (estadoVotacion) {
+                            "EMPEZO" -> Color.GRAY
+                            "ACTIVO" -> Color.GREEN
+                            "YA PASO" -> Color.RED
+                            else -> Color.BLACK
+                        }
+
+                        votacionesOriginales.add(Votacion(tipoVotacion, color))
                     }
-
-                    // Verificar que el elector pertenece a esta votación (lo que ya estás haciendo)
-                    val carrerasDestinadasId = votacionDoc.getString("carrerasDestinadas") ?: ""
-                    db.collection("CarrerasDestinadas").document(carrerasDestinadasId)
-                        .get()
-                        .addOnSuccessListener { carrerasDestinadasDoc ->
-                            if (carrerasDestinadasDoc.exists()) {
-                                val carreras = carrerasDestinadasDoc.data?.filterKeys { it.startsWith("carrera") }
-                                if (carreras != null) {
-                                    for ((key, value) in carreras) {
-                                        if (value == carreraElector) {
-                                            // Si encontramos la carrera, la agregamos a la lista de votaciones
-                                            votacionesOriginales.add(Votacion(tipoVotacion, color))
-                                            votacionAdapter.notifyDataSetChanged()
-                                            swipeRefreshLayout.isRefreshing = false
-                                            break // Si ya encontramos la carrera, no necesitamos seguir buscando
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            Toast.makeText(this, "Error al cargar carreras: ${exception.message}", Toast.LENGTH_SHORT).show()
-                            swipeRefreshLayout.isRefreshing = false
-                        }
                 }
+
+                // Actualizar el adaptador y la vista
+                votacionAdapter.notifyDataSetChanged()
+                swipeRefreshLayout.isRefreshing = false
+
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al cargar votaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al cargar tipo de elecciones: ${exception.message}", Toast.LENGTH_SHORT).show()
                 swipeRefreshLayout.isRefreshing = false
             }
     }
@@ -367,6 +383,11 @@ class home_elector : AppCompatActivity() {
         val carreraTextView: TextView = findViewById(R.id.carrera)
         val nombreTextView: TextView = findViewById(R.id.nombre)
 
+        // Referencias a los TextViews dentro del Navigation Drawer
+        navNombre = navigationView.findViewById(R.id.nav_nombre)
+        navCarrera = navigationView.findViewById(R.id.nav_carrera)
+        navEstado = navigationView.findViewById(R.id.nav_estado)
+
         db.collection("Elector").document(userId)
             .get()
             .addOnSuccessListener { document ->
@@ -375,26 +396,32 @@ class home_elector : AppCompatActivity() {
                     val carrera = document.getString("carrera") ?: "Carrera no encontrada"
                     val estado = document.getBoolean("habilitado") ?: false
 
+                    // Actualiza los TextViews del activity principal
                     nombreTextView.text = "Nombre: $nombre"
                     carreraTextView.text = "Carrera: $carrera"
                     estadoTextView.text = "Estado: ${if (estado) "HABILITADO" else "NO HABILITADO"}"
                     estadoTextView.setTextColor(if (estado) Color.BLACK else Color.RED)
 
+                    // Actualiza los TextViews del Navigation Drawer
+                    navNombre.text = "Nombre: $nombre"
+                    navCarrera.text = "Carrera: $carrera"
+                    navEstado.text = "Estado: ${if (estado) "HABILITADO" else "NO HABILITADO"}"
+                    navEstado.setTextColor(if (estado) Color.BLACK else Color.RED)
+
+                    // Si no está habilitado, mostrar un mensaje
                     if (!estado) {
-                        // Si el elector no está habilitado, mostramos el layout de no habilitado
                         mostrarDialogoNoHabilitado()
                     } else {
-                        // Llama a cargarVotacionesFiltradasPorCarrera con la carrera obtenida
+                        // Si está habilitado, cargar las votaciones filtradas por carrera
                         cargarVotacionesFiltradasPorCarrera(carrera)
                     }
-                } else {
-                    carreraTextView.text = "Carrera: No disponible"
-                    estadoTextView.text = "Estado: No disponible"
                 }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener datos: ${exception.message}", Toast.LENGTH_SHORT).show()
+                // Manejo de errores al obtener los datos
+                Toast.makeText(this, "Error al obtener los datos del elector: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
 }

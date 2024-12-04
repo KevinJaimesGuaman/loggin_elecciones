@@ -1,0 +1,43 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:background="?attr/colorPrimary"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/nav_nombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre: Usuario"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/nav_carrera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Carrera: Ingeniería"
+        android:textColor="@android:color/white"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/nav_estado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estado: HABILITADO"
+        android:textColor="@android:color/white"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/nav_cerrar_sesion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/white"
+        android:text="Cerrar Sesión"
+        android:textColor="?attr/colorPrimary" />
+</LinearLayout>

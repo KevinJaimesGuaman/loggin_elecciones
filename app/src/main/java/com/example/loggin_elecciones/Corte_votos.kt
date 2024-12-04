@@ -148,7 +148,7 @@ class corte_votos : AppCompatActivity() {
             if (color == "#FFFFFF" || color == "WHITE") {
                 // Configurar texto negro si el fondo es blanco
                 pie.labels()
-                    .fontColor("BLACK") // Cambia el color de la fuente a negro
+                    .fontColor("#000000") // Cambia el color de la fuente a negro
             }
         }
 
