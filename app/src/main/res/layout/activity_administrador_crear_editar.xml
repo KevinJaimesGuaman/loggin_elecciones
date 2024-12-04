@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#353A40"
+    tools:context=".administrador_CrearEditar">
+
+    <!-- Contenedor Principal -->
+    <LinearLayout
+        android:id="@+id/Contenedor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="20dp"
+        android:background="#91A5A7"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/añadir_Eleccion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Encabezado con Botón Volver y Título -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <ImageButton
+                    android:id="@+id/volver"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Volver"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/volver" />
+
+                <TextView
+                    android:id="@+id/Titulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/volver"
+                    android:fontFamily="@font/public_sans_bold"
+                    android:gravity="center"
+                    android:text="Añadir una Elección"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <!-- Contenido Principal -->
+
+        <LinearLayout
+            android:id="@+id/Crear_Eleccion"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:backgroundTint="#91A5A7"
+            android:orientation="vertical"
+            android:paddingBottom="16sp"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/nombre_tipoEleccion_crear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre de la Eleccion"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerTipoEleccion_crear"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/default_gris" />
+
+            <EditText
+                android:id="@+id/editTextText_eleccionOtro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Nombre de la eleccion"
+                android:inputType="text"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/textViewCarrerasDestinadas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Carreras Destinadas"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+
+            <Button
+                android:id="@+id/carrerasDestinadas_crear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity=""
+                android:backgroundTint="#91A5A7"
+                android:textColor="@color/black"
+                android:text="Carreras Seleccionadas: " />
+
+            <TextView
+                android:id="@+id/textView_fechaInicio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fecha y Hora Inicio"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+
+                android:orientation="horizontal">
+
+                <!-- Botón para seleccionar la fecha -->
+                <Button
+                    android:id="@+id/button_fecha_inicio_crear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="#91A5A7"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="dd/mm/aaaa"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <!-- Botón para seleccionar la hora -->
+
+                <!-- Spinner para seleccionar AM/PM -->
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fecha y Hora Fin"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <!-- Botón para seleccionar la fecha -->
+                <Button
+                    android:id="@+id/button_fecha_fin_crear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="#91A5A7"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="dd/mm/aaaa"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <!-- Botón para seleccionar la hora -->
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Partidos"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/imageView_añadir_editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/add_box" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/lista_de_partidos_añadidos"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:background="#00000000" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Botón para Añadir Elección -->
+
+    <Button
+        android:id="@+id/añadir_Eleccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="#5A68E6"
+        android:text="Añadir"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

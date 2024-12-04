@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/background_rounded">
+
+    <LinearLayout
+        android:id="@+id/votacionItem"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@drawable/background_rounded">
+
+
+
+        <LinearLayout
+            android:id="@+id/contendorVotacion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@drawable/background_rounded">
+
+            <!-- Botón con el nombre de la votación -->
+            <TextView
+                android:id="@+id/nombrePartido"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="Nombre de la votación"
+                android:fontFamily="sans-serif-condensed"
+                android:gravity="start"
+                android:stateListAnimator="@null"
+                android:textAllCaps="false"
+                android:textColor="@android:color/black"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
