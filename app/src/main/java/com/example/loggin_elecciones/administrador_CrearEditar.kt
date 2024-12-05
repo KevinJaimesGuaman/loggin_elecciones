@@ -368,7 +368,7 @@ class administrador_CrearEditar : AppCompatActivity() {
         imageViewAñadirPartido.setOnClickListener {
             //Precrear eleccion
             precrear(tipoVotacion.tipoVotacionnombre)
-            val intent = Intent(this, home_administrador::class.java)
+            val intent = Intent(this, add_partido::class.java)
             startActivity(intent)
         }
     }

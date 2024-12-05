@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.loggin_elecciones.databinding.ActivityCrearCuentaBinding
+import com.example.loggin_elecciones.home_administrador.Votacion
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -183,82 +184,78 @@ class home_corte : AppCompatActivity() {
                 context.startActivity(intent)
             }
         }
-
         override fun getItemCount() = votaciones.size
     }
 
 
     // Función para cargar las votaciones desde Firestore
     private fun cargarVotaciones() {
+        // Obtén el email del usuario actual para acceder al documento de CorteElectoral
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.email?.let { email ->
+            val userId = email.substringBefore("@")
 
-        val email = auth.currentUser?.email ?: return
-        val userId = email.substringBefore('@')
+            // Obtenemos las carreras asignadas del usuario
+            db.collection("CorteElectoral")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { corteDoc ->
+                    val carrerasAsignadas = corteDoc.get("carrerasAsignadas") as? List<String>
 
-        // Paso 1: Recuperar datos de CorteElectoral
-        db.collection("CorteElectoral")
-            .document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val carrerasDestinadas = document.getString("carrerasDestinadas")
-                    val votacionesAsignadas = document.get("votacionesAsignadas") as? List<String>
-
-                    if (!carrerasDestinadas.isNullOrEmpty() && votacionesAsignadas != null && votacionesAsignadas.isNotEmpty()) {
-
-                        // Paso 2: Filtrar las votaciones por ID y carrera destinada
-                        db.collection("Votacion")
-                            .whereIn(FieldPath.documentId(), votacionesAsignadas)
-                            .get()
-                            .addOnSuccessListener { result ->
-                                votacionesOriginales.clear() // Limpiar lista antes de agregar nuevas votaciones
-
-                                for (document in result) {
-                                    val carreraVotacion = document.getString("carrerasDestinadas") ?: ""
-                                    val tipoVotacion = document.getString("tipoVotacion") ?: "Desconocido"
-                                    val fechaIni = document.getTimestamp("fechaIni")?.toDate()
-                                    val fechaFin = document.getTimestamp("fechaFin")?.toDate()
-                                    val estado = document.getLong("estado")?.toInt() ?: -1
-
-                                    // Verificar si la carrera coincide antes de agregar
-                                    if (carreraVotacion == carrerasDestinadas && fechaIni != null && fechaFin != null) {
-                                        val color = when (estado) {
-                                            0 -> Color.GREEN // Activo
-                                            1 -> Color.GRAY // Aún no empezó
-                                            2 -> Color.RED  // Ya pasó
-                                            else -> Color.BLACK // Estado desconocido
-                                        }
-
-                                        votacionesOriginales.add(Votacion(tipoVotacion, color))
-                                    }
-                                }
-
-                                // Notificar al adaptador
-                                votacionAdapter.notifyDataSetChanged()
-                                swipeRefreshLayout.isRefreshing = false
-                            }
-                            .addOnFailureListener { exception ->
-                                Toast.makeText(
-                                    this,
-                                    "Error al cargar votaciones: ${exception.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                swipeRefreshLayout.isRefreshing = false
-                            }
-                    } else {
-                        Toast.makeText(this, "No hay votaciones asignadas o carrera no definida.", Toast.LENGTH_SHORT).show()
+                    // Verificamos si carrerasAsignadas es null o vacío
+                    if (carrerasAsignadas.isNullOrEmpty()) {
+                        Toast.makeText(this, "No tienes carreras asignadas para filtrar votaciones.", Toast.LENGTH_SHORT).show()
                         swipeRefreshLayout.isRefreshing = false
+                        return@addOnSuccessListener
                     }
-                } else {
-                    Toast.makeText(this, "Usuario no encontrado en CorteElectoral.", Toast.LENGTH_SHORT).show()
+
+                    // Ahora que tenemos las carreras asignadas, cargamos las votaciones
+                    db.collection("TipoEleccion")
+                        .get()
+                        .addOnSuccessListener { tipoElecciones ->
+                            votacionesOriginales.clear() // Limpiamos la lista original
+
+                            // Iteramos sobre las votaciones
+                            for (tipoEleccionDoc in tipoElecciones) {
+                                val tipoVotacion = tipoEleccionDoc.id // El ID del documento es el tipo de votación
+
+                                val fechaInicio = tipoEleccionDoc.getTimestamp("fechaInicio")?.toDate() ?: Date()
+                                val fechaFin = tipoEleccionDoc.getTimestamp("fechaFin")?.toDate() ?: Date()
+
+                                // Verificamos si la votación está activa para el usuario (comparamos carreras)
+                                val carrerasDestinadas = tipoEleccionDoc.get("carrerasDestinadas") as? List<String> ?: emptyList()
+
+                                // Filtramos las votaciones basadas en las carreras asignadas del usuario
+                                if (carrerasDestinadas.any { carrerasAsignadas.contains(it) }) {
+                                    val estadoVotacion = obtenerEstadoVotacion(fechaInicio, fechaFin)
+
+                                    val color = when (estadoVotacion) {
+                                        "EMPEZO" -> Color.GRAY
+                                        "ACTIVO" -> Color.GREEN
+                                        "YA PASO" -> Color.RED
+                                        else -> Color.BLACK
+                                    }
+
+                                    votacionesOriginales.add(Votacion(tipoVotacion, color)) // Guardamos el tipo de votación
+                                }
+                            }
+
+                            // Actualizar el adaptador y la vista
+                            votacionAdapter.notifyDataSetChanged()
+                            swipeRefreshLayout.isRefreshing = false
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(this, "Error al cargar tipo de elecciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                            swipeRefreshLayout.isRefreshing = false
+                        }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this, "Error al obtener carreras asignadas: ${exception.message}", Toast.LENGTH_SHORT).show()
                     swipeRefreshLayout.isRefreshing = false
                 }
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al consultar CorteElectoral: ${exception.message}", Toast.LENGTH_SHORT).show()
-
-                swipeRefreshLayout.isRefreshing = false
-            }
+        }
     }
+
 
 
     private fun obtenerEstadoVotacion(fechaIni: Date, fechaFin: Date): String {
@@ -281,6 +278,7 @@ class home_corte : AppCompatActivity() {
         votacionAdapter = VotacionAdapter(listaFiltrada)
         recyclerView.adapter = votacionAdapter
     }
+
     private fun refrescarVotaciones() {
         val currentUser = auth.currentUser
         currentUser?.email?.let { email ->
@@ -289,4 +287,3 @@ class home_corte : AppCompatActivity() {
         }
     }
 }
-

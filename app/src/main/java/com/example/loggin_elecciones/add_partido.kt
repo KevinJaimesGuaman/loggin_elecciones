@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -72,6 +73,11 @@ class add_partido : AppCompatActivity() {
         // Botón para guardar partido
         findViewById<Button>(R.id.boton_add).setOnClickListener {
             guardarPartido()
+        }
+        //boton para retroceder
+        val botonVolver = findViewById<ImageButton>(R.id.volver)
+        botonVolver.setOnClickListener {
+            finish()
         }
     }
 
