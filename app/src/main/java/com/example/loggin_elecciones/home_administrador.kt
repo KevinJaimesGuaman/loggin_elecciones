@@ -252,7 +252,7 @@ class home_administrador : AppCompatActivity() {
                         "EMPEZO" -> Color.GRAY
                         "ACTIVO" -> Color.GREEN
                         "YA PASO" -> Color.RED
-                        else -> Color.BLACK
+                        else -> Color.GRAY
                     }
 
                     votacionesOriginales.add(Votacion(tipoVotacion, color, tipoEleccionDoc.id)) // Guardamos también el ID
