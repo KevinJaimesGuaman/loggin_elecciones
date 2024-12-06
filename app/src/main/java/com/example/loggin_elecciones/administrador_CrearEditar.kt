@@ -468,12 +468,12 @@ class administrador_CrearEditar : AppCompatActivity() {
             // Si es "Otro", buscar en PreColeccion
             firestore.collection("PreColeccion")
                 .document("Otro")
-                .collection("Partidos")
+                .collection("Partido")
         } else {
             // Si no, buscar en TipoEleccion
             firestore.collection("TipoEleccion")
                 .document(tipoEleccionNombre)
-                .collection("Partidos")
+                .collection("Partido")
         }
 
         // Usar addSnapshotListener para escuchar cambios en tiempo real
@@ -517,7 +517,7 @@ class administrador_CrearEditar : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d("Firestore", "Documento '$nombreEleccion' creado exitosamente.")
                 // Crear la subcolección "Partido" (sin documentos iniciales)
-                val partidosRef = documentoNombreEleccion.collection("Partidos")
+                val partidosRef = documentoNombreEleccion.collection("Partido")
                 partidosRef.document("Blanco").set(documentoBlanco)
                 Log.d("Firestore", "Subcolección 'Partido' creada en '$nombreEleccion'.")
             }
@@ -555,8 +555,8 @@ class administrador_CrearEditar : AppCompatActivity() {
                 val db = FirebaseFirestore.getInstance()
 
                 if (tipoVotacion.tipoVotacionnombre == "Otro") {
-                    val preColeccionRef = db.collection("PreColeccion").document("Otro").collection("Partidos")
-                    val tipoEleccionRef = db.collection("TipoEleccion").document(documentName).collection("Partidos")
+                    val preColeccionRef = db.collection("PreColeccion").document("Otro").collection("Partido")
+                    val tipoEleccionRef = db.collection("TipoEleccion").document(documentName).collection("Partido")
 
                     preColeccionRef.get().addOnSuccessListener { querySnapshot ->
                         if (!querySnapshot.isEmpty) {

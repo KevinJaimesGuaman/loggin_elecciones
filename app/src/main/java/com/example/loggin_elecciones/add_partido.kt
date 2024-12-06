@@ -29,6 +29,7 @@ class add_partido : AppCompatActivity() {
     private lateinit var rvCandidatos: RecyclerView
 
     private var selectedColor: Int = 0xFFFFFF
+    private var colorPartido: String = ""
     private val listaCandidatos = mutableListOf<Candidato>()
     private lateinit var candidatoAdapter: CandidatoAdapter
 
@@ -90,8 +91,17 @@ class add_partido : AppCompatActivity() {
             }
 
             override fun onOk(dialog: AmbilWarnaDialog?, color: Int) {
+                // Asignar el color seleccionado
                 selectedColor = color
+
+                // Convertir el color a formato hexadecimal
+                val hexColor = String.format("#%06X", (0xFFFFFF and selectedColor))
+                colorPartido = hexColor
+                // Mostrar el color seleccionado en el botón
                 btnSeleccionarColor.setBackgroundColor(selectedColor)
+
+                // Puedes usar el color en formato hexadecimal para lo que necesites
+                Toast.makeText(this@add_partido, "Color seleccionado: $hexColor", Toast.LENGTH_SHORT).show()
             }
         })
         colorPicker.show()
@@ -108,9 +118,9 @@ class add_partido : AppCompatActivity() {
         }
 
         val partido = hashMapOf(
-            "nombre" to nombrePartido,
+            "votos" to 0,
             "acronimo" to acronimo,
-            "color" to selectedColor
+            "color" to colorPartido
         )
 
         val db = FirebaseFirestore.getInstance()
@@ -120,7 +130,7 @@ class add_partido : AppCompatActivity() {
         if (tipoEleccion == "Otro" && tipoEleccion.isNotEmpty()) {
             // Guardar en la colección "PreColeccion" si el tipo de elección es "Otro"
             val eleccionesRef = db.collection("PreColeccion").document("Otro")
-            val partidosRef = eleccionesRef.collection("Partidos").document(nombrePartido)
+            val partidosRef = eleccionesRef.collection("Partido").document(nombrePartido)
             partidosRef.set(partido).addOnSuccessListener {
                 guardarCandidatos(partidosRef)
             }.addOnFailureListener {
@@ -130,7 +140,7 @@ class add_partido : AppCompatActivity() {
             // Guardar en la colección "TipoEleccion" si no es "Otro"
             val documentName = tipoEleccion ?: ""
             val eleccionesRef = db.collection("TipoEleccion").document(documentName)
-            val partidosRef = eleccionesRef.collection("Partidos").document(nombrePartido)
+            val partidosRef = eleccionesRef.collection("Partido").document(nombrePartido)
             partidosRef.set(partido).addOnSuccessListener {
                 guardarCandidatos(partidosRef)
             }.addOnFailureListener {
