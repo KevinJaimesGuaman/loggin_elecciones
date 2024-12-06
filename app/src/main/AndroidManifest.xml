@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Loggin_elecciones"
         tools:targetApi="31">
         <activity
+            android:name=".Administrador_EditarElecciones"
+            android:exported="false" />
+        <activity
             android:name=".administrador_CrearEditar"
             android:exported="false" />
         <activity
@@ -41,16 +44,12 @@
         <activity
             android:name=".add_partido"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".add_partido_rector"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Loogin2"
             android:exported="true">
-
-
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

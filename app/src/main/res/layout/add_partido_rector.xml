@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="#353A40">
 
+
     <!-- Contenedor principal con bordes redondeados -->
     <androidx.cardview.widget.CardView
         android:id="@+id/contenedor_principal"
@@ -50,7 +51,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Añadir Elector"
+                    android:text="Añadir/Editar Partido"
                     android:textSize="18sp"
                     android:textColor="#FFFFFF"
                     android:fontFamily="@font/public_sans"
@@ -171,7 +172,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rv_candidatos">
 
+                <Button
+                    android:id="@+id/btn_add_candidato"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#6B9BFD"
+                    android:fontFamily="@font/public_sans"
+                    android:text="+"
+                    android:textColor="#FFFFFF" />
 
+                <Button
+                    android:id="@+id/btn_remove_candidato"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#FF6B6B"
+                    android:fontFamily="@font/public_sans"
+                    android:text="-"
+                    android:textColor="#FFFFFF" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

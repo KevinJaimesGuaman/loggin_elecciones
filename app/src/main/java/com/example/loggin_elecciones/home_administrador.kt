@@ -187,7 +187,7 @@ class home_administrador : AppCompatActivity() {
             holder.editarButton.setOnClickListener {
                 // Crear un Intent para iniciar la actividad de edición
                 val datoEnviar=votacion.nombre
-                val intent = Intent(holder.itemView.context, administrador_CrearEditar::class.java)
+                val intent = Intent(holder.itemView.context, Administrador_EditarElecciones::class.java)
                 intent.putExtra("votacionId", datoEnviar) // Pasar el ID de la votación
                 holder.itemView.context.startActivity(intent)
 
