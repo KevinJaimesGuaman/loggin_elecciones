@@ -6,9 +6,12 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +20,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CalendarView
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Spinner
@@ -39,6 +43,7 @@ import java.util.Locale
 
 class administrador_CrearEditar : AppCompatActivity() {
     val db = FirebaseFirestore.getInstance()
+    val tiposEleccion= mutableListOf<PreEleccion>()
     // Variable global para almacenar el tiempo seleccionado
     private var tiempoSeleccionadoFin: Timestamp? = null
     private var tiempoSeleccionadoInicio: Timestamp? = null
@@ -69,7 +74,7 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
         // Configurar el RecyclerView
         recyclerView = findViewById(R.id.lista_de_partidos_añadidos)
-        adapter = PartidoAdapter(partidoList)
+        adapter = PartidoAdapter(partidoList,tipoVotacion,context = this)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
@@ -85,44 +90,65 @@ class administrador_CrearEditar : AppCompatActivity() {
         //..............................................................................................
 
         //spinner para el tipo de votacion--------------------------------------------------------------
+
+        // Configurar el Spinner para el tipo de votación
         val spinnerTipoVotacion: Spinner = findViewById(R.id.spinnerTipoEleccion_crear)
-        val editTextOtro: TextView = findViewById(R.id.editTextText_eleccionOtro)
-        // Crear un ArrayAdapter para el Spinner
-        val adapter = ArrayAdapter<String>(
+        val editTextOtro: EditText = findViewById(R.id.editTextText_eleccionOtro)
+
+        // Llamar a la función para cargar los tipos de elección
+        cargarTiposEleccion()
+
+        // Crear un ArrayAdapter para el Spinner con los nombres de los tipos de elección
+        val tipoEleccionNombres = tiposEleccion.map { it.nombre }  // Obtener los nombres de los tipos de elección
+        val adapterSpinner = ArrayAdapter<String>(
             this,
             android.R.layout.simple_spinner_item,
-            tipoVotacion.tipoDeVotacion
+            tipoEleccionNombres
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerTipoVotacion.adapter = adapter
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerTipoVotacion.adapter = adapterSpinner
 
-        // Agregar un listener para detectar cambios en la selección del Spinner
-        // En el onCreate(), después de configurar el spinner
+        // Establecer el listener para cuando se selecciona un tipo de votación
         spinnerTipoVotacion.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                // Actualizar el nombre del tipo de votación
-                when (parent.getItemAtPosition(position)) {
-                    "Rectorado" -> {
-                        tipoVotacion.tipoVotacionnombre = "Rectorado"
-                        editTextOtro.visibility = View.GONE
-                    }
-                    "OTRO" -> {
-                        tipoVotacion.tipoVotacionnombre = "OTRO"
-                        editTextOtro.visibility = View.VISIBLE
-                    }
+            override fun onItemSelected(parentView: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // Actualizar el tipo de votación seleccionado
+                tipoVotacion.tipoVotacionnombre = tiposEleccion[position].nombre
+                if (tipoVotacion.tipoVotacionnombre == "Otro") {
+                    editTextOtro.visibility = View.VISIBLE
+                } else {
+                    editTextOtro.visibility = View.GONE
                 }
-
-                // Recargar los partidos
+                // Llamar a la función para cargar los partidos basados en el tipo de votación seleccionado
                 cargarPartidosDesdeFirestore()
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                editTextOtro.visibility = View.GONE
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
+                // Si no se selecciona nada, no hacer nada
+            }
+        }
+        //..................................................................................................
+        // Configuración del EditText cuando se escoge "otro" en el spinner
+// Añadir el TextWatcher para capturar los cambios en el texto
+        editTextOtro.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence?, start: Int, count: Int, after: Int) {
+                // No necesitamos hacer nada antes de que el texto cambie
+            }
+
+            override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {
+                // Guardar el texto tal como lo escribe el usuario
+                tipoVotacion.otro = charSequence.toString()
+            }
+
+            override fun afterTextChanged(editable: Editable?) {
+                // Este método se ejecuta después de que el texto ha cambiado
+            }
+        })
+
+// Detectar cuando el EditText se vuelve GONE
+        editTextOtro.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            if (editTextOtro.visibility == View.GONE) {
+                // Si el EditText se vuelve GONE, borrar el texto de la variable global
+                tipoVotacion.otro = ""
             }
         }
 
@@ -367,61 +393,112 @@ class administrador_CrearEditar : AppCompatActivity() {
         val imageViewAñadirPartido= findViewById<ImageView>(R.id.imageView_añadir_editar)
         imageViewAñadirPartido.setOnClickListener {
             //Precrear eleccion
-            precrear(tipoVotacion.tipoVotacionnombre)
-            val intent = Intent(this, add_partido::class.java)
-            startActivity(intent)
+            if(tipoVotacion.tipoVotacionnombre == "Otro"){
+                val intent = Intent(this, add_partido::class.java)
+                intent.putExtra("tipoEleccion", "Otro")
+                startActivity(intent)
+            }else{
+                precrear(tipoVotacion.tipoVotacionnombre)
+                val intent = Intent(this, add_partido::class.java)
+                intent.putExtra("tipoEleccion", tipoVotacion.tipoVotacionnombre)
+                startActivity(intent)
+            }
+
+
         }
     }
+    private fun cargarTiposEleccion() {
+
+
+        // Construir la referencia a la colección de partidos
+        val coleccionPartidos = firestore.collection("PreColeccion")
+
+        // Usar addSnapshotListener para escuchar cambios en tiempo real
+        coleccionPartidos.addSnapshotListener { querySnapshot, exception ->
+            if (exception != null) {
+                // Manejar el error
+                Log.e("FirestoreError", "Error al cargar las elecciones", exception)
+                Toast.makeText(this, "No se pudieron cargar las elecciones", Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
+
+            // Limpiar la lista de partidos
+            tiposEleccion.clear()
+
+            // Iterar sobre los documentos
+            for (document in querySnapshot!!) {
+                val nombre = document.id
+                val estado = false
+                val paraMandar = PreEleccion(nombre, estado)
+                tiposEleccion.add(paraMandar)
+            }
+
+            // Verificar si la lista de tipos de elección tiene elementos
+            if (tiposEleccion.isNotEmpty()) {
+                // Crear un ArrayAdapter para el Spinner con los nombres de los tipos de elección
+                val tipoEleccionNombres = tiposEleccion.map { it.nombre }
+                val adapterSpinner = ArrayAdapter<String>(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    tipoEleccionNombres
+                )
+                adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                val spinnerTipoVotacion: Spinner = findViewById(R.id.spinnerTipoEleccion_crear)
+                spinnerTipoVotacion.adapter = adapterSpinner
+            }
+
+            // Notificar al adaptador sobre los cambios
+            adapter.notifyDataSetChanged()
+        }
+    }
+
     private fun cargarPartidosDesdeFirestore() {
         // Limpiar la lista existente antes de cargar nuevos partidos
         partidoList.clear()
 
-        // Determinar la colección de partidos basado en el spinner
-        val coleccionPartidos = when (tipoVotacion.tipoVotacionnombre) {
-            "Rectorado" -> {
-                firestore.collection("PreColeccion")
-                    .document("Rectorado")
-                    .collection("Partidos")
-            }
-            "OTRO" -> {
-                firestore.collection("PreColeccion")
-                    .document("otro")
-                    .collection("Partidos")
-            }
-            else -> {
-                // Colección por defecto o manejar el caso
-                firestore.collection("PreColeccion")
-                    .document("Rectorado")
-                    .collection("Partidos")
-            }
+        // Validar que tipoEleccionNombre no esté vacío o nulo
+        val tipoEleccionNombre = tipoVotacion.tipoVotacionnombre
+        if (tipoEleccionNombre.isNullOrEmpty()) {
+            // Notificar al adaptador para mostrar una lista vacía
+            adapter.notifyDataSetChanged()
+            return
         }
 
-        // Realizar la consulta a Firestore
-        coleccionPartidos
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                // Limpiar la lista de partidos
-                partidoList.clear()
+        val coleccionPartidos = if (tipoEleccionNombre == "Otro") {
+            // Si es "Otro", buscar en PreColeccion
+            firestore.collection("PreColeccion")
+                .document("Otro")
+                .collection("Partidos")
+        } else {
+            // Si no, buscar en TipoEleccion
+            firestore.collection("TipoEleccion")
+                .document(tipoEleccionNombre)
+                .collection("Partidos")
+        }
 
-                // Iterar sobre los documentos
-                for (document in querySnapshot.documents) {
-                    val nombre = document.id
-                    partidoList.add(PartidoItem(nombre))
-                }
+        // Usar addSnapshotListener para escuchar cambios en tiempo real
+        coleccionPartidos.addSnapshotListener { querySnapshot, exception ->
+            if (exception != null) {
+                // Manejar el error
+                Log.e("FirestoreError", "Error al cargar partidos en tiempo real", exception)
+                Toast.makeText(this, "No se pudieron cargar los partidos", Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
 
-                // Notificar al adaptador sobre los cambios
-                adapter.notifyDataSetChanged()
+            // Limpiar la lista de partidos
+            partidoList.clear()
+
+            // Iterar sobre los documentos
+            for (document in querySnapshot!!) {
+                val nombre = document.id
+                partidoList.add(PartidoItem(nombre))
             }
-            .addOnFailureListener { exception ->
-                // Manejar errores
-                Log.e("FirestoreError", "Error al cargar partidos", exception)
-                Toast.makeText(
-                    this,
-                    "No se pudieron cargar los partidos",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+
+            // Notificar al adaptador sobre los cambios
+            adapter.notifyDataSetChanged()
+        }
     }
+
     private fun precrear(nombreEleccion: String) {
         if (nombreEleccion.isNullOrEmpty()) {
             Log.e("Firestore", "El nombre de la elección no es válido.")
@@ -440,7 +517,7 @@ class administrador_CrearEditar : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d("Firestore", "Documento '$nombreEleccion' creado exitosamente.")
                 // Crear la subcolección "Partido" (sin documentos iniciales)
-                val partidosRef = documentoNombreEleccion.collection("Partido")
+                val partidosRef = documentoNombreEleccion.collection("Partidos")
                 partidosRef.document("Blanco").set(documentoBlanco)
                 Log.d("Firestore", "Subcolección 'Partido' creada en '$nombreEleccion'.")
             }
@@ -448,24 +525,99 @@ class administrador_CrearEditar : AppCompatActivity() {
                 Log.e("Firestore", "Error al crear documento '$nombreEleccion': $e")
             }
     }
+
     private fun showWarningDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Advertencia")
         builder.setMessage("¿Estás seguro de que deseas continuar?")
         builder.setPositiveButton("Sí") { _, _ ->
-            // Acción a realizar si el usuario presiona "Sí"
+            // Verificar si el tipo de votación es "Otro" y si el campo "Otro" está vacío
+            if (tipoVotacion.tipoVotacionnombre == "Otro" && tipoVotacion.otro.isNullOrEmpty()) {
+                Toast.makeText(this, "Por favor ingresa un nombre en el campo 'otro'", Toast.LENGTH_SHORT).show()
+                return@setPositiveButton
+            }
+
             if (tiempoSeleccionadoFin != null) {
                 // Crear el mapa de datos a guardar
                 val data = hashMapOf(
-                    "fechaFin" to tiempoSeleccionadoFin!!, // Usar el valor global
-                    "fechaInicio" to tiempoSeleccionadoInicio!!, // Usar el valor global"
+                    "fechaFin" to tiempoSeleccionadoFin!!,
+                    "fechaInicio" to tiempoSeleccionadoInicio!!,
                     "carrerasDestinadas" to tipoVotacion.carrerasDestinadas
                 )
 
-                // Guardar en Firestore
+                // Determinar el nombre del documento
+                val documentName = if (tipoVotacion.tipoVotacionnombre == "Otro" && tipoVotacion.otro.isNotEmpty()) {
+                    tipoVotacion.otro
+                } else {
+                    tipoVotacion.tipoVotacionnombre
+                }
+
+                val db = FirebaseFirestore.getInstance()
+
+                if (tipoVotacion.tipoVotacionnombre == "Otro") {
+                    val preColeccionRef = db.collection("PreColeccion").document("Otro").collection("Partidos")
+                    val tipoEleccionRef = db.collection("TipoEleccion").document(documentName).collection("Partidos")
+
+                    preColeccionRef.get().addOnSuccessListener { querySnapshot ->
+                        if (!querySnapshot.isEmpty) {
+                            for (document in querySnapshot.documents) {
+                                val partidoData = document.data
+                                partidoData?.let {
+                                    val partidoDocRef = tipoEleccionRef.document(document.id)
+
+                                    // Copiar el documento actual en la nueva ubicación
+                                    partidoDocRef.set(it).addOnSuccessListener {
+                                        // Transferir la subcolección "Puestos"
+                                        val puestosRef = preColeccionRef.document(document.id).collection("Puestos")
+                                        val puestosDestinoRef = partidoDocRef.collection("Puestos")
+
+                                        puestosRef.get().addOnSuccessListener { puestosSnapshot ->
+                                            for (puesto in puestosSnapshot.documents) {
+                                                val puestoData = puesto.data
+                                                puestoData?.let {
+                                                    puestosDestinoRef.document(puesto.id).set(it).addOnFailureListener { e ->
+                                                        Log.e("Firestore", "Error al copiar el documento de la subcolección Puestos: ${puesto.id}", e)
+                                                    }
+                                                }
+                                            }
+
+                                            // Después de transferir los puestos, eliminar el documento original si no es "Blanco"
+                                            if (document.id != "Blanco") {
+                                                puestosRef.get().addOnSuccessListener { puestosSnapshot ->
+                                                    val batch = db.batch()
+                                                    for (puesto in puestosSnapshot.documents) {
+                                                        batch.delete(puesto.reference)
+                                                    }
+                                                    batch.commit().addOnSuccessListener {
+                                                        preColeccionRef.document(document.id).delete()
+                                                            .addOnSuccessListener {
+                                                                Log.d("Firestore", "Documento ${document.id} y su subcolección 'Puestos' eliminados con éxito")
+                                                            }
+                                                            .addOnFailureListener { e ->
+                                                                Log.e("Firestore", "Error al eliminar el documento ${document.id}", e)
+                                                            }
+                                                    }
+                                                }
+                                            }
+                                        }.addOnFailureListener { e ->
+                                            Log.e("Firestore", "Error al transferir la subcolección 'Puestos'", e)
+                                        }
+                                    }.addOnFailureListener { e ->
+                                        Log.e("Firestore", "Error al copiar el documento ${document.id}", e)
+                                    }
+                                }
+                            }
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.e("Firestore", "Error al obtener los documentos", e)
+                        Toast.makeText(this, "Error al acceder a los partidos en 'PreColeccion'", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                // Guardar el nuevo documento en "TipoEleccion"
                 db.collection("TipoEleccion")
-                    .document(tipoVotacion.tipoVotacionnombre)  // Usamos el nombre de la votación como el ID del documento
-                    .set(data) // Usa `set` para guardar el mapa
+                    .document(documentName)
+                    .set(data)
                     .addOnSuccessListener {
                         Log.d("Firestore", "Dato guardado con éxito")
                         Toast.makeText(this, "Dato guardado con éxito", Toast.LENGTH_SHORT).show()
@@ -478,26 +630,31 @@ class administrador_CrearEditar : AppCompatActivity() {
                         Toast.makeText(this, "Error al guardar el dato", Toast.LENGTH_SHORT).show()
                     }
             } else {
-                Toast.makeText(
-                    this,
-                    "Selecciona una fecha y hora antes de guardar",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, "Selecciona una fecha y hora antes de guardar", Toast.LENGTH_SHORT).show()
             }
         }
         builder.setNegativeButton("No") { dialog, _ ->
-            // Cierra el diálogo si el usuario presiona "No"
             dialog.dismiss()
         }
         builder.show()
     }
+
+
+
+
     data class PartidoItem(val nombre: String)
 
-    // Adapter para el RecyclerView
-    class PartidoAdapter(private val items: List<PartidoItem>) : RecyclerView.Adapter<PartidoAdapter.PartidoViewHolder>() {
+    class PartidoAdapter(
+        private val items: MutableList<PartidoItem>,
+        private val tipoEleccion: TipoVotacion,
+        private val context: Context
+    ) : RecyclerView.Adapter<PartidoAdapter.PartidoViewHolder>() {
+
+        private val db = FirebaseFirestore.getInstance()
 
         class PartidoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val nombrePartido: TextView = itemView.findViewById(R.id.nombrePartido)
+            val imageView: ImageView = itemView.findViewById(R.id.imageView_borrarPartido)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PartidoViewHolder {
@@ -509,6 +666,62 @@ class administrador_CrearEditar : AppCompatActivity() {
         override fun onBindViewHolder(holder: PartidoViewHolder, position: Int) {
             val partido = items[position]
             holder.nombrePartido.text = partido.nombre
+
+            holder.imageView.setOnClickListener {
+                // Verificar si el partido es "Blanco"
+                if (partido.nombre == "Blanco") {
+                    Toast.makeText(context, "El partido 'Blanco' no se puede eliminar.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // Mostrar el diálogo de confirmación si no es "Blanco"
+                mostrarDialogoConfirmacion(partido.nombre, position)
+            }
+        }
+
+        private fun mostrarDialogoConfirmacion(nombre: String, position: Int) {
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Confirmar eliminación")
+            builder.setMessage("¿Estás seguro de que deseas eliminar el partido '$nombre'?")
+
+            builder.setPositiveButton("Eliminar") { dialog, _ ->
+                // Confirmar eliminación
+                borrarPartido(nombre, position)
+                dialog.dismiss()
+            }
+
+            builder.setNegativeButton("Cancelar") { dialog, _ ->
+                // Cancelar la eliminación
+                dialog.dismiss()
+            }
+
+            val dialog = builder.create()
+            dialog.show()
+        }
+
+        private fun borrarPartido(nombre: String, position: Int) {
+            val tipoVotacionNombre = tipoEleccion.tipoVotacionnombre
+            if (tipoVotacionNombre.isNullOrEmpty()) {
+                Log.e("FirestoreError", "El tipo de votación no está definido.")
+                return
+            }
+
+            db.collection("TipoEleccion").document(tipoVotacionNombre).collection("Partidos")
+                .document(nombre).delete()
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Documento con ID $nombre eliminado exitosamente.")
+
+                    // Eliminar el elemento de la lista local y notificar al adaptador
+                    items.removeAt(position)
+                    notifyItemRemoved(position)
+
+                    // Mostrar el Toast
+                    Toast.makeText(context, "Documento eliminado.", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FirestoreError", "Error al eliminar el documento", exception)
+                    Toast.makeText(context, "Error al eliminar el documento.", Toast.LENGTH_SHORT).show()
+                }
         }
 
         override fun getItemCount(): Int = items.size
@@ -557,7 +770,10 @@ data class Partido(
     val nombre: String,
     var votos: Int, // Los votos pueden variar
 )
-
+data class PreEleccion (
+        val nombre: String,
+        val estado:Boolean
+        )
 
 data class paraEneviar(
     val tipoDeVotacion: String,

@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import yuku.ambilwarna.AmbilWarnaDialog
 import java.util.Date
+import java.util.UUID
 
 class add_partido : AppCompatActivity() {
 
@@ -74,7 +75,8 @@ class add_partido : AppCompatActivity() {
         findViewById<Button>(R.id.boton_add).setOnClickListener {
             guardarPartido()
         }
-        //boton para retroceder
+
+        // Botón para retroceder
         val botonVolver = findViewById<ImageButton>(R.id.volver)
         botonVolver.setOnClickListener {
             finish()
@@ -99,6 +101,7 @@ class add_partido : AppCompatActivity() {
         val nombrePartido = etNombrePartido.text.toString().trim()
         val acronimo = etAcronimo.text.toString().trim()
 
+        // Validar que los campos no estén vacíos
         if (nombrePartido.isEmpty() || acronimo.isEmpty()) {
             Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             return
@@ -111,33 +114,22 @@ class add_partido : AppCompatActivity() {
         )
 
         val db = FirebaseFirestore.getInstance()
-        val eleccionesRef = db.collection("PreColeccion").document("EleccionesDefault")
+        // Obtener el tipo de elección desde el Intent
+        val tipoEleccion = intent.getStringExtra("tipoEleccion")
 
-        // Comprobar si el documento EleccionesDefault ya existe
-        eleccionesRef.get().addOnSuccessListener { documento ->
-            if (!documento.exists()) {
-                // Si no existe, lo creamos con los campos predeterminados
-                val fechaInicio = Timestamp(Date()) // Fecha actual
-                val fechaFin = Timestamp(Date()) // Se puede ajustar a una fecha específica
-                val estado = true // Estado activado por defecto
-                val carrerasDestinadas = "Todas las carreras" // Valor predeterminado de ejemplo
-
-                val eleccionesData = hashMapOf(
-                    "carrerasDestinadas" to carrerasDestinadas,
-                    "fechaInicio" to fechaInicio,
-                    "fechaFin" to fechaFin,
-                    "estado" to estado
-                )
-
-                // Crear el documento EleccionesDefault
-                eleccionesRef.set(eleccionesData).addOnSuccessListener {
-                    Toast.makeText(this, "EleccionesDefault creada con éxito", Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener {
-                    Toast.makeText(this, "Error al crear EleccionesDefault", Toast.LENGTH_SHORT).show()
-                }
+        if (tipoEleccion == "Otro" && tipoEleccion.isNotEmpty()) {
+            // Guardar en la colección "PreColeccion" si el tipo de elección es "Otro"
+            val eleccionesRef = db.collection("PreColeccion").document("Otro")
+            val partidosRef = eleccionesRef.collection("Partidos").document(nombrePartido)
+            partidosRef.set(partido).addOnSuccessListener {
+                guardarCandidatos(partidosRef)
+            }.addOnFailureListener {
+                Toast.makeText(this, "Error al guardar el partido", Toast.LENGTH_SHORT).show()
             }
-
-            // Guardamos el partido
+        } else {
+            // Guardar en la colección "TipoEleccion" si no es "Otro"
+            val documentName = tipoEleccion ?: ""
+            val eleccionesRef = db.collection("TipoEleccion").document(documentName)
             val partidosRef = eleccionesRef.collection("Partidos").document(nombrePartido)
             partidosRef.set(partido).addOnSuccessListener {
                 guardarCandidatos(partidosRef)
@@ -149,14 +141,20 @@ class add_partido : AppCompatActivity() {
 
     private fun guardarCandidatos(partidoRef: DocumentReference) {
         listaCandidatos.forEach { candidato ->
+            // Validar que los campos de candidato no estén vacíos
             if (candidato.nombre.isNotEmpty() && candidato.cargo.isNotEmpty()) {
                 val candidatoData = hashMapOf("nombre" to candidato.nombre)
-                partidoRef.collection("Puestos").document(candidato.cargo).set(candidatoData)
+                // Usar UUID para evitar sobrescribir candidatos con el mismo cargo
+                val candidatoRef = partidoRef.collection("Puestos").document(candidato.cargo)
+                candidatoRef.set(candidatoData)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Candidato guardado: ${candidato.nombre}", Toast.LENGTH_SHORT).show()
-                    }.addOnFailureListener {
+                    }
+                    .addOnFailureListener {
                         Toast.makeText(this, "Error al guardar el candidato: ${candidato.nombre}", Toast.LENGTH_SHORT).show()
                     }
+            } else {
+                Toast.makeText(this, "Nombre y cargo del candidato son obligatorios", Toast.LENGTH_SHORT).show()
             }
         }
     }

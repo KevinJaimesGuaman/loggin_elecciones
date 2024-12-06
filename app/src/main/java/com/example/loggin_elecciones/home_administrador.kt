@@ -112,18 +112,41 @@ class home_administrador : AppCompatActivity() {
         }
     }
     private fun eliminarVotacion(tipoEleccionId: String) {
-        db.collection("TipoEleccion").document(tipoEleccionId)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(this, "Tipo de elección eliminada correctamente", Toast.LENGTH_SHORT).show()
-                // Actualizar la lista local eliminando el tipo de elección eliminado
-                votacionesOriginales.removeAll { it.id == tipoEleccionId }
-                votacionAdapter.notifyDataSetChanged() // Notificar que los datos han cambiado
+        val tipoEleccionRef = db.collection("TipoEleccion").document(tipoEleccionId)
+
+        // Eliminar todos los documentos de la subcolección "Partidos"
+        tipoEleccionRef.collection("Partidos").get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = db.batch()
+
+                for (document in querySnapshot.documents) {
+                    batch.delete(document.reference) // Agregar cada documento de la subcolección al batch
+                }
+
+                // Ejecutar la eliminación en batch
+                batch.commit()
+                    .addOnSuccessListener {
+                        // Después de eliminar la subcolección, eliminar el documento principal
+                        tipoEleccionRef.delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Tipo de elección y sus partidos eliminados correctamente", Toast.LENGTH_SHORT).show()
+                                // Actualizar la lista local eliminando el tipo de elección eliminado
+                                votacionesOriginales.removeAll { it.id == tipoEleccionId }
+                                votacionAdapter.notifyDataSetChanged() // Notificar que los datos han cambiado
+                            }
+                            .addOnFailureListener { exception ->
+                                Toast.makeText(this, "Error al eliminar tipo de elección: ${exception.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .addOnFailureListener { exception ->
+                        Toast.makeText(this, "Error al eliminar subcolección: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al eliminar tipo de elección: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al obtener la subcolección: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
 
     // Función para cerrar sesión
