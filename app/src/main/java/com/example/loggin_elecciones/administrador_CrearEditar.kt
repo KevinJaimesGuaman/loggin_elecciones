@@ -226,161 +226,83 @@ class administrador_CrearEditar : AppCompatActivity() {
                 Log.e("Firebase", "Error al obtener las carreras", exception)
             }
         //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        //fecha y hora inicio
         val buttonFechaHoraInicio: Button = findViewById(R.id.button_fecha_inicio_crear)
-
+        val buttonFechaHoraFin: Button = findViewById(R.id.button_fecha_fin_crear)
 // Configurar el botón de fecha y hora de inicio
         buttonFechaHoraInicio.setOnClickListener {
             val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DAY_OF_MONTH, 1) // Mínimo un día después de hoy
 
-            // Mostrar DatePickerDialog
+            val minDate = calendar.timeInMillis // Timestamp para la fecha mínima
+
             val datePicker = DatePickerDialog(
                 this,
                 { _, selectedYear, selectedMonth, selectedDay ->
-                    val formattedDate =
-                        "$selectedDay/${selectedMonth + 1}/$selectedYear" // Formato dd/MM/yyyy
+                    val selectedCalendar = Calendar.getInstance()
+                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
 
-                    // Mostrar TimePickerDialog para formato de 24 horas
-                    val timePicker = TimePickerDialog(
-                        this,
-                        { _, selectedHour, selectedMinute ->
+                    val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
 
-                            // No se necesita AM/PM porque usaremos el formato de 24 horas
-                            val formattedTime = String.format(
-                                "%02d:%02d",
-                                selectedHour,
-                                selectedMinute
-                            ) // Formato HH:mm
+                    // Verificar si el día seleccionado no es sábado ni domingo
+                    if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+                        Toast.makeText(
+                            this,
+                            "No puedes seleccionar fines de semana. Por favor, elige otro día.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@DatePickerDialog
+                    }
 
-                            // Combinamos la fecha y la hora
-                            val dateString = "$formattedDate $formattedTime" // Cadena combinada
+                    val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear 08:00" // Fecha con hora fija 08:00
 
-                            // Mostramos el valor de la fecha y hora seleccionada en el botón
-                            buttonFechaHoraInicio.text = dateString
+                    buttonFechaHoraInicio.text = formattedDate
 
-                            // Define el formato adecuado para 24 horas
-                            val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                    // Parsear la fecha y asignarla como Timestamp
+                    val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                    try {
+                        val dateIni: Date = format.parse(formattedDate)
+                            ?: throw IllegalArgumentException("Fecha inválida: $formattedDate")
+                        tiempoSeleccionadoInicio = Timestamp(dateIni)
+                        Toast.makeText(
+                            this,
+                            "Fecha y hora de inicio seleccionadas correctamente.",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                            try {
-                                // Intentamos parsear la fecha y hora a un objeto Date
-                                val dateIni: Date = format.parse(dateString)
-                                    ?: throw IllegalArgumentException("Fecha inválida: $dateString")
+                        // Actualizar automáticamente la fecha de fin con la misma fecha y hora fija
+                        val formattedEndDate = "$selectedDay/${selectedMonth + 1}/$selectedYear 16:00"
+                        buttonFechaHoraFin.text = formattedEndDate
 
-                                // Convertimos Date a Timestamp y asignamos a la variable global
-                                tiempoSeleccionadoInicio = Timestamp(dateIni)
-                                Toast.makeText(
-                                    this,
-                                    "Fecha y hora seleccionadas correctamente",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                            } catch (e: Exception) {
-                                // Log y mensaje de error si hay un problema al procesar la fecha y hora
-                                Log.e(
-                                    "ErrorFechaHora",
-                                    "Error al procesar la fecha y hora: $dateString",
-                                    e
-                                )
-                                Toast.makeText(
-                                    this,
-                                    "Error al seleccionar fecha y hora. Revisa el formato.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    ) // true para 24 horas
-
-                    timePicker.show()
-
+                        val dateFin: Date = format.parse(formattedEndDate)
+                            ?: throw IllegalArgumentException("Fecha inválida: $formattedEndDate")
+                        tiempoSeleccionadoFin = Timestamp(dateFin)
+                    } catch (e: Exception) {
+                        Log.e(
+                            "ErrorFechaHora",
+                            "Error al procesar la fecha y hora: $formattedDate",
+                            e
+                        )
+                        Toast.makeText(
+                            this,
+                            "Error al seleccionar fecha y hora. Revisa el formato.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
 
-            datePicker.show()
-        }
-        //.............................................................................................................
-
-        // Configurar el botón de fecha y hora de fin
-        val buttonFechaHoraFin: Button = findViewById(R.id.button_fecha_fin_crear)
-
-        buttonFechaHoraFin.setOnClickListener {
-            val calendar = Calendar.getInstance()
-
-            // Mostrar DatePickerDialog
-            val datePicker = DatePickerDialog(
-                this,
-                { _, selectedYear, selectedMonth, selectedDay ->
-                    val formattedDate =
-                        "$selectedDay/${selectedMonth + 1}/$selectedYear" // Formato dd/MM/yyyy
-
-                    // Mostrar TimePickerDialog con formato de 24 horas
-                    val timePicker = TimePickerDialog(
-                        this,
-                        { _, selectedHour, selectedMinute ->
-
-                            // Formato de hora en 24 horas (sin AM/PM)
-                            val formattedTime = String.format(
-                                "%02d:%02d",
-                                selectedHour,
-                                selectedMinute
-                            ) // Formato HH:mm
-
-                            // Combinamos la fecha y la hora
-                            val dateString = "$formattedDate $formattedTime" // Cadena combinada
-
-                            // Mostramos el valor de la fecha y hora seleccionada en el botón
-                            buttonFechaHoraFin.text = dateString
-
-                            // Define el formato adecuado para 24 horas
-                            val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-
-                            try {
-                                // Intentamos parsear la fecha y hora a un objeto Date
-                                val date: Date = format.parse(dateString)
-                                    ?: throw IllegalArgumentException("Fecha inválida: $dateString")
-
-                                // Convertimos Date a Timestamp y asignamos a la variable global
-                                tiempoSeleccionadoFin = Timestamp(date)
-                                Toast.makeText(
-                                    this,
-                                    "Fecha y hora seleccionadas correctamente",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                            } catch (e: Exception) {
-                                // Log y mensaje de error si hay un problema al procesar la fecha y hora
-                                Log.e(
-                                    "ErrorFechaHora",
-                                    "Error al procesar la fecha y hora: $dateString",
-                                    e
-                                )
-                                Toast.makeText(
-                                    this,
-                                    "Error al seleccionar fecha y hora. Revisa el formato.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    ) // true para formato 24 horas
-
-                    timePicker.show()
-
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
+            // Configurar la fecha mínima como un día después de la actual
+            datePicker.datePicker.minDate = minDate
 
             datePicker.show()
         }
+
+// Deshabilitar la interacción en el botón de fecha de fin
+        buttonFechaHoraFin.isEnabled = false
+
 //-------------------------------------------------------------------------------------------------------------
         //boton añadir------------------------------------------------------------------------------------------------
         // Configurar el botón para guardar en Firebase
