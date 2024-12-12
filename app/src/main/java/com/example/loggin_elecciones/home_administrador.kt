@@ -114,38 +114,62 @@ class home_administrador : AppCompatActivity() {
     private fun eliminarVotacion(tipoEleccionId: String) {
         val tipoEleccionRef = db.collection("TipoEleccion").document(tipoEleccionId)
 
-        // Eliminar todos los documentos de la subcolección "Partidos"
-        tipoEleccionRef.collection("Partidos").get()
-            .addOnSuccessListener { querySnapshot ->
-                val batch = db.batch()
+        // Función recursiva para eliminar documentos y subcolecciones
+        fun eliminarDocumentos(documentRef: com.google.firebase.firestore.DocumentReference, onComplete: () -> Unit) {
+            documentRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val subcolecciones = listOf("Partido", "Puestos") // Lista de subcolecciones conocidas
 
-                for (document in querySnapshot.documents) {
-                    batch.delete(document.reference) // Agregar cada documento de la subcolección al batch
+                        var pendientes = subcolecciones.size
+                        if (pendientes == 0) {
+                            // Si no hay subcolecciones, simplemente eliminar el documento
+                            documentRef.delete().addOnSuccessListener { onComplete() }
+                            return@addOnSuccessListener
+                        }
+
+                        for (subcoleccion in subcolecciones) {
+                            documentRef.collection(subcoleccion).get()
+                                .addOnSuccessListener { querySnapshot ->
+                                    val batch = db.batch()
+
+                                    // Eliminar todos los documentos de la subcolección
+                                    for (subDoc in querySnapshot.documents) {
+                                        batch.delete(subDoc.reference)
+                                    }
+
+                                    batch.commit().addOnSuccessListener {
+                                        pendientes--
+                                        if (pendientes == 0) {
+                                            // Cuando todas las subcolecciones estén eliminadas, eliminar el documento principal
+                                            documentRef.delete().addOnSuccessListener { onComplete() }
+                                        }
+                                    }.addOnFailureListener { exception ->
+                                        Toast.makeText(this, "Error al eliminar subcolección $subcoleccion: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(this, "Error al obtener subcolección $subcoleccion: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    } else {
+                        Toast.makeText(this, "Documento no encontrado.", Toast.LENGTH_SHORT).show()
+                    }
                 }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this, "Error al obtener documento: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
 
-                // Ejecutar la eliminación en batch
-                batch.commit()
-                    .addOnSuccessListener {
-                        // Después de eliminar la subcolección, eliminar el documento principal
-                        tipoEleccionRef.delete()
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Tipo de elección y sus partidos eliminados correctamente", Toast.LENGTH_SHORT).show()
-                                // Actualizar la lista local eliminando el tipo de elección eliminado
-                                votacionesOriginales.removeAll { it.id == tipoEleccionId }
-                                votacionAdapter.notifyDataSetChanged() // Notificar que los datos han cambiado
-                            }
-                            .addOnFailureListener { exception ->
-                                Toast.makeText(this, "Error al eliminar tipo de elección: ${exception.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .addOnFailureListener { exception ->
-                        Toast.makeText(this, "Error al eliminar subcolección: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener la subcolección: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
+        // Iniciar el proceso de eliminación
+        eliminarDocumentos(tipoEleccionRef) {
+            Toast.makeText(this, "Elección eliminada completamente.", Toast.LENGTH_SHORT).show()
+            // Actualizar la lista local después de la eliminación
+            votacionesOriginales.removeAll { it.id == tipoEleccionId }
+            votacionAdapter.notifyDataSetChanged()
+        }
     }
+
 
 
 
@@ -174,7 +198,6 @@ class home_administrador : AppCompatActivity() {
             val votacionItem: LinearLayout = view.findViewById(R.id.admin_item)
         }
 
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VotacionViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.admin_item, parent, false)
             return VotacionViewHolder(view)
@@ -184,38 +207,70 @@ class home_administrador : AppCompatActivity() {
             val votacion = votaciones[position]
             holder.nombreButton.text = votacion.nombre
 
-            holder.editarButton.setOnClickListener {
-                // Crear un Intent para iniciar la actividad de edición
-                val datoEnviar=votacion.nombre
-                val intent = Intent(holder.itemView.context, Administrador_EditarElecciones::class.java)
-                intent.putExtra("votacionId", datoEnviar) // Pasar el ID de la votación
-                holder.itemView.context.startActivity(intent)
+            // Obtener la referencia al documento de la votación
+            val tipoEleccionRef = FirebaseFirestore.getInstance().collection("TipoEleccion").document(votacion.id)
 
-            }
+            tipoEleccionRef.get().addOnSuccessListener { document ->
+                val fechaInicio = document.getTimestamp("fechaInicio")?.toDate() ?: Date()
+                val fechaFin = document.getTimestamp("fechaFin")?.toDate() ?: Date()
+                val currentDate = Date()
 
-            holder.borrarButton.setOnClickListener {
-                // Crear el diálogo
-                val dialogView = LayoutInflater.from(holder.itemView.context).inflate(R.layout.dialog_eliminar, null)
-                val dialog = android.app.AlertDialog.Builder(holder.itemView.context)
-                    .setView(dialogView)
-                    .create()
+                // Verificar si la elección está en proceso
+                val estaEnProceso = currentDate.after(fechaInicio) && currentDate.before(fechaFin)
 
-                // Configurar botones del diálogo
-                val btnCancelar = dialogView.findViewById<Button>(R.id.btn_cancelar)
-                val btnConfirmar = dialogView.findViewById<Button>(R.id.btn_confirmar)
+                // Configurar comportamiento del botón de borrar
+                holder.borrarButton.setOnClickListener {
+                    if (estaEnProceso) {
+                        // Mostrar mensaje si está en proceso
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "No puedes borrar mientras la elección está en proceso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        // Crear el diálogo de confirmación
+                        val dialogView = LayoutInflater.from(holder.itemView.context).inflate(R.layout.dialog_eliminar, null)
+                        val dialog = android.app.AlertDialog.Builder(holder.itemView.context)
+                            .setView(dialogView)
+                            .create()
 
-                btnCancelar.setOnClickListener {
-                    dialog.dismiss() // Cerrar el diálogo
+                        // Configurar botones del diálogo
+                        val btnCancelar = dialogView.findViewById<Button>(R.id.btn_cancelar)
+                        val btnConfirmar = dialogView.findViewById<Button>(R.id.btn_confirmar)
+
+                        btnCancelar.setOnClickListener {
+                            dialog.dismiss() // Cerrar el diálogo
+                        }
+
+                        btnConfirmar.setOnClickListener {
+                            val activity = holder.itemView.context as? home_administrador
+                            activity?.eliminarVotacion(votacion.id) // Llamar a eliminarVotacion con el ID
+                            dialog.dismiss() // Cerrar el diálogo
+                        }
+
+                        dialog.show() // Mostrar el diálogo
+                    }
                 }
 
-                btnConfirmar.setOnClickListener {
-                    // Obtener el contexto como una instancia de home_administrador
-                    val activity = holder.itemView.context as? home_administrador
-                    activity?.eliminarVotacion(votacion.id) // Llamar a eliminarVotacion con el ID
-                    dialog.dismiss() // Cerrar el diálogo
+                // Configurar comportamiento del botón de editar
+                if (estaEnProceso) {
+                    holder.editarButton.setOnClickListener {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "No puedes editar mientras la elección está en proceso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    holder.editarButton.setOnClickListener {
+                        val datoEnviar = votacion.nombre
+                        val intent = Intent(holder.itemView.context, Administrador_EditarElecciones::class.java)
+                        intent.putExtra("votacionId", datoEnviar) // Pasar el ID de la votación
+                        holder.itemView.context.startActivity(intent)
+                    }
                 }
-
-                dialog.show() // Mostrar el diálogo
+            }.addOnFailureListener {
+                Toast.makeText(holder.itemView.context, "Error al verificar fechas: ${it.message}", Toast.LENGTH_SHORT).show()
             }
 
             // Configurar el fondo del item
@@ -225,9 +280,6 @@ class home_administrador : AppCompatActivity() {
             drawable.setColor(votacion.color)
             holder.votacionItem.background = drawable
         }
-
-
-
 
         override fun getItemCount() = votaciones.size
     }
