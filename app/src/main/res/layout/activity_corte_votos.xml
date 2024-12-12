@@ -6,94 +6,141 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".corte_votos">
-    <!-- Primer LinearLayout con el Titulo -->
-    <LinearLayout
-        android:id="@+id/Contenedor"
+
+    <!-- Envolvemos el contenido en un NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="MissingClass">
+        app:layout_constraintEnd_toEndOf="parent">
+
         <LinearLayout
+            android:id="@+id/Contenedor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ECF5FF"
-            android:gravity="center">
-            <RelativeLayout
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Contenido principal -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
-
-                <ImageButton
-                    android:id="@+id/volver"
-                    android:layout_width="48dp"
-                    android:layout_height="49dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:scaleType="fitCenter"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Información"
-                    android:src="@drawable/volver" />
-
-                <TextView
-                    android:id="@+id/Titulo"
-                    android:layout_width="wrap_content"
+                android:background="#ECF5FF"
+                android:gravity="center">
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/volver"
-                    android:layout_centerVertical="true"
-                    android:fontFamily="@font/public_sans_bold"
-                    android:gravity="center"
-                    android:text="Universidad Mayor de San Simon"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
+                    android:padding="16dp">
 
-            </RelativeLayout>
+                    <ImageButton
+                        android:id="@+id/volver"
+                        android:layout_width="48dp"
+                        android:layout_height="49dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:scaleType="fitCenter"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Información"
+                        android:src="@drawable/volver" />
 
+                    <TextView
+                        android:id="@+id/Titulo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/volver"
+                        android:layout_centerVertical="true"
+                        android:fontFamily="@font/public_sans_bold"
+                        android:gravity="center"
+                        android:text="Universidad Mayor de San Simon"
+                        android:textColor="#000000"
+                        android:textSize="18sp" />
 
+                </RelativeLayout>
+            </LinearLayout>
 
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@color/white">
-
-            <TextView
-                android:id="@+id/Nombre_Partido"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/public_sans_bold"
-                android:gravity="center"
-                android:background="@color/white"
-                android:text="Nombre del Partido"
-                android:textColor="#000000"
-                android:textSize="24sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:paddingBottom="16sp" android:orientation="vertical" app:layout_constraintBottom_toTopOf="@id/emitir_voto" app:layout_constraintHeight_max="386dp">
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/Nombre_Partido"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/public_sans_bold"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:text="Nombre del Partido"
+                    android:textColor="#000000"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white">
+                <Button
+                    android:id="@+id/boton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Electores"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    app:backgroundTint="#addf97"
+                    android:fontFamily="@font/public_sans_bold"
+                    android:elevation="4dp"
+                    app:cornerRadius="12dp" />
+
+                <Button
+                    android:id="@+id/boton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="No Electores"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    app:backgroundTint="#ed7257"
+                    android:fontFamily="@font/public_sans_bold"
+                    android:elevation="4dp"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botones2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white">
+                <Button
+                    android:id="@+id/boton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Resultados"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    app:backgroundTint="#a36dfa"
+                    android:fontFamily="@font/public_sans_bold"
+                    android:elevation="4dp"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_de_votos_partidos"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="25dp"
-                android:background="#00000000"
-                app:layout_constraintBottom_toTopOf="@id/emitir_voto"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                android:background="#00000000" />
+
             <!-- Gráfico de pastel -->
             <com.anychart.AnyChartView
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"/>
+                android:layout_height="300dp" />
         </LinearLayout>
-
-    </LinearLayout>
-
-
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
