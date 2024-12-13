@@ -215,16 +215,51 @@ class home_administrador : AppCompatActivity() {
                 val fechaFin = document.getTimestamp("fechaFin")?.toDate() ?: Date()
                 val currentDate = Date()
 
-                // Verificar si la elección está en proceso
+                // Verificar estados
                 val estaEnProceso = currentDate.after(fechaInicio) && currentDate.before(fechaFin)
+                val yaFinalizado = currentDate.after(fechaFin)
+                val esColorRojo = votacion.color == Color.RED
 
-                // Configurar comportamiento del botón de borrar
+                // Restricciones para el botón de edición
+                if (estaEnProceso) {
+                    holder.editarButton.setOnClickListener {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "No puedes editar mientras la elección está en proceso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else if (yaFinalizado || esColorRojo) {
+                    holder.editarButton.setOnClickListener {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "No puedes editar porque la elección ya ha finalizado",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    // holder.editarButton.isEnabled = false
+                    // holder.editarButton.setColorFilter(Color.GRAY)
+                } else {
+                    holder.editarButton.setOnClickListener {
+                        val datoEnviar = votacion.nombre
+                        val intent = Intent(holder.itemView.context, Administrador_EditarElecciones::class.java)
+                        intent.putExtra("votacionId", datoEnviar)
+                        holder.itemView.context.startActivity(intent)
+                    }
+                }
+
+                // Restricciones para el botón de borrar
                 holder.borrarButton.setOnClickListener {
                     if (estaEnProceso) {
-                        // Mostrar mensaje si está en proceso
                         Toast.makeText(
                             holder.itemView.context,
                             "No puedes borrar mientras la elección está en proceso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (yaFinalizado || esColorRojo) {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "No puedes borrar porque la elección ya ha finalizado",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
@@ -234,55 +269,38 @@ class home_administrador : AppCompatActivity() {
                             .setView(dialogView)
                             .create()
 
-                        // Configurar botones del diálogo
                         val btnCancelar = dialogView.findViewById<Button>(R.id.btn_cancelar)
                         val btnConfirmar = dialogView.findViewById<Button>(R.id.btn_confirmar)
 
                         btnCancelar.setOnClickListener {
-                            dialog.dismiss() // Cerrar el diálogo
+                            dialog.dismiss()
                         }
 
                         btnConfirmar.setOnClickListener {
                             val activity = holder.itemView.context as? home_administrador
-                            activity?.eliminarVotacion(votacion.id) // Llamar a eliminarVotacion con el ID
-                            dialog.dismiss() // Cerrar el diálogo
+                            activity?.eliminarVotacion(votacion.id)
+                            dialog.dismiss()
                         }
 
-                        dialog.show() // Mostrar el diálogo
+                        dialog.show()
                     }
                 }
 
-                // Configurar comportamiento del botón de editar
-                if (estaEnProceso) {
-                    holder.editarButton.setOnClickListener {
-                        Toast.makeText(
-                            holder.itemView.context,
-                            "No puedes editar mientras la elección está en proceso",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    holder.editarButton.setOnClickListener {
-                        val datoEnviar = votacion.nombre
-                        val intent = Intent(holder.itemView.context, Administrador_EditarElecciones::class.java)
-                        intent.putExtra("votacionId", datoEnviar) // Pasar el ID de la votación
-                        holder.itemView.context.startActivity(intent)
-                    }
-                }
+                // Configurar el fondo del item según el color
+                val drawable = GradientDrawable()
+                drawable.shape = GradientDrawable.RECTANGLE
+                drawable.cornerRadius = 40f
+                drawable.setColor(votacion.color)
+                holder.votacionItem.background = drawable
             }.addOnFailureListener {
                 Toast.makeText(holder.itemView.context, "Error al verificar fechas: ${it.message}", Toast.LENGTH_SHORT).show()
             }
-
-            // Configurar el fondo del item
-            val drawable = GradientDrawable()
-            drawable.shape = GradientDrawable.RECTANGLE
-            drawable.cornerRadius = 40f
-            drawable.setColor(votacion.color)
-            holder.votacionItem.background = drawable
         }
 
         override fun getItemCount() = votaciones.size
     }
+
+
 
 
     // Función para cargar votaciones desde Firestore
