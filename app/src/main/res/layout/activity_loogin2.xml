@@ -135,19 +135,25 @@
                     android:textColorHighlight="#000000"
                     android:textColorHint="#000000" />
 
-                <EditText
-                    android:id="@+id/contraseña_Administrador_loggin"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
-                    android:ems="10"
                     android:hint="Contraseña"
-                    android:inputType="textPassword"
-                    android:minHeight="48dp"
-                    android:textColor="#000000"
-                    android:textColorHighlight="#000000"
-                    android:textColorHint="#000000" />
+                    android:textColorHint="@color/black"
+                    app:endIconTint="@color/black"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/contraseña_Administrador_loggin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:inputType="textPassword"
+                        android:textColor="@color/black"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <Button
                     android:id="@+id/button_iniciar_admin"

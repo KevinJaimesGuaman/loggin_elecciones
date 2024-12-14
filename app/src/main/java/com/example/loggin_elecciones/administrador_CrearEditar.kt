@@ -320,7 +320,6 @@ class administrador_CrearEditar : AppCompatActivity() {
                 intent.putExtra("tipoEleccion", "Otro")
                 startActivity(intent)
             }else{
-                precrear(tipoVotacion.tipoVotacionnombre)
                 val intent = Intent(this, add_partido::class.java)
                 intent.putExtra("tipoEleccion", tipoVotacion.tipoVotacionnombre)
                 startActivity(intent)
@@ -393,7 +392,7 @@ class administrador_CrearEditar : AppCompatActivity() {
                 .collection("Partido")
         } else {
             // Si no, buscar en TipoEleccion
-            firestore.collection("TipoEleccion")
+            firestore.collection("PreColeccion")
                 .document(tipoEleccionNombre)
                 .collection("Partido")
         }
@@ -421,53 +420,24 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
     }
 
-    private fun precrear(nombreEleccion: String) {
-        if (nombreEleccion.isNullOrEmpty()) {
-            Log.e("Firestore", "El nombre de la elección no es válido.")
-            return
-        }
-
-        val coleccionTipoEleccion = db.collection("TipoEleccion")
-        val documentoNombreEleccion = coleccionTipoEleccion.document(nombreEleccion)
-        val documentoBlanco= mapOf(
-            "color" to "GRAY",
-            "votos" to 0,
-            "acronimo" to "BLANCO"
-        )
-        // Crear el documento dinámico vacío
-        documentoNombreEleccion.set(mapOf<String, Any>()) // Guardamos un documento vacío
-            .addOnSuccessListener {
-                Log.d("Firestore", "Documento '$nombreEleccion' creado exitosamente.")
-                // Crear la subcolección "Partido" (sin documentos iniciales)
-                val partidosRef = documentoNombreEleccion.collection("Partido")
-                partidosRef.document("Blanco").set(documentoBlanco)
-                Log.d("Firestore", "Subcolección 'Partido' creada en '$nombreEleccion'.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al crear documento '$nombreEleccion': $e")
-            }
-    }
 
     private fun showWarningDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Advertencia")
         builder.setMessage("¿Estás seguro de que deseas continuar?")
         builder.setPositiveButton("Sí") { _, _ ->
-            // Verificar si el tipo de votación es "Otro" y si el campo "Otro" está vacío
             if (tipoVotacion.tipoVotacionnombre == "Otro" && tipoVotacion.otro.isNullOrEmpty()) {
                 Toast.makeText(this, "Por favor ingresa un nombre en el campo 'otro'", Toast.LENGTH_SHORT).show()
                 return@setPositiveButton
             }
 
             if (tiempoSeleccionadoFin != null) {
-                // Crear el mapa de datos a guardar
                 val data = hashMapOf(
                     "fechaFin" to tiempoSeleccionadoFin!!,
                     "fechaInicio" to tiempoSeleccionadoInicio!!,
                     "carrerasDestinadas" to tipoVotacion.carrerasDestinadas
                 )
 
-                // Determinar el nombre del documento
                 val documentName = if (tipoVotacion.tipoVotacionnombre == "Otro" && tipoVotacion.otro.isNotEmpty()) {
                     tipoVotacion.otro
                 } else {
@@ -476,67 +446,78 @@ class administrador_CrearEditar : AppCompatActivity() {
 
                 val db = FirebaseFirestore.getInstance()
 
-                if (tipoVotacion.tipoVotacionnombre == "Otro") {
-                    val preColeccionRef = db.collection("PreColeccion").document("Otro").collection("Partido")
-                    val tipoEleccionRef = db.collection("TipoEleccion").document(documentName).collection("Partido")
+                val preColeccionRef = db.collection("PreColeccion").document(tipoVotacion.tipoVotacionnombre).collection("Partido")
+                val tipoEleccionRef = db.collection("TipoEleccion").document(documentName).collection("Partido")
 
-                    preColeccionRef.get().addOnSuccessListener { querySnapshot ->
-                        if (!querySnapshot.isEmpty) {
-                            for (document in querySnapshot.documents) {
-                                val partidoData = document.data
-                                partidoData?.let {
-                                    val partidoDocRef = tipoEleccionRef.document(document.id)
+                preColeccionRef.get().addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        for (document in querySnapshot.documents) {
+                            if (document.id == "Blanco") continue
 
-                                    // Copiar el documento actual en la nueva ubicación
-                                    partidoDocRef.set(it).addOnSuccessListener {
-                                        // Transferir la subcolección "Puestos"
-                                        val puestosRef = preColeccionRef.document(document.id).collection("Puestos")
-                                        val puestosDestinoRef = partidoDocRef.collection("Puestos")
+                            val partidoData = document.data?.toMutableMap() ?: mutableMapOf()
 
-                                        puestosRef.get().addOnSuccessListener { puestosSnapshot ->
-                                            for (puesto in puestosSnapshot.documents) {
-                                                val puestoData = puesto.data
-                                                puestoData?.let {
-                                                    puestosDestinoRef.document(puesto.id).set(it).addOnFailureListener { e ->
-                                                        Log.e("Firestore", "Error al copiar el documento de la subcolección Puestos: ${puesto.id}", e)
-                                                    }
-                                                }
+                            // Agregar variables para cada carreraDestinada con valor 0
+                            tipoVotacion.carrerasDestinadas?.forEach { carrera ->
+                                partidoData[carrera] = 0
+                            }
+
+                            val partidoDocRef = tipoEleccionRef.document(document.id)
+
+                            // Copiar el documento actual con las variables añadidas
+                            partidoDocRef.set(partidoData).addOnSuccessListener {
+                                val puestosRef = preColeccionRef.document(document.id).collection("Puestos")
+                                val puestosDestinoRef = partidoDocRef.collection("Puestos")
+
+                                puestosRef.get().addOnSuccessListener { puestosSnapshot ->
+                                    for (puesto in puestosSnapshot.documents) {
+                                        val puestoData = puesto.data
+                                        puestoData?.let {
+                                            puestosDestinoRef.document(puesto.id).set(it).addOnFailureListener { e ->
+                                                Log.e("Firestore", "Error al copiar el documento de la subcolección Puestos: ${puesto.id}", e)
                                             }
-
-                                            // Después de transferir los puestos, eliminar el documento original si no es "Blanco"
-                                            if (document.id != "Blanco") {
-                                                puestosRef.get().addOnSuccessListener { puestosSnapshot ->
-                                                    val batch = db.batch()
-                                                    for (puesto in puestosSnapshot.documents) {
-                                                        batch.delete(puesto.reference)
-                                                    }
-                                                    batch.commit().addOnSuccessListener {
-                                                        preColeccionRef.document(document.id).delete()
-                                                            .addOnSuccessListener {
-                                                                Log.d("Firestore", "Documento ${document.id} y su subcolección 'Puestos' eliminados con éxito")
-                                                            }
-                                                            .addOnFailureListener { e ->
-                                                                Log.e("Firestore", "Error al eliminar el documento ${document.id}", e)
-                                                            }
-                                                    }
-                                                }
-                                            }
-                                        }.addOnFailureListener { e ->
-                                            Log.e("Firestore", "Error al transferir la subcolección 'Puestos'", e)
                                         }
-                                    }.addOnFailureListener { e ->
-                                        Log.e("Firestore", "Error al copiar el documento ${document.id}", e)
                                     }
+
+                                    // Eliminar documentos originales excepto "Blanco"
+                                    val batch = db.batch()
+                                    for (puesto in puestosSnapshot.documents) {
+                                        batch.delete(puesto.reference)
+                                    }
+                                    batch.commit().addOnSuccessListener {
+                                        preColeccionRef.document(document.id).delete()
+                                            .addOnSuccessListener {
+                                                Log.d("Firestore", "Documento ${document.id} y su subcolección 'Puestos' eliminados con éxito")
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("Firestore", "Error al eliminar el documento ${document.id}", e)
+                                            }
+                                    }
+                                }.addOnFailureListener { e ->
+                                    Log.e("Firestore", "Error al transferir la subcolección 'Puestos'", e)
                                 }
+                            }.addOnFailureListener { e ->
+                                Log.e("Firestore", "Error al copiar el documento ${document.id}", e)
                             }
                         }
-                    }.addOnFailureListener { e ->
-                        Log.e("Firestore", "Error al obtener los documentos", e)
-                        Toast.makeText(this, "Error al acceder a los partidos en 'PreColeccion'", Toast.LENGTH_SHORT).show()
+
+                        // Crear el documento "Blanco" si no existe
+                        val blancoData = hashMapOf(
+                            "color" to "GRAY",
+                            "votos" to 0
+                        )
+                        preColeccionRef.document("Blanco").set(blancoData)
+                            .addOnSuccessListener {
+                                Log.d("Firestore", "Documento 'Blanco' recreado con éxito")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("Firestore", "Error al crear el documento 'Blanco'", e)
+                            }
                     }
+                }.addOnFailureListener { e ->
+                    Log.e("Firestore", "Error al obtener los documentos", e)
+                    Toast.makeText(this, "Error al acceder a los partidos en 'PreColeccion'", Toast.LENGTH_SHORT).show()
                 }
 
-                // Guardar el nuevo documento en "TipoEleccion"
                 db.collection("TipoEleccion")
                     .document(documentName)
                     .set(data)
@@ -560,7 +541,6 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
         builder.show()
     }
-
 
 
 
@@ -622,29 +602,50 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
 
         private fun borrarPartido(nombre: String, position: Int) {
-            val tipoVotacionNombre = tipoEleccion.tipoVotacionnombre
-            if (tipoVotacionNombre.isNullOrEmpty()) {
-                Log.e("FirestoreError", "El tipo de votación no está definido.")
-                return
+            items.removeAt(position)
+            val documentName = if (tipoEleccion.tipoVotacionnombre == "Otro" && tipoEleccion.otro.isNotEmpty()) {
+                tipoEleccion.otro
+            } else {
+                tipoEleccion.tipoVotacionnombre
             }
+            val partidoRef = db.collection("PreColeccion").document(documentName)
+                .collection("Partido").document(nombre)
 
-            db.collection("TipoEleccion").document(tipoVotacionNombre).collection("Partidos")
-                .document(nombre).delete()
-                .addOnSuccessListener {
-                    Log.d("Firestore", "Documento con ID $nombre eliminado exitosamente.")
+            // Primero eliminamos los documentos dentro de la subcolección "Puestos"
+            val puestosRef = partidoRef.collection("Puestos")
 
-                    // Eliminar el elemento de la lista local y notificar al adaptador
-                    items.removeAt(position)
-                    notifyItemRemoved(position)
+            puestosRef.get().addOnSuccessListener { querySnapshot ->
+                // Usamos un batch para eliminar todos los documentos de la subcolección
+                val batch = db.batch()
 
-                    // Mostrar el Toast
-                    Toast.makeText(context, "Documento eliminado.", Toast.LENGTH_SHORT).show()
+                for (document in querySnapshot) {
+                    batch.delete(document.reference)  // Eliminar cada documento de "Puestos"
                 }
-                .addOnFailureListener { exception ->
-                    Log.e("FirestoreError", "Error al eliminar el documento", exception)
-                    Toast.makeText(context, "Error al eliminar el documento.", Toast.LENGTH_SHORT).show()
+
+                // Ejecutamos el batch para eliminar todos los documentos de "Puestos"
+                batch.commit().addOnSuccessListener {
+                    // Después de eliminar los documentos de "Puestos", eliminamos el documento del partido
+                    partidoRef.delete().addOnSuccessListener {
+                        Log.d("Firestore", "Documento con ID $nombre eliminado exitosamente.")
+
+                        // Limpiar la lista de partidos antes de agregar los nuevos datos
+
+                        // Mostrar el Toast
+                        Toast.makeText(context, "Documento eliminado.", Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener { exception ->
+                        Log.e("FirestoreError", "Error al eliminar el documento", exception)
+                        Toast.makeText(context, "Error al eliminar el documento.", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e("FirestoreError", "Error al eliminar los documentos de Puestos", exception)
+                    Toast.makeText(context, "Error al eliminar los candidatos.", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener { exception ->
+                Log.e("FirestoreError", "Error al obtener documentos de Puestos", exception)
+                Toast.makeText(context, "Error al obtener los candidatos.", Toast.LENGTH_SHORT).show()
+            }
         }
+
 
         override fun getItemCount(): Int = items.size
     }

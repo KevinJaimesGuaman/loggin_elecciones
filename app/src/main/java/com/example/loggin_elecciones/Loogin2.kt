@@ -136,11 +136,6 @@ class Loogin2 : AppCompatActivity() {
                             val intent = Intent(this, home_elector::class.java)
                             startActivity(intent)
                             finish()
-                        } else {
-                            // Documento no existe, redirigir a crear_cuenta
-                            val intent = Intent(this, crear_cuenta::class.java)
-                            startActivity(intent)
-                            finish()
                         }
                     }
                     .addOnFailureListener { exception ->
@@ -289,35 +284,81 @@ class Loogin2 : AppCompatActivity() {
     }
 
     //autenticar con firebase elector
-    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount){
-        val credential= GoogleAuthProvider.getCredential(account.idToken, null)
-            firebaseAuth.signInWithCredential(credential)
+    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
-                    updateUI(user?.email)
-                    //si el usuario ya ha iniciado sesion, actualiza la UI 21:16 ultima actualizacion
                     val email = user?.email // Obtener el email del usuario actual
                     val usuarioElector = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
-                    val db = FirebaseFirestore.getInstance() // Inicializar Firestore
-                    val usuariosRef = db.collection("Elector") // Referencia a la colección "Elector"
-                    usuariosRef.document(usuarioElector!!).get() // Buscar el documento en Firestore
-                        .addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                val intent = Intent(this, home_elector::class.java)
-                                startActivity(intent)
-                                finish()
-                            }else{
-                                val intent = Intent(this, crear_cuenta::class.java)
-                                startActivity(intent)
-                                finish()
+                    val nombreElector=account.displayName
+
+                    if (usuarioElector != null) {
+                        val db = FirebaseFirestore.getInstance() // Inicializar Firestore
+                        val electoresRef = db.collection("ElectoresHabilitados") // Colección habilitados
+                        val usuariosRef = db.collection("Elector") // Colección principal
+
+                        // Buscar en la colección ElectoresHabilitados
+                        electoresRef.document(usuarioElector).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    // Extraer datos de la colección ElectoresHabilitados
+                                    val carrera = document.getString("carrera")
+                                    val estado = document.getBoolean("habilitado") ?: false
+
+                                    if (estado) {
+                                        // Si el usuario está habilitado, agregar a la colección Elector
+                                        val nuevoUsuario = mapOf(
+                                            "nombre" to nombreElector,
+                                            "carrera" to carrera,
+                                            "habilitado" to estado
+                                        )
+                                        usuariosRef.document(usuarioElector).set(nuevoUsuario)
+                                            .addOnSuccessListener {
+                                                // Redirigir al home del elector después de agregar
+                                                val intent = Intent(this, home_elector::class.java)
+                                                startActivity(intent)
+                                                finish()
+                                            }
+                                            .addOnFailureListener { exception ->
+                                                // Manejo de error al agregar datos
+                                                Toast.makeText(
+                                                    this,
+                                                    "Error al registrar usuario: ${exception.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                    } else {
+                                        // El usuario no está habilitado
+                                        Toast.makeText(this, "Usuario no habilitado para acceder.", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    // El usuario no está en ElectoresHabilitados
+                                    Toast.makeText(
+                                        this,
+                                        "Usuario no registrado en ElectoresHabilitados.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                }else{
-                    Toast.makeText(this,"Error al autenticar con firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            .addOnFailureListener { exception ->
+                                // Manejo de error al buscar el documento
+                                Toast.makeText(
+                                    this,
+                                    "Error al verificar habilitación: ${exception.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    } else {
+                        // Manejar el caso donde usuarioElector es null
+                        Toast.makeText(this, "No se pudo obtener el nombre de usuario.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    // Manejar error de autenticación con Firebase
+                    Toast.makeText(this, "Error al autenticar con Firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-
     }
     //fin de autenticar con firebase
 

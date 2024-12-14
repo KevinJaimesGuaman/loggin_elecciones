@@ -108,11 +108,11 @@ class add_partido_rector : AppCompatActivity() {
     }
 
     private fun guardarPartido(nombreEleccion: String) {
-        val nombrePartido = etNombrePartido.text.toString().trim()
-        val acronimo = etAcronimo.text.toString().trim()
+        val nombrePartido = etNombrePartido.text.toString().trim().uppercase()
+        val acronimo = etAcronimo.text.toString().trim().uppercase()
 
         // Validar que los campos no estén vacíos
-        if (nombrePartido.isEmpty() || acronimo.isEmpty()) {
+        if (nombrePartido.isEmpty() ) {
             Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             return
         }
@@ -148,33 +148,56 @@ class add_partido_rector : AppCompatActivity() {
     }
 
     private fun guardarCandidatos(partidoRef: DocumentReference) {
-        // Usamos un batch para guardar los candidatos de manera más eficiente
-        val batch = FirebaseFirestore.getInstance().batch()
-
         listaCandidatos.forEach { candidato ->
+            // Validar que los campos de candidato no estén vacíos
             if (candidato.nombre.isNotEmpty() && candidato.cargo.isNotEmpty()) {
-                val candidatoData = hashMapOf("nombre" to candidato.nombre)
+                // Convertir el nombre y el cargo a mayúsculas
+                val nombreEnMayusculas = candidato.nombre.uppercase()
+                val cargoEnMayusculas = candidato.cargo.uppercase()
 
-                // Usar UUID para el ID del documento de candidato, en vez de usar el cargo
-                val candidatoId = UUID.randomUUID().toString()
-                val candidatoRef = partidoRef.collection("Puestos").document(candidatoId)
+                val candidatoData = hashMapOf("nombre" to nombreEnMayusculas)
+                val candidatoRef = partidoRef.collection("Puestos").document(cargoEnMayusculas)
 
-                batch.set(candidatoRef, candidatoData)  // Usamos batch para hacer múltiples escrituras
-
+                // Verificar si ya existe un documento con el mismo cargo antes de guardar
+                candidatoRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            Toast.makeText(
+                                this,
+                                "El cargo $cargoEnMayusculas ya está registrado.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            // Guardar el candidato si no existe
+                            candidatoRef.set(candidatoData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "Candidato guardado: $nombreEnMayusculas",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error al guardar el candidato: ${exception.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Toast.makeText(
+                            this,
+                            "Error al verificar duplicados: ${exception.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
             } else {
                 Toast.makeText(this, "Nombre y cargo del candidato son obligatorios", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Ejecutamos el batch una vez que todos los candidatos se han agregado
-        batch.commit().addOnSuccessListener {
-            Toast.makeText(this, "Candidatos guardados correctamente", Toast.LENGTH_SHORT).show()
-            finish()
-        }.addOnFailureListener { exception ->
-            Toast.makeText(this, "Error al guardar los candidatos: ${exception.message}", Toast.LENGTH_SHORT).show()
-        }
     }
-
 }
 
 data class CandidatoEdit(

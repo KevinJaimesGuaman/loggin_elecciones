@@ -108,8 +108,8 @@ class add_partido : AppCompatActivity() {
     }
 
     private fun guardarPartido() {
-        val nombrePartido = etNombrePartido.text.toString().trim()
-        val acronimo = etAcronimo.text.toString().trim()
+        val nombrePartido = etNombrePartido.text.toString().trim().uppercase()
+        val acronimo = etAcronimo.text.toString().trim().uppercase()
 
         if (nombrePartido.isEmpty()) {
             Toast.makeText(this, "Por favor, ingrese el nombre del partido", Toast.LENGTH_SHORT).show()
@@ -139,7 +139,7 @@ class add_partido : AppCompatActivity() {
             }
         } else {
             val documentName = tipoEleccion ?: ""
-            val eleccionesRef = db.collection("TipoEleccion").document(documentName)
+            val eleccionesRef = db.collection("PreColeccion").document(documentName)
             val partidosRef = eleccionesRef.collection("Partido").document(nombrePartido)
             partidosRef.set(partido).addOnSuccessListener {
                 guardarCandidatos(partidosRef)
@@ -154,20 +154,49 @@ class add_partido : AppCompatActivity() {
             // Validar que los campos de candidato no estén vacíos
             if (candidato.nombre.isNotEmpty() && candidato.cargo.isNotEmpty()) {
                 val candidatoData = hashMapOf("nombre" to candidato.nombre)
-                // Usar UUID para evitar sobrescribir candidatos con el mismo cargo
                 val candidatoRef = partidoRef.collection("Puestos").document(candidato.cargo)
-                candidatoRef.set(candidatoData)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Candidato guardado: ${candidato.nombre}", Toast.LENGTH_SHORT).show()
+
+                // Verificar si ya existe un documento con el mismo cargo antes de guardar
+                candidatoRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            Toast.makeText(
+                                this,
+                                "El cargo ${candidato.cargo} ya está registrado.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            // Guardar el candidato si no existe
+                            candidatoRef.set(candidatoData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "Candidato guardado: ${candidato.nombre}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error al guardar el candidato: ${exception.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "Error al guardar el candidato: ${candidato.nombre}", Toast.LENGTH_SHORT).show()
+                    .addOnFailureListener { exception ->
+                        Toast.makeText(
+                            this,
+                            "Error al verificar duplicados: ${exception.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
             } else {
                 Toast.makeText(this, "Nombre y cargo del candidato son obligatorios", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 }
 
 data class Candidato(
