@@ -388,26 +388,23 @@ class corte_votos : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-                // Mapa para agrupar votos por partido
+                // Mapas para agrupar resultados
                 val partidosYVotos = mutableMapOf<String, Int>()
-
-                // Mapa para agrupar votos por carrera y partido
                 val resultadosPorCarrera = mutableMapOf<String, MutableMap<String, Int>>()
-
-                // Mapa para agrupar votos por carrera
                 val carrerasVotos = mutableMapOf<String, Int>()
 
+                // Iterar sobre todos los documentos de Partido
                 for (partido in partidos) {
                     val partidoNombre = partido.id
                     val votos = partido.getLong("votos")?.toInt() ?: 0
 
-                    // Agrupar votos por partido
-                    partidosYVotos[partidoNombre] = votos
+                    // Acumular votos por partido
+                    partidosYVotos[partidoNombre] = (partidosYVotos[partidoNombre] ?: 0) + votos
 
                     // Obtener carreras para este partido
                     val carrerasArray = partido.get("carrerasVotos") as? List<String> ?: emptyList()
 
-                    // Agrupar votos por carrera y partido
+                    // Procesar cada carrera en este documento
                     carrerasArray.forEach { carrera ->
                         // Normalizar el nombre de la carrera
                         val carreraNormalizada = carrera.trim().uppercase()

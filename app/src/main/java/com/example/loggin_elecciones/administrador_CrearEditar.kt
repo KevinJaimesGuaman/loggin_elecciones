@@ -452,8 +452,6 @@ class administrador_CrearEditar : AppCompatActivity() {
                 preColeccionRef.get().addOnSuccessListener { querySnapshot ->
                     if (!querySnapshot.isEmpty) {
                         for (document in querySnapshot.documents) {
-                            if (document.id == "Blanco") continue
-
                             val partidoData = document.data?.toMutableMap() ?: mutableMapOf()
 
                             // Agregar variables para cada carreraDestinada con valor 0
@@ -463,7 +461,7 @@ class administrador_CrearEditar : AppCompatActivity() {
 
                             val partidoDocRef = tipoEleccionRef.document(document.id)
 
-                            // Copiar el documento actual con las variables añadidas
+                            // Copiar el documento actual (incluyendo "Blanco")
                             partidoDocRef.set(partidoData).addOnSuccessListener {
                                 val puestosRef = preColeccionRef.document(document.id).collection("Puestos")
                                 val puestosDestinoRef = partidoDocRef.collection("Puestos")
@@ -477,30 +475,36 @@ class administrador_CrearEditar : AppCompatActivity() {
                                             }
                                         }
                                     }
-
-                                    // Eliminar documentos originales excepto "Blanco"
-                                    val batch = db.batch()
-                                    for (puesto in puestosSnapshot.documents) {
-                                        batch.delete(puesto.reference)
-                                    }
-                                    batch.commit().addOnSuccessListener {
-                                        preColeccionRef.document(document.id).delete()
-                                            .addOnSuccessListener {
-                                                Log.d("Firestore", "Documento ${document.id} y su subcolección 'Puestos' eliminados con éxito")
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Log.e("Firestore", "Error al eliminar el documento ${document.id}", e)
-                                            }
-                                    }
                                 }.addOnFailureListener { e ->
                                     Log.e("Firestore", "Error al transferir la subcolección 'Puestos'", e)
                                 }
                             }.addOnFailureListener { e ->
                                 Log.e("Firestore", "Error al copiar el documento ${document.id}", e)
                             }
+
+                            // Eliminar documentos originales excepto "Blanco"
+                            if (document.id != "Blanco") {
+                                val batch = db.batch()
+                                val puestosRef = preColeccionRef.document(document.id).collection("Puestos")
+
+                                puestosRef.get().addOnSuccessListener { puestosSnapshot ->
+                                    for (puesto in puestosSnapshot.documents) {
+                                        batch.delete(puesto.reference)
+                                    }
+
+                                    batch.delete(preColeccionRef.document(document.id))
+                                    batch.commit().addOnSuccessListener {
+                                        Log.d("Firestore", "Documento ${document.id} y su subcolección 'Puestos' eliminados con éxito")
+                                    }.addOnFailureListener { e ->
+                                        Log.e("Firestore", "Error al eliminar el documento ${document.id}", e)
+                                    }
+                                }.addOnFailureListener { e ->
+                                    Log.e("Firestore", "Error al eliminar subcolección 'Puestos'", e)
+                                }
+                            }
                         }
 
-                        // Crear el documento "Blanco" si no existe
+                        // Crear el documento "Blanco" si no existe (por seguridad)
                         val blancoData = hashMapOf(
                             "color" to "GRAY",
                             "votos" to 0
@@ -541,9 +545,6 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
         builder.show()
     }
-
-
-
     data class PartidoItem(val nombre: String)
 
     class PartidoAdapter(
