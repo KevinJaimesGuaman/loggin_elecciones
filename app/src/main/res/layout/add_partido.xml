@@ -95,7 +95,7 @@
                 android:id="@+id/tv_acronimo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Acrónimo del Partido"
+                android:text="Acrónimo del Partido*"
                 android:textColor="#FFFFFF"
                 android:fontFamily="@font/public_sans"
                 android:textSize="14sp"

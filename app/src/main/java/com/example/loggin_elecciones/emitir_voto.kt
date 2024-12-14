@@ -157,28 +157,52 @@ class emitir_voto : AppCompatActivity() {
     }
 
     // Función para votar
+    // Función para votar
     private fun votar(candidato: Candidato, votacionNombre: String) {
-        val partidoref = db.collection("TipoEleccion")
-            .document(votacionNombre)
-            .collection("Partido")
-            .document(candidato.nombrePartido)
+        // Primero, buscar la carrera del usuario en la colección Elector
+        db.collection("Elector")
+            .document(usuarioId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                val carrera = documentSnapshot.getString("carrera") ?: ""
 
-        partidoref.update("votos", FieldValue.increment(1))
-            .addOnSuccessListener {
-                Log.d("Firestore", "Voto registrado correctamente")
-                mostrarDialogoExito()
+                // Referencia al documento del partido
+                val partidoref = db.collection("TipoEleccion")
+                    .document(votacionNombre)
+                    .collection("Partido")
+                    .document(candidato.nombrePartido)
+
+                // Crear un batch para operaciones atómicas
+                val batch = db.batch()
+
+                // Incrementar votos
+                batch.update(partidoref, "votos", FieldValue.increment(1))
+
+                // Agregar carrera al array carrerasVotos
+                batch.update(partidoref, "carrerasVotos", FieldValue.arrayUnion(carrera))
+
+                // Ejecutar batch
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Voto registrado correctamente")
+                        mostrarDialogoExito()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firestore", "Error al registrar el voto", e)
+                    }
+
+                // Marcar que el usuario ya votó en la votación
+                val estadoVotacionRef = db.collection("Votaciones")
+                    .document(votacionNombre)
+                    .collection("EstadoVotacion")
+                    .document(usuarioId)
+
+                estadoVotacionRef.set(mapOf("votacion1" to true)) // Marcar como votado
             }
             .addOnFailureListener { e ->
-                Log.w("Firestore", "Error al registrar el voto", e)
+                Log.w("Firestore", "Error al obtener la carrera del elector", e)
+                // Manejar el error de obtención de carrera
             }
-
-        // Marcar que el usuario ya votó en la votación
-        val estadoVotacionRef = db.collection("Votaciones")
-            .document(votacionNombre)
-            .collection("EstadoVotacion")
-            .document(usuarioId)
-
-        estadoVotacionRef.set(mapOf("votacion1" to true)) // Marcar como votado
     }
 
     // Data class de Candidato

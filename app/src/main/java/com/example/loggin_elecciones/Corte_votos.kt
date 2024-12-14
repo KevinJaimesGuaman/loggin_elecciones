@@ -37,8 +37,17 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import android.Manifest
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.RectF
 import android.net.Uri
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 
 class corte_votos : AppCompatActivity() {
     private lateinit var tituloTextView: TextView
@@ -157,84 +166,6 @@ class corte_votos : AppCompatActivity() {
             }
         }
     }
-
-    private fun generarPDFEstudiantesNoVotaron(votacionNombre: String, estudiantesNoVotaron: List<String>) {
-        // Crear un documento PDF
-        val pdfDocument = PdfDocument()
-        val paint = Paint()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
-        val page = pdfDocument.startPage(pageInfo)
-
-        val canvas = page.canvas
-        val yStart = 50f
-        var yPosition = yStart
-
-        // Título del PDF
-        paint.textSize = 20f
-        paint.isFakeBoldText = true
-        canvas.drawText("Estudiantes que NO Votaron en: $votacionNombre", 50f, yPosition, paint)
-        yPosition += 50f
-
-        // Encabezado de tabla
-        paint.textSize = 16f
-        paint.isFakeBoldText = false
-        canvas.drawText("Total de Estudiantes que NO Votaron: ${estudiantesNoVotaron.size}", 50f, yPosition, paint)
-        yPosition += 30f
-
-        // Dibujar los nombres de los estudiantes que no votaron
-        paint.textSize = 12f
-        for (nombre in estudiantesNoVotaron) {
-            canvas.drawText(nombre, 50f, yPosition, paint)
-            yPosition += 20f
-
-            // Agregar paginación si es necesario
-            if (yPosition > 750f) {
-                pdfDocument.finishPage(page)
-                val newPage = pdfDocument.startPage(pageInfo)
-                val newCanvas = newPage.canvas
-                yPosition = yStart
-                paint.textSize = 12f
-                newCanvas.drawText("(Continuación) Estudiantes que NO Votaron en: $votacionNombre", 50f, yPosition, paint)
-                yPosition += 30f
-            }
-        }
-
-        // Terminar el documento
-        pdfDocument.finishPage(page)
-
-        // Guardar y compartir el PDF
-        try {
-            val fileName = "no_votantes_${votacionNombre}_${System.currentTimeMillis()}.pdf"
-            val file = File(getExternalFilesDir(null), fileName)
-            val outputStream = FileOutputStream(file)
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-            pdfDocument.close()
-
-            // Compartir el archivo usando FileProvider
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                file
-            )
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "application/pdf")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            try {
-                startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                // No hay aplicación para abrir PDFs
-                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
-            }
-
-        } catch (e: IOException) {
-            Log.e("PDF", "Error al guardar el archivo PDF", e)
-            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun generarPDF() {
         val votacionNombre = tituloTextView.text.toString()
         obtenerEstadoVotacionYGenerarPDF(votacionNombre)
@@ -254,7 +185,9 @@ class corte_votos : AppCompatActivity() {
                     Toast.makeText(this, "No se encontraron documentos en EstadoVotacion", Toast.LENGTH_SHORT).show()
                     Log.d("Firestore", "No se encontraron documentos en EstadoVotacion")
                 } else {
-                    val estudiantesPorCarrera = mutableMapOf<String, MutableList<String>>()
+                    // Crear mapas para estudiantes que votaron y no votaron
+                    val estudiantesVotaron = mutableMapOf<String, MutableList<String>>()
+                    val estudiantesNoVotaron = mutableMapOf<String, MutableList<String>>()
                     var documentosProcesados = 0
                     val totalDocumentos = documents.size()
 
@@ -268,14 +201,34 @@ class corte_votos : AppCompatActivity() {
                                     val carrera = electorDoc.getString("carrera") ?: "Sin carrera"
 
                                     // Agregar el ID del documento a la lista de la carrera correspondiente
-                                    estudiantesPorCarrera.getOrPut(carrera) { mutableListOf() }.add(documentId)
+                                    estudiantesVotaron.getOrPut(carrera) { mutableListOf() }.add(documentId)
                                 }
                             }
                             .addOnCompleteListener {
                                 documentosProcesados++
                                 if (documentosProcesados == totalDocumentos) {
-                                    // Generar el PDF con los datos recopilados cuando todas las operaciones se completen
-                                    generarPDFEstudiantesPorCarrera(votacionNombre, estudiantesPorCarrera)
+                                    // Obtener todos los electores para comparar
+                                    db.collection("Elector").get()
+                                        .addOnSuccessListener { electorDocuments ->
+                                            // Llenar estudiantes no votaron
+                                            electorDocuments.forEach { electorDoc ->
+                                                val carrera = electorDoc.getString("carrera") ?: "Sin carrera"
+                                                val documentId = electorDoc.id
+
+                                                // Si no está en votaron, agregarlo a no votaron
+                                                if (!estudiantesVotaron.any { it.value.contains(documentId) }) {
+                                                    estudiantesNoVotaron.getOrPut(carrera) { mutableListOf() }.add(documentId)
+                                                }
+                                            }
+
+                                            // Generar PDF de votantes
+                                            generarPDFEstudiantesPorCarrera(
+                                                votacionNombre,
+                                                estudiantesVotaron,
+                                                estudiantesNoVotaron,
+                                                isPDFVotaron = true
+                                            )
+                                        }
                                 }
                             }
                     }
@@ -287,277 +240,7 @@ class corte_votos : AppCompatActivity() {
             }
     }
 
-    private fun generarPDFEstudiantesPorCarrera(
-        votacionNombre: String,
-        estudiantesPorCarrera: Map<String, List<String>>
-    ) {
-        val pdfDocument = PdfDocument()
-        val paint = Paint()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // Tamaño A4
-        var page = pdfDocument.startPage(pageInfo)
 
-        val canvas = page.canvas
-        val yStart = 50f
-        var yPosition = yStart
-
-        // Título del PDF
-        paint.textSize = 20f
-        paint.isFakeBoldText = true
-        canvas.drawText("Estudiantes que Votaron en: $votacionNombre", 50f, yPosition, paint)
-        yPosition += 50f
-
-        // Encabezado por carrera
-        val carreraHeaderPaint = Paint().apply {
-            textSize = 16f
-            isFakeBoldText = true
-            color = Color.BLUE
-        }
-
-        // Lista de estudiantes
-        val estudiantePaint = Paint().apply {
-            textSize = 12f
-        }
-
-        var paginaActual = 1
-        estudiantesPorCarrera.forEach { (carrera, listaEstudiantes) ->
-            if (yPosition > 750f) {
-                pdfDocument.finishPage(page)
-                page = pdfDocument.startPage(pageInfo)
-                yPosition = yStart
-                paginaActual++
-
-                paint.textSize = 14f
-                canvas.drawText("Estudiantes que Votaron - Página $paginaActual", 50f, yPosition, paint)
-                yPosition += 30f
-            }
-
-            // Encabezado de Carrera
-            canvas.drawText(carrera, 50f, yPosition, carreraHeaderPaint)
-            yPosition += 30f
-
-            listaEstudiantes.forEach { estudiante ->
-                if (yPosition > 750f) {
-                    pdfDocument.finishPage(page)
-                    page = pdfDocument.startPage(pageInfo)
-                    yPosition = yStart
-                    paginaActual++
-
-                    paint.textSize = 14f
-                    canvas.drawText("Estudiantes que Votaron - Página $paginaActual", 50f, yPosition, paint)
-                    yPosition += 30f
-                }
-
-                canvas.drawText(estudiante, 70f, yPosition, estudiantePaint)
-                yPosition += 20f
-            }
-
-            yPosition += 20f // Espacio entre carreras
-        }
-
-        pdfDocument.finishPage(page)
-
-        // Guardar y compartir el PDF
-        try {
-            val fileName = "votantes_por_carrera_${votacionNombre}_${System.currentTimeMillis()}.pdf"
-            val file = File(getExternalFilesDir(null), fileName)
-            val outputStream = FileOutputStream(file)
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-            pdfDocument.close()
-
-            // Compartir el archivo usando FileProvider
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                file
-            )
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "application/pdf")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            try {
-                startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: IOException) {
-            Log.e("PDF", "Error al guardar el archivo PDF", e)
-            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
-    private fun imprimirResultados(votacionNombre: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        // Referencia a la colección "TipoEleccion" -> "Nombre_Votacion" -> "Partido"
-        val tipoEleccionRef = db.collection("TipoEleccion").document(votacionNombre)
-
-        tipoEleccionRef.collection("Partido").get()
-            .addOnSuccessListener { partidos ->
-                if (partidos.isEmpty) {
-                    Toast.makeText(this, "No se encontraron partidos para esta elección", Toast.LENGTH_SHORT).show()
-                    Log.d("Firestore", "No se encontraron documentos en la colección Partido")
-                } else {
-                    // Crear un mapa para almacenar los nombres de partidos y sus votos
-                    val partidosYVotos = mutableMapOf<String, Int>()
-
-                    for (partido in partidos) {
-                        val partidoNombre = partido.id
-                        val votos = partido.getLong("votos")?.toInt() ?: 0
-
-                        // Agregar al mapa
-                        partidosYVotos[partidoNombre] = votos
-                    }
-
-                    // Llamar a la función para generar el PDF con los datos recopilados
-                    generarPDFPartidosYVotos(votacionNombre, partidosYVotos)
-                }
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener documentos de la colección Partido", Toast.LENGTH_SHORT).show()
-                Log.e("Firestore", "Error al obtener documentos: ${exception.message}", exception)
-            }
-    }
-
-    private fun generarPDFPartidosYVotos(
-        votacionNombre: String,
-        partidosYVotos: Map<String, Int>
-    ) {
-        val pdfDocument = PdfDocument()
-        val paint = Paint()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // Tamaño A4
-        var page = pdfDocument.startPage(pageInfo)
-
-        val canvas = page.canvas
-        val yStart = 50f
-        var yPosition = yStart
-
-        // Título del PDF
-        paint.textSize = 20f
-        paint.isFakeBoldText = true
-        canvas.drawText("Resultados de la Elección: $votacionNombre", 50f, yPosition, paint)
-        yPosition += 50f
-
-        // Lista de partidos y votos
-        val partidoPaint = Paint().apply {
-            textSize = 14f
-        }
-
-        var paginaActual = 1
-        partidosYVotos.forEach { (partido, votos) ->
-            if (yPosition > 750f) {
-                pdfDocument.finishPage(page)
-                page = pdfDocument.startPage(pageInfo)
-                yPosition = yStart
-                paginaActual++
-
-                paint.textSize = 14f
-                canvas.drawText("Resultados de la Elección - Página $paginaActual", 50f, yPosition, paint)
-                yPosition += 30f
-            }
-
-            canvas.drawText("$partido: $votos votos", 50f, yPosition, partidoPaint)
-            yPosition += 30f
-        }
-
-        pdfDocument.finishPage(page)
-
-        // Guardar y compartir el PDF
-        try {
-            val fileName = "resultados_${votacionNombre}_${System.currentTimeMillis()}.pdf"
-            val file = File(getExternalFilesDir(null), fileName)
-            val outputStream = FileOutputStream(file)
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-            pdfDocument.close()
-
-            // Compartir el archivo usando FileProvider
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                file
-            )
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "application/pdf")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            try {
-                startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: IOException) {
-            Log.e("PDF", "Error al guardar el archivo PDF", e)
-            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun generarPDFArchivo(votacionNombre: String, nombresDocumentos: List<String>) {
-        // Crear un documento PDF
-        val pdfDocument = PdfDocument()
-        val paint = Paint()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
-        val page = pdfDocument.startPage(pageInfo)
-
-        val canvas = page.canvas
-        val yStart = 50f
-        var yPosition = yStart
-
-        // Título del PDF
-        paint.textSize = 20f
-        paint.isFakeBoldText = true
-        canvas.drawText("Personas que Votaron en: $votacionNombre", 50f, yPosition, paint)
-        yPosition += 50f
-
-        // Encabezado de tabla
-        paint.textSize = 16f
-        paint.isFakeBoldText = false
-        canvas.drawText("Lista de Votantes", 50f, yPosition, paint)
-        yPosition += 30f
-
-        // Dibujar los nombres de los documentos
-        paint.textSize = 12f
-        for (nombre in nombresDocumentos) {
-            canvas.drawText(nombre, 50f, yPosition, paint)
-            yPosition += 20f
-        }
-
-        // Terminar el documento
-        pdfDocument.finishPage(page)
-
-        // Guardar y compartir el PDF
-        try {
-            val fileName = "votantes_${votacionNombre}_${System.currentTimeMillis()}.pdf"
-            val file = File(getExternalFilesDir(null), fileName)
-            val outputStream = FileOutputStream(file)
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-            pdfDocument.close()
-
-            // Compartir el archivo usando FileProvider
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                file
-            )
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "application/pdf")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            try {
-                startActivity(intent)
-            } catch (e: Exception) {
-                // No hay aplicación para abrir PDFs
-                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
-            }
-
-        } catch (e: IOException) {
-            Log.e("PDF", "Error al guardar el archivo PDF", e)
-            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun generarPDFEstudiantesPorCarrera(
         votacionNombre: String,
@@ -597,6 +280,13 @@ class corte_votos : AppCompatActivity() {
             textSize = 12f
         }
 
+        // Estilo para total de votos por carrera
+        val totalVotosPaint = Paint().apply {
+            textSize = 14f
+            isFakeBoldText = true
+            color = Color.BLACK
+        }
+
         // Dibujar estudiantes por carrera
         val estudiantes = if (isPDFVotaron) estudiantesVotaron else estudiantesNoVotaron
 
@@ -619,12 +309,6 @@ class corte_votos : AppCompatActivity() {
             canvas.drawText(carrera, 50f, yPosition, carreraHeaderPaint)
             yPosition += 30f
 
-            // Total de estudiantes en la carrera
-            paint.textSize = 12f
-            paint.isFakeBoldText = false
-            canvas.drawText("Total: ${listaEstudiantes.size} estudiantes", 50f, yPosition, paint)
-            yPosition += 20f
-
             // Listar estudiantes
             listaEstudiantes.forEach { estudiante ->
                 if (yPosition > 750f) {
@@ -643,8 +327,14 @@ class corte_votos : AppCompatActivity() {
                 yPosition += 20f
             }
 
-            // Espacio entre carreras
-            yPosition += 20f
+            // Mostrar total de votos por carrera
+            canvas.drawText(
+                "TOTAL VOTOS POR CARRERA: ${listaEstudiantes.size}",
+                50f,
+                yPosition,
+                totalVotosPaint
+            )
+            yPosition += 40f // Espacio adicional entre carreras
         }
 
         // Terminar el último documento
@@ -685,6 +375,491 @@ class corte_votos : AppCompatActivity() {
             Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun imprimirResultados(votacionNombre: String) {
+        val db = FirebaseFirestore.getInstance()
+        val tipoEleccionRef = db.collection("TipoEleccion").document(votacionNombre)
+
+        tipoEleccionRef.collection("Partido").get()
+            .addOnSuccessListener { partidos ->
+                if (partidos.isEmpty) {
+                    Toast.makeText(this, "No se encontraron partidos para esta elección", Toast.LENGTH_SHORT).show()
+                    Log.d("Firestore", "No se encontraron documentos en la colección Partido")
+                    return@addOnSuccessListener
+                }
+
+                // Mapa para agrupar votos por partido
+                val partidosYVotos = mutableMapOf<String, Int>()
+
+                // Mapa para agrupar votos por carrera y partido
+                val resultadosPorCarrera = mutableMapOf<String, MutableMap<String, Int>>()
+
+                // Mapa para agrupar votos por carrera
+                val carrerasVotos = mutableMapOf<String, Int>()
+
+                for (partido in partidos) {
+                    val partidoNombre = partido.id
+                    val votos = partido.getLong("votos")?.toInt() ?: 0
+
+                    // Agrupar votos por partido
+                    partidosYVotos[partidoNombre] = votos
+
+                    // Obtener carreras para este partido
+                    val carrerasArray = partido.get("carrerasVotos") as? List<String> ?: emptyList()
+
+                    // Agrupar votos por carrera y partido
+                    carrerasArray.forEach { carrera ->
+                        // Normalizar el nombre de la carrera
+                        val carreraNormalizada = carrera.trim().uppercase()
+
+                        // Inicializar mapas si no existen
+                        if (!resultadosPorCarrera.containsKey(carreraNormalizada)) {
+                            resultadosPorCarrera[carreraNormalizada] = mutableMapOf()
+                        }
+
+                        // Sumar votos para este partido en esta carrera
+                        val votosCarreraPartido = resultadosPorCarrera[carreraNormalizada]!!
+                        votosCarreraPartido[partidoNombre] = (votosCarreraPartido[partidoNombre] ?: 0) + 1
+
+                        // Sumar votos totales por carrera
+                        carrerasVotos[carreraNormalizada] = (carrerasVotos[carreraNormalizada] ?: 0) + 1
+                    }
+                }
+
+                // Generar PDF con resultados completos
+                generarPDFResultadosCompletos(
+                    votacionNombre,
+                    partidosYVotos,
+                    carrerasVotos,
+                    resultadosPorCarrera
+                )
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al obtener documentos de la colección Partido", Toast.LENGTH_SHORT).show()
+                Log.e("Firestore", "Error al obtener documentos: ${exception.message}", exception)
+            }
+    }
+
+    private fun generarPDFResultadosCompletos(
+        votacionNombre: String,
+        partidosYVotos: Map<String, Int>,
+        carrerasVotos: Map<String, Int>,
+        resultadosPorCarrera: Map<String, Map<String, Int>>
+    ) {
+        val pdfDocument = PdfDocument()
+        val paint = Paint()
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+
+        // Variables para manejar páginas
+        var paginaActual = 1
+        var yPosition: Float
+        var page: PdfDocument.Page
+        var canvas: Canvas
+
+        // Función para agregar nueva página
+        fun agregarNuevaPagina(): Pair<PdfDocument.Page, Canvas> {
+            val nuevaPagina = pdfDocument.startPage(pageInfo)
+            val nuevaCanvas = nuevaPagina.canvas
+
+            // Título de página adicional
+            val tituloPaint = Paint().apply {
+                textSize = 14f
+                isFakeBoldText = true
+            }
+            nuevaCanvas.drawText("Resultados de la Elección - Página $paginaActual", 50f, 50f, tituloPaint)
+
+            return Pair(nuevaPagina, nuevaCanvas)
+        }
+
+        // Iniciar primera página
+        page = pdfDocument.startPage(pageInfo)
+        canvas = page.canvas
+        yPosition = 50f
+
+        // Título del PDF
+        val tituloPaint = Paint().apply {
+            textSize = 20f
+            isFakeBoldText = true
+        }
+        canvas.drawText("Resultados de la Elección: $votacionNombre", 50f, yPosition, tituloPaint)
+        yPosition += 50f
+
+        // SECCIÓN 1: Resultados por Partidos
+        // Calcular total de votos para porcentajes de partidos
+        val totalVotosPartidos = partidosYVotos.values.sum()
+
+        // Crear gráfico de pastel de partidos
+        val partidosPieChartBitmap = createPieChartBitmap(partidosYVotos, totalVotosPartidos)
+
+        // Dibujar gráfico de pastel de partidos
+        if (partidosPieChartBitmap != null) {
+            val scaleWidth = 400f
+            val scaleHeight = 300f
+            val left = (pageInfo.pageWidth - scaleWidth) / 2
+
+            // Verificar si hay espacio suficiente
+            if (yPosition + scaleHeight > 750f) {
+                pdfDocument.finishPage(page)
+                paginaActual++
+                val (nuevaPagina, nuevaCanvas) = agregarNuevaPagina()
+                page = nuevaPagina
+                canvas = nuevaCanvas
+                yPosition = 100f
+            }
+
+            canvas.drawBitmap(
+                Bitmap.createScaledBitmap(partidosPieChartBitmap, scaleWidth.toInt(), scaleHeight.toInt(), true),
+                left, yPosition, Paint()
+            )
+            yPosition += scaleHeight + 30f
+        }
+
+        // Resultados de partidos
+        val seccionPaint = Paint().apply {
+            textSize = 16f
+            isFakeBoldText = true
+        }
+        canvas.drawText("Resultados por Partidos", 50f, yPosition, seccionPaint)
+        yPosition += 30f
+
+        // Dibujar resultados de partidos
+        val partidoPaint = Paint().apply {
+            textSize = 12f
+            isFakeBoldText = false
+        }
+
+        partidosYVotos.forEach { (partido, votos) ->
+            // Verificar espacio en página
+            if (yPosition > 750f) {
+                pdfDocument.finishPage(page)
+                paginaActual++
+                val (nuevaPagina, nuevaCanvas) = agregarNuevaPagina()
+                page = nuevaPagina
+                canvas = nuevaCanvas
+                yPosition = 100f
+            }
+
+            val porcentaje = (votos.toFloat() / totalVotosPartidos * 100).roundToTwoDecimalPlaces()
+            canvas.drawText("$partido: $votos votos ($porcentaje%)", 50f, yPosition, partidoPaint)
+            yPosition += 30f
+        }
+
+        // SECCIÓN 2: Resultados por Carrera
+        // Verificar si necesitamos una nueva página
+        if (yPosition > 650f) {
+            pdfDocument.finishPage(page)
+            paginaActual++
+            val (nuevaPagina, nuevaCanvas) = agregarNuevaPagina()
+            page = nuevaPagina
+            canvas = nuevaCanvas
+            yPosition = 100f
+        }
+
+        // Título de sección de carreras
+        val tituloCarrerasPaint = Paint().apply {
+            textSize = 18f
+            isFakeBoldText = true
+        }
+        canvas.drawText("Resultados por Carreras", 50f, yPosition, tituloCarrerasPaint)
+        yPosition += 50f
+
+        // Iterar sobre cada carrera
+        resultadosPorCarrera.forEach { (carrera, resultadosPartidos) ->
+            // Verificar espacio en página
+            if (yPosition > 700f) {
+                pdfDocument.finishPage(page)
+                paginaActual++
+                val (nuevaPagina, nuevaCanvas) = agregarNuevaPagina()
+                page = nuevaPagina
+                canvas = nuevaCanvas
+                yPosition = 100f
+            }
+
+            // Título de carrera
+            val carreraPaint = Paint().apply {
+                textSize = 16f
+                isFakeBoldText = true
+            }
+            canvas.drawText("Carrera: $carrera", 50f, yPosition, carreraPaint)
+            yPosition += 40f
+
+            // Crear gráfico de pastel para esta carrera
+            val totalVotosCarrera = resultadosPartidos.values.sum()
+            val carrerasPieChartBitmap = createPieChartBitmap(resultadosPartidos, totalVotosCarrera)
+
+            // Detalles de votos por partido en la carrera
+            val detalleCarreraPaint = Paint().apply {
+                textSize = 12f
+                isFakeBoldText = false
+            }
+
+            resultadosPartidos.forEach { (partido, votos) ->
+                val porcentajeCarrera = (votos.toFloat() / totalVotosCarrera * 100).roundToTwoDecimalPlaces()
+                canvas.drawText("$partido: $votos votos ($porcentajeCarrera%)", 50f, yPosition, detalleCarreraPaint)
+                yPosition += 25f
+            }
+
+            // Dibujar gráfico de pastel de la carrera
+            if (carrerasPieChartBitmap != null) {
+                val scaleWidth = 400f
+                val scaleHeight = 300f
+                val left = (pageInfo.pageWidth - scaleWidth) / 2
+
+                // Verificar si hay espacio suficiente
+                if (yPosition + scaleHeight > 750f) {
+                    pdfDocument.finishPage(page)
+                    paginaActual++
+                    val (nuevaPagina, nuevaCanvas) = agregarNuevaPagina()
+                    page = nuevaPagina
+                    canvas = nuevaCanvas
+                    yPosition = 100f
+                }
+
+                canvas.drawBitmap(
+                    Bitmap.createScaledBitmap(carrerasPieChartBitmap, scaleWidth.toInt(), scaleHeight.toInt(), true),
+                    left, yPosition, Paint()
+                )
+                yPosition += scaleHeight + 30f
+            }
+
+            // Espacio entre secciones de carreras
+            yPosition += 50f
+        }
+
+        // Finalizar la última página
+        pdfDocument.finishPage(page)
+        fun obtenerFechaActual(): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return sdf.format(Date())
+        }
+
+        // Código para guardar y compartir PDF
+        try {
+            val fileName = "Reporte_Electoral_${votacionNombre}_${obtenerFechaActual()}.pdf"
+            val file = File(getExternalFilesDir(null), fileName)
+            val outputStream = FileOutputStream(file)
+            pdfDocument.writeTo(outputStream)
+            outputStream.close()
+            pdfDocument.close()
+
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                file
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "application/pdf")
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            try {
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: IOException) {
+            Log.e("PDF", "Error al guardar el archivo PDF", e)
+            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+
+
+
+    private fun generarPDFPartidosYVotos(
+        votacionNombre: String,
+        partidosYVotos: Map<String, Int>
+    ) {
+        val pdfDocument = PdfDocument()
+        val paint = Paint()
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+        var page = pdfDocument.startPage(pageInfo)
+
+        val canvas = page.canvas
+        val yStart = 50f
+        var yPosition = yStart
+
+        // Título del PDF
+        paint.textSize = 20f
+        paint.isFakeBoldText = true
+        canvas.drawText("Resultados de la Elección: $votacionNombre", 50f, yPosition, paint)
+        yPosition += 50f
+
+        // Calcular total de votos para porcentajes
+        val totalVotos = partidosYVotos.values.sum()
+
+        // Crear un gráfico de pastel como bitmap
+        val pieChartBitmap = createPieChartBitmap(partidosYVotos, totalVotos)
+
+        // Dibujar el gráfico de pastel
+        if (pieChartBitmap != null) {
+            val scaleWidth = 400f
+            val scaleHeight = 300f
+            val left = (pageInfo.pageWidth - scaleWidth) / 2
+            canvas.drawBitmap(
+                Bitmap.createScaledBitmap(pieChartBitmap, scaleWidth.toInt(), scaleHeight.toInt(), true),
+                left, yPosition, paint
+            )
+            yPosition += scaleHeight + 30f
+        }
+
+        // Encabezado de resultados detallados
+        paint.textSize = 16f
+        paint.isFakeBoldText = false
+        canvas.drawText("Detalle de Resultados", 50f, yPosition, paint)
+        yPosition += 30f
+
+        // Lista de partidos y votos con porcentajes
+        val partidoPaint = Paint().apply {
+            textSize = 12f
+        }
+
+        var paginaActual = 1
+        partidosYVotos.forEach { (partido, votos) ->
+            if (yPosition > 750f) {
+                pdfDocument.finishPage(page)
+                page = pdfDocument.startPage(pageInfo)
+                yPosition = yStart
+                paginaActual++
+
+                paint.textSize = 14f
+                canvas.drawText("Resultados de la Elección - Página $paginaActual", 50f, yPosition, paint)
+                yPosition += 30f
+            }
+
+            val porcentaje = (votos.toFloat() / totalVotos * 100).roundToTwoDecimalPlaces()
+            canvas.drawText("$partido: $votos votos ($porcentaje%)", 50f, yPosition, partidoPaint)
+            yPosition += 30f
+        }
+
+        // Total de votos
+        paint.textSize = 14f
+        paint.isFakeBoldText = true
+        canvas.drawText("Total de Votos: $totalVotos", 50f, yPosition, paint)
+
+        pdfDocument.finishPage(page)
+
+        // Guardar y compartir el PDF (código existente de generarPDFPartidosYVotos)
+        try {
+            val fileName = "resultados_${votacionNombre}_${System.currentTimeMillis()}.pdf"
+            val file = File(getExternalFilesDir(null), fileName)
+            val outputStream = FileOutputStream(file)
+            pdfDocument.writeTo(outputStream)
+            outputStream.close()
+            pdfDocument.close()
+
+            // Compartir el archivo usando FileProvider
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                file
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "application/pdf")
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            try {
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: IOException) {
+            Log.e("PDF", "Error al guardar el archivo PDF", e)
+            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Función auxiliar para crear el gráfico de pastel como bitmap
+    private fun createPieChartBitmap(partidosYVotos: Map<String, Int>, totalVotos: Int): Bitmap? {
+        // Configurar un bitmap para dibujar el gráfico
+        val width = 800
+        val height = 700 // Increased height to accommodate labels
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+
+        // Dibujar fondo blanco
+        canvas.drawColor(Color.WHITE)
+
+        // Preparar para dibujar el pastel
+        val centerX = width / 2f
+        val centerY = height / 2f
+        val radius = min(width, height) / 3f
+        val rectF = RectF(centerX - radius, centerY - radius, centerX + radius, centerY + radius)
+
+        // Colores predeterminados
+        val colors = arrayOf(
+            Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW,
+            Color.MAGENTA, Color.CYAN, Color.GRAY
+        )
+
+        var startAngle = 0f
+        var colorIndex = 0
+
+        // Preparar lista para almacenar información de cada sector
+        val sectors = mutableListOf<Pair<String, Float>>()
+
+        // Calcular ángulos de los sectores
+        partidosYVotos.forEach { (partido, votos) ->
+            val sweepAngle = (votos.toFloat() / totalVotos) * 360f
+            sectors.add(Pair(partido, sweepAngle))
+        }
+
+        // Dibujar cada sector del pastel
+        for ((index, sector) in sectors.withIndex()) {
+            val (partido, sweepAngle) = sector
+
+            // Seleccionar color
+            paint.color = colors[index % colors.size]
+
+            // Dibujar sector
+            canvas.drawArc(rectF, startAngle, sweepAngle, true, paint)
+
+            // Calcular punto medio del sector para la etiqueta
+            val midAngle = startAngle + sweepAngle / 2
+            val midRadians = Math.toRadians(midAngle.toDouble())
+
+            // Calcular porcentaje
+            val porcentaje = (sweepAngle / 360f) * 100f
+
+            // Configurar pintura para texto
+            paint.color = Color.BLACK
+            paint.textSize = 25f
+            paint.textAlign = Paint.Align.LEFT
+
+            // Calcular posición de la etiqueta
+            val labelRadius = radius + 50 // Distancia desde el centro
+            val labelX = centerX + (labelRadius * cos(midRadians)).toFloat()
+            val labelY = centerY + (labelRadius * sin(midRadians)).toFloat()
+
+            // Dibujar etiqueta con nombre del partido y porcentaje
+            canvas.drawText(
+                "$partido (${String.format("%.1f", porcentaje)}%)",
+                labelX,
+                labelY,
+                paint
+            )
+
+            // Preparar para el siguiente sector
+            startAngle += sweepAngle
+        }
+
+        // Agregar título
+        paint.color = Color.BLACK
+        paint.textSize = 40f
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("Resultados", centerX, 50f, paint)
+
+        return bitmap
+    }
+    // Extensión para redondear a dos decimales
+    private fun Float.roundToTwoDecimalPlaces(): String {
+        return "%.2f".format(this)
+    }
+
 
     private fun generarPDFNoVotaron(votacionNombre: String) {
         val db = FirebaseFirestore.getInstance()
@@ -769,72 +944,6 @@ class corte_votos : AppCompatActivity() {
     }
 
 
-
-    private fun generarPDF(votacionNombre: String, nombresDocumentos: List<String>) {
-        // Crear un documento PDF
-        val pdfDocument = PdfDocument()
-        val paint = Paint()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
-        val page = pdfDocument.startPage(pageInfo)
-
-        val canvas = page.canvas
-        val yStart = 50f
-        var yPosition = yStart
-
-        // Título del PDF
-        paint.textSize = 20f
-        paint.isFakeBoldText = true
-        canvas.drawText("Personas que Votaron en: $votacionNombre", 50f, yPosition, paint)
-        yPosition += 50f
-
-        // Encabezado de tabla
-        paint.textSize = 16f
-        paint.isFakeBoldText = false
-        canvas.drawText("Lista de Votantes", 50f, yPosition, paint)
-        yPosition += 30f
-
-        // Dibujar los nombres de los documentos
-        paint.textSize = 12f
-        for (nombre in nombresDocumentos) {
-            canvas.drawText(nombre, 50f, yPosition, paint)
-            yPosition += 20f
-        }
-
-        // Terminar el documento
-        pdfDocument.finishPage(page)
-
-        // Guardar y compartir el PDF
-        try {
-            val fileName = "votantes_${votacionNombre}_${System.currentTimeMillis()}.pdf"
-            val file = File(getExternalFilesDir(null), fileName)
-            val outputStream = FileOutputStream(file)
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-            pdfDocument.close()
-
-            // Compartir el archivo usando FileProvider
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                file
-            )
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "application/pdf")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            try {
-                startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                // No hay aplicación para abrir PDFs
-                Toast.makeText(this, "No se encontró una aplicación para abrir PDFs", Toast.LENGTH_SHORT).show()
-            }
-
-        } catch (e: IOException) {
-            Log.e("PDF", "Error al guardar el archivo PDF", e)
-            Toast.makeText(this, "Error al generar PDF", Toast.LENGTH_SHORT).show()
-        }
-    }
 
 
 

@@ -111,24 +111,25 @@ class add_partido : AppCompatActivity() {
         val nombrePartido = etNombrePartido.text.toString().trim()
         val acronimo = etAcronimo.text.toString().trim()
 
-        // Validar que los campos no estén vacíos
-        if (nombrePartido.isEmpty() || acronimo.isEmpty()) {
-            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+        if (nombrePartido.isEmpty()) {
+            Toast.makeText(this, "Por favor, ingrese el nombre del partido", Toast.LENGTH_SHORT).show()
             return
         }
 
         val partido = hashMapOf(
             "votos" to 0,
-            "acronimo" to acronimo,
             "color" to colorPartido
         )
 
+        // Agregar el acrónimo solo si no está vacío
+        if (acronimo.isNotEmpty()) {
+            partido["acronimo"] = acronimo
+        }
+
         val db = FirebaseFirestore.getInstance()
-        // Obtener el tipo de elección desde el Intent
         val tipoEleccion = intent.getStringExtra("tipoEleccion")
 
         if (tipoEleccion == "Otro" && tipoEleccion.isNotEmpty()) {
-            // Guardar en la colección "PreColeccion" si el tipo de elección es "Otro"
             val eleccionesRef = db.collection("PreColeccion").document("Otro")
             val partidosRef = eleccionesRef.collection("Partido").document(nombrePartido)
             partidosRef.set(partido).addOnSuccessListener {
@@ -137,7 +138,6 @@ class add_partido : AppCompatActivity() {
                 Toast.makeText(this, "Error al guardar el partido", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Guardar en la colección "TipoEleccion" si no es "Otro"
             val documentName = tipoEleccion ?: ""
             val eleccionesRef = db.collection("TipoEleccion").document(documentName)
             val partidosRef = eleccionesRef.collection("Partido").document(nombrePartido)
