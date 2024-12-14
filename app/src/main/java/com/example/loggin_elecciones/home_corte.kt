@@ -20,8 +20,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.loggin_elecciones.databinding.ActivityCrearCuentaBinding
-import com.example.loggin_elecciones.home_administrador.Votacion
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -30,14 +28,12 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import java.util.Date
-import com.google.firebase.firestore.FieldPath
 
 
 class home_corte : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val currentUser = FirebaseAuth.getInstance().currentUser
-    private var binding: ActivityCrearCuentaBinding? = null
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var db: FirebaseFirestore
     private lateinit var recyclerView: RecyclerView
@@ -60,7 +56,7 @@ class home_corte : AppCompatActivity() {
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout) // Asignación de SwipeRefreshLayout
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
 
         // Configura el botón de cerrar sesión
         val buttonCerrarSecion = findViewById<Button>(R.id.boton_cerrar_secion)
@@ -153,7 +149,7 @@ class home_corte : AppCompatActivity() {
             }
         }
     }
-
+    // Adaptador para las votaciones
     class VotacionAdapter(private val votaciones: List<Votacion>) : RecyclerView.Adapter<VotacionAdapter.VotacionViewHolder>() {
 
         class VotacionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -255,9 +251,7 @@ class home_corte : AppCompatActivity() {
                 }
         }
     }
-
-
-
+    // Función para obtener el estado de la votación
     private fun obtenerEstadoVotacion(fechaIni: Date, fechaFin: Date): String {
         val currentDate = Date()
 
@@ -278,11 +272,10 @@ class home_corte : AppCompatActivity() {
         votacionAdapter = VotacionAdapter(listaFiltrada)
         recyclerView.adapter = votacionAdapter
     }
-
+    // Función para refrescar la lista
     private fun refrescarVotaciones() {
         val currentUser = auth.currentUser
         currentUser?.email?.let { email ->
-            val userId = email.substringBefore("@")
             cargarVotaciones() // Llama de nuevo para refrescar las votaciones
         }
     }

@@ -38,8 +38,6 @@ class home_administrador : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var votacionAdapter: VotacionAdapter
     private val votacionesOriginales = mutableListOf<Votacion>()
-    private val currentUser = FirebaseAuth.getInstance().currentUser
-    private var binding: ActivityCrearCuentaBinding? = null
     private val db = FirebaseFirestore.getInstance() // Firestore instance
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
@@ -67,16 +65,12 @@ class home_administrador : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
         // Obtener el nombre de usuario pasado desde la actividad de login
         val nombreUsuario = intent.getStringExtra("USER_NAME") ?: "Invitado"  // "Invitado" por defecto si no hay usuario
 
-// Asignar el nombre del usuario al TextView
+        // Asignar el nombre del usuario al TextView
         val nombreTextView: TextView = findViewById(R.id.nombre)
         nombreTextView.text = "Nombre: $nombreUsuario"  // Mostrar el nombre del usuario
-
-
 
         // Para el EditText y botón de búsqueda
         val buscarVotaciones = findViewById<EditText>(R.id.buscar_votaciones)
@@ -111,6 +105,7 @@ class home_administrador : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    // Función para eliminar una votación
     private fun eliminarVotacion(tipoEleccionId: String) {
         val tipoEleccionRef = db.collection("TipoEleccion").document(tipoEleccionId)
 
@@ -169,9 +164,6 @@ class home_administrador : AppCompatActivity() {
             votacionAdapter.notifyDataSetChanged()
         }
     }
-
-
-
 
     // Función para cerrar sesión
     private fun signOut() {
@@ -365,7 +357,6 @@ class home_administrador : AppCompatActivity() {
     private fun refrescarVotaciones() {
         val currentUser = auth.currentUser
         currentUser?.email?.let { email ->
-            val userId = email.substringBefore("@")
             cargarVotaciones() // Llama de nuevo para refrescar las votaciones
         }
     }

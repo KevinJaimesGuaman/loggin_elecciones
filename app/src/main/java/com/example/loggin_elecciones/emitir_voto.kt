@@ -82,9 +82,9 @@ class emitir_voto : AppCompatActivity() {
     // Función para verificar si el usuario ya ha votado en esta votación
     private fun verificarVotacion(votacionNombre: String) {
         val estadoVotacionRef = db.collection("Votaciones")
-            .document(votacionNombre)  // Aquí se accede al documento de la votación
+            .document(votacionNombre)
             .collection("EstadoVotacion")
-            .document(usuarioId)  // Aquí se accede al estado de votación del usuario
+            .document(usuarioId)
 
         estadoVotacionRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
@@ -155,8 +155,6 @@ class emitir_voto : AppCompatActivity() {
 
         dialog.show()
     }
-
-    // Función para votar
     // Función para votar
     private fun votar(candidato: Candidato, votacionNombre: String) {
         // Primero, buscar la carrera del usuario en la colección Elector
@@ -298,7 +296,6 @@ class emitir_voto : AppCompatActivity() {
             // Iniciar la actividad de la página principal
             val intent = Intent(this, home_elector::class.java)
             startActivity(intent)
-
             // Cerrar la actividad actual
             finish()
         }

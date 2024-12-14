@@ -1,39 +1,27 @@
 package com.example.loggin_elecciones
 
-import actividades_de_la_App.Partido
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.Dialog
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CalendarView
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.loggin_elecciones.administrador_CrearEditar.PartidoAdapter
-import com.example.loggin_elecciones.administrador_CrearEditar.PartidoItem
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -48,7 +36,6 @@ class Administrador_EditarElecciones : AppCompatActivity() {
     private var tiempoSeleccionadoInicio: Timestamp? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PartidoAdapter
-    private val firestore = FirebaseFirestore.getInstance()
     private val partidoList = mutableListOf<PartidoItem>()
     val tipoVotacion = TipoVotacion(
         tipoDeVotacion = listOf("Rectorado", "OTRO"),
@@ -81,27 +68,25 @@ class Administrador_EditarElecciones : AppCompatActivity() {
 
         // Cargar los datos desde Firestore
         cargarPartidosDesdeFirestore(nombreEleccion.toString())
-        // Configurar el botón de volver................................................................
+        // Configurar el botón de volver
         val buttonVolver = findViewById<ImageButton>(R.id.volver)
         buttonVolver.setOnClickListener {
             val intent = Intent(this, home_administrador::class.java)
             startActivity(intent)
         }
-        //..............................................................................................
+
         // Configurar el Spinner para Ver en  que votacion estas
         val botonEleccion: Button = findViewById(R.id.button_eleccion_actual)
 
         botonEleccion.text= nombreEleccion
 
-        //------------------------------------------------------------------------------------------------------
-
-        // para seleccionar carreras:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        // para seleccionar carreras
         val botonCarrerasDestinadas: Button = findViewById(R.id.carrerasDestinadas_crear)
         val listaCarrerasSeleccionadas = mutableListOf<String>() // Lista de carreras seleccionadas
         val listaCarrerasFirebase = mutableListOf<String>() // Lista de carreras obtenidas de Firebase
         val estadoSeleccionCarreras = mutableMapOf<String, Boolean>() // Estado de selección de carreras
 
-// Obtener la lista de carreras destinadas del documento "rectorado" en la colección "TipoEleccion"
+        // Obtener la lista de carreras destinadas del documento "rectorado" en la colección "TipoEleccion"
         db.collection("TipoEleccion").document(nombreEleccion.toString())
             .get()
             .addOnSuccessListener { tipoEleccionDoc ->
@@ -168,8 +153,6 @@ class Administrador_EditarElecciones : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.e("Firebase", "Error al obtener el documento rectorado", exception)
             }
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 // Inicializar botones
         val buttonFechaHoraInicio: Button = findViewById(R.id.button_fecha_inicio_crear)
         val buttonFechaHoraFin: Button = findViewById(R.id.button_fecha_fin_crear)
@@ -202,54 +185,43 @@ class Administrador_EditarElecciones : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.e("Firebase", "Error al obtener fechas de Firebase", exception)
             }
-
-// Configurar el botón de fecha y hora de inicio
-        buttonFechaHoraInicio.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_MONTH, 1) // Mínimo un día después de hoy
-
-            val minDate = calendar.timeInMillis // Timestamp para la fecha mínima
-
-            val datePicker = DatePickerDialog(
+     // Configurar el botón de fecha y hora de inicio
+    buttonFechaHoraInicio.setOnClickListener {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_MONTH, 1) // Mínimo un día después de hoy
+        val minDate = calendar.timeInMillis // Timestamp para la fecha mínima
+        val datePicker = DatePickerDialog(
                 this,
-                { _, selectedYear, selectedMonth, selectedDay ->
-                    val selectedCalendar = Calendar.getInstance()
-                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedCalendar = Calendar.getInstance()
+                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
 
-                    val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
+                val dayOfWeek = selectedCalendar.get(Calendar.DAY_OF_WEEK)
 
-                    // Verificar si el día seleccionado no es sábado ni domingo
-                    if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
-                        Toast.makeText(
-                            this,
-                            "No puedes seleccionar fines de semana. Por favor, elige otro día.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@DatePickerDialog
-                    }
+                // Verificar si el día seleccionado no es sábado ni domingo
+                if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+                    Toast.makeText(
+                        this,
+                        "No puedes seleccionar fines de semana. Por favor, elige otro día.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@DatePickerDialog
+                }
 
-                    val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear 08:00" // Fecha con hora fija 08:00
+                val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear 08:00" // Fecha con hora fija 08:00
 
-                    buttonFechaHoraInicio.text = formattedDate
+                buttonFechaHoraInicio.text = formattedDate
 
-                    // Parsear la fecha y asignarla como Timestamp
-                    val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                    try {
-                        val dateIni: Date = format.parse(formattedDate)
-                            ?: throw IllegalArgumentException("Fecha inválida: $formattedDate")
+                // Parsear la fecha y asignarla como Timestamp
+                val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                try {
+                    val dateIni: Date = format.parse(formattedDate) ?: throw IllegalArgumentException("Fecha inválida: $formattedDate")
                         tiempoSeleccionadoInicio = Timestamp(dateIni)
-                        Toast.makeText(
-                            this,
-                            "Fecha y hora de inicio seleccionadas correctamente.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
+                        Toast.makeText(this, "Fecha y hora de inicio seleccionadas correctamente.", Toast.LENGTH_SHORT).show()
                         // Actualizar automáticamente la fecha de fin con la misma fecha y hora fija
                         val formattedEndDate = "$selectedDay/${selectedMonth + 1}/$selectedYear 16:00"
                         buttonFechaHoraFin.text = formattedEndDate
-
-                        val dateFin: Date = format.parse(formattedEndDate)
-                            ?: throw IllegalArgumentException("Fecha inválida: $formattedEndDate")
+                        val dateFin: Date = format.parse(formattedEndDate) ?: throw IllegalArgumentException("Fecha inválida: $formattedEndDate")
                         tiempoSeleccionadoFin = Timestamp(dateFin)
                     } catch (e: Exception) {
                         Log.e(
@@ -275,18 +247,18 @@ class Administrador_EditarElecciones : AppCompatActivity() {
             datePicker.show()
         }
 
-// Deshabilitar el botón de fin
+        // Deshabilitar el botón de fin
         buttonFechaHoraFin.isEnabled = false
 
-//-------------------------------------------------------------------------------------------------------------
-        //boton añadir------------------------------------------------------------------------------------------------
-        // Configurar el botón para guardar en Firebase
+
+//boton añadir------------------------------------------------------------------------------------------------
+    // Configurar el botón para guardar en Firebase
         val buttonGuardar: Button = findViewById(R.id.añadir_Eleccion)
         buttonGuardar.setOnClickListener {
             showWarningDialog(nombreEleccion.toString())
         }
-        //  ..............................................................................................................
-        //boton añadir Partido
+
+    //boton añadir Partido
         val imageViewAñadirPartido= findViewById<ImageView>(R.id.imageView_añadir_editar)
         imageViewAñadirPartido.setOnClickListener {
                 val intent = Intent(this, add_partido_rector::class.java)

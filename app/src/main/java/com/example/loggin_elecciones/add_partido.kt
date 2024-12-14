@@ -12,12 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import yuku.ambilwarna.AmbilWarnaDialog
-import java.util.Date
-import java.util.UUID
 
 class add_partido : AppCompatActivity() {
 

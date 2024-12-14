@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 
 class Loogin2 : AppCompatActivity() {
+
     private lateinit var binding: ActivityLoogin2Binding
     private lateinit var db: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
@@ -105,10 +106,7 @@ class Loogin2 : AppCompatActivity() {
         //boton docente fin
         db = FirebaseFirestore.getInstance()
         //inicio para el boton de google
-
-
-
-        //iniciar firebase auth
+            //iniciar firebase auth
         firebaseAuth = FirebaseAuth.getInstance()
 
         // Verificar si el usuario ha iniciado sesión
@@ -118,7 +116,6 @@ class Loogin2 : AppCompatActivity() {
             val email = currentUser.email // Obtener el email del usuario actual
             val usuarioElector = email?.substringBefore("@") // Extraer el nombre de usuario antes del @
 
-            // Asegúrate de que usuarioElector no sea null
             if (usuarioElector != null) {
                 val db = FirebaseFirestore.getInstance() // Inicializar Firestore
                 val usuariosRef = db.collection("Elector") // Referencia a la colección "Elector"
@@ -127,11 +124,6 @@ class Loogin2 : AppCompatActivity() {
                 usuariosRef.document(usuarioElector).get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            /* Documento existe, puedes procesar los datos
-                            val carrera = document.getString("carrera")
-                            val carnetDeIdentidad = document.getString("carnetDeIdentidad")
-                            val habilitado = document.getBoolean("habilitado")*/
-
                             // Aquí puedes manejar la redirección según tus necesidades
                             val intent = Intent(this, home_elector::class.java)
                             startActivity(intent)
@@ -171,7 +163,6 @@ class Loogin2 : AppCompatActivity() {
         usuario_administrador = findViewById(R.id.usuario_Administrador_loggin)
         contraseña_administrador = findViewById(R.id.contraseña_Administrador_loggin)
         button_iniciar_admin = findViewById(R.id.button_iniciar_admin)
-
         button_iniciar_admin.setOnClickListener {
             val usuario = usuario_administrador.text.toString().trim()
             val contraseña = contraseña_administrador.text.toString().trim()
@@ -191,8 +182,6 @@ class Loogin2 : AppCompatActivity() {
         startActivityForResult(signInIntent, RC_SIGN_IN)
 
     }
-    //fin de iniciar sesion con google
-
     //manejar el resultado de la actividad
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -220,8 +209,6 @@ class Loogin2 : AppCompatActivity() {
             }
         }
     }
-    //fin de manejar el resultado de la actividad
-
     //verificar si el correo es institucional
     private fun isInstitutionalEmail(email: String?,tipoUsuario: String?): Boolean {
         return when (tipoUsuario) {
@@ -233,7 +220,6 @@ class Loogin2 : AppCompatActivity() {
 
         }
     }
-    //fin de verificar si el correo es institucional
     //autenticar con firebase corte Electoral
     private fun firebaseAuthWithGoogleCorteElectoral(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
@@ -261,14 +247,12 @@ class Loogin2 : AppCompatActivity() {
                                 }
                             }
                             .addOnFailureListener { e ->
-                                // Manejo de error en la consulta a Firestore
                                 Toast.makeText(this, "Error al verificar el usuario: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                     } else {
                         Toast.makeText(this, "No se pudo obtener el email del usuario.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // Manejar error de autenticación con Firebase
                     Toast.makeText(this, "Error al autenticar con Firebase: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -295,9 +279,9 @@ class Loogin2 : AppCompatActivity() {
                     val nombreElector=account.displayName
 
                     if (usuarioElector != null) {
-                        val db = FirebaseFirestore.getInstance() // Inicializar Firestore
-                        val electoresRef = db.collection("ElectoresHabilitados") // Colección habilitados
-                        val usuariosRef = db.collection("Elector") // Colección principal
+                        val db = FirebaseFirestore.getInstance()
+                        val electoresRef = db.collection("ElectoresHabilitados")
+                        val usuariosRef = db.collection("Elector")
 
                         // Buscar en la colección ElectoresHabilitados
                         electoresRef.document(usuarioElector).get()
@@ -322,7 +306,6 @@ class Loogin2 : AppCompatActivity() {
                                                 finish()
                                             }
                                             .addOnFailureListener { exception ->
-                                                // Manejo de error al agregar datos
                                                 Toast.makeText(
                                                     this,
                                                     "Error al registrar usuario: ${exception.message}",
@@ -360,13 +343,10 @@ class Loogin2 : AppCompatActivity() {
                 }
             }
     }
-    //fin de autenticar con firebase
-
     //actualizar la UI
     private fun updateUI(email: String?) {
         Toast.makeText(this, "Bienvenido $email", Toast.LENGTH_SHORT).show()
     }
-    //fin de actualizar la UI
     //iniciar sesion administrador
     private fun login(usuario: String, contraseña: String) {
         firebaseAuth.signInWithEmailAndPassword(usuario, contraseña)

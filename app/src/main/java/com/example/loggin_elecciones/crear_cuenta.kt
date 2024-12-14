@@ -64,8 +64,6 @@ class crear_cuenta : AppCompatActivity() {
         //spiner de carreras
         spinnerCarrera = findViewById(R.id.spinner_carreras)
         loadCarrerasFromFirestore()
-        //fin de spiner de carreras
-        val btCancelCreate = findViewById<Button>(R.id.bt_cancel_create)
         // Crea el GoogleSignInClient
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de tener el ID correcto en tu archivo strings.xml

@@ -1,6 +1,5 @@
 package com.example.loggin_elecciones
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import yuku.ambilwarna.AmbilWarnaDialog
-import java.util.UUID
 
 class add_partido_rector : AppCompatActivity() {
 

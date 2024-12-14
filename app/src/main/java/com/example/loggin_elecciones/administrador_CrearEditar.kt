@@ -1,13 +1,10 @@
 package com.example.loggin_elecciones
 
-//importar datosAdministrador
 import actividades_de_la_App.Partido
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.TimePickerDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -78,19 +75,16 @@ class administrador_CrearEditar : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        // Cargar los datos desde Firestore
+// Cargar los datos desde Firestore
         cargarPartidosDesdeFirestore()
 
-        // Configurar el botón de volver................................................................
+// Configurar el botón de volver
         val buttonVolver = findViewById<ImageButton>(R.id.volver)
         buttonVolver.setOnClickListener {
             val intent = Intent(this, home_administrador::class.java)
             startActivity(intent)
         }
-        //..............................................................................................
-
-        //spinner para el tipo de votacion--------------------------------------------------------------
-
+//spinner para el tipo de votacion
         // Configurar el Spinner para el tipo de votación
         val spinnerTipoVotacion: Spinner = findViewById(R.id.spinnerTipoEleccion_crear)
         val editTextOtro: EditText = findViewById(R.id.editTextText_eleccionOtro)
@@ -126,25 +120,19 @@ class administrador_CrearEditar : AppCompatActivity() {
                 // Si no se selecciona nada, no hacer nada
             }
         }
-        //..................................................................................................
-        // Configuración del EditText cuando se escoge "otro" en el spinner
-// Añadir el TextWatcher para capturar los cambios en el texto
+// Configuración del EditText cuando se escoge "otro" en el spinner
+    // Añadir el TextWatcher para capturar los cambios en el texto
         editTextOtro.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence?, start: Int, count: Int, after: Int) {
-                // No necesitamos hacer nada antes de que el texto cambie
             }
-
             override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {
                 // Guardar el texto tal como lo escribe el usuario
                 tipoVotacion.otro = charSequence.toString()
             }
-
             override fun afterTextChanged(editable: Editable?) {
-                // Este método se ejecuta después de que el texto ha cambiado
             }
         })
-
-// Detectar cuando el EditText se vuelve GONE
+        // Detectar cuando el EditText se vuelve GONE
         editTextOtro.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             if (editTextOtro.visibility == View.GONE) {
                 // Si el EditText se vuelve GONE, borrar el texto de la variable global
@@ -153,9 +141,8 @@ class administrador_CrearEditar : AppCompatActivity() {
         }
 
 
-        //------------------------------------------------------------------------------------------------------
 
-        // para seleccionar carreras:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// para seleccionar carreras
         val botonCarrerasDestinadas: Button = findViewById(R.id.carrerasDestinadas_crear)
         val listaCarrerasSeleccionadas =
             mutableListOf<String>() // Lista para almacenar las carreras seleccionadas
@@ -170,7 +157,7 @@ class administrador_CrearEditar : AppCompatActivity() {
             .get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    // Extraer las carreras desde el documento (ejemplo con claves dinámicas c1, c2...)
+
                     for ((key, value) in document.data ?: emptyMap<String, Any>()) {
                         if (value is String) {
                             listaCarrerasFirebase.add(value)
@@ -225,10 +212,10 @@ class administrador_CrearEditar : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.e("Firebase", "Error al obtener las carreras", exception)
             }
-        //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+// Configurar el botón de fecha y hora de inicio
         val buttonFechaHoraInicio: Button = findViewById(R.id.button_fecha_inicio_crear)
         val buttonFechaHoraFin: Button = findViewById(R.id.button_fecha_fin_crear)
-// Configurar el botón de fecha y hora de inicio
         buttonFechaHoraInicio.setOnClickListener {
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_MONTH, 1) // Mínimo un día después de hoy
@@ -293,25 +280,20 @@ class administrador_CrearEditar : AppCompatActivity() {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
-
             // Configurar la fecha mínima como un día después de la actual
             datePicker.datePicker.minDate = minDate
 
             datePicker.show()
         }
-
-// Deshabilitar la interacción en el botón de fecha de fin
+        // Deshabilitar la interacción en el botón de fecha de fin
         buttonFechaHoraFin.isEnabled = false
-
-//-------------------------------------------------------------------------------------------------------------
-        //boton añadir------------------------------------------------------------------------------------------------
+//boton añadir------------------------------------------------------------------------------------------------
         // Configurar el botón para guardar en Firebase
         val buttonGuardar: Button = findViewById(R.id.añadir_Eleccion)
         buttonGuardar.setOnClickListener {
             showWarningDialog()
         }
-        //  ..............................................................................................................
-        //boton añadir Partido
+//boton añadir Partido
         val imageViewAñadirPartido= findViewById<ImageView>(R.id.imageView_añadir_editar)
         imageViewAñadirPartido.setOnClickListener {
             //Precrear eleccion
@@ -324,13 +306,9 @@ class administrador_CrearEditar : AppCompatActivity() {
                 intent.putExtra("tipoEleccion", tipoVotacion.tipoVotacionnombre)
                 startActivity(intent)
             }
-
-
         }
     }
     private fun cargarTiposEleccion() {
-
-
         // Construir la referencia a la colección de partidos
         val coleccionPartidos = firestore.collection("PreColeccion")
 
@@ -342,10 +320,8 @@ class administrador_CrearEditar : AppCompatActivity() {
                 Toast.makeText(this, "No se pudieron cargar las elecciones", Toast.LENGTH_SHORT).show()
                 return@addSnapshotListener
             }
-
             // Limpiar la lista de partidos
             tiposEleccion.clear()
-
             // Iterar sobre los documentos
             for (document in querySnapshot!!) {
                 val nombre = document.id
@@ -353,7 +329,6 @@ class administrador_CrearEditar : AppCompatActivity() {
                 val paraMandar = PreEleccion(nombre, estado)
                 tiposEleccion.add(paraMandar)
             }
-
             // Verificar si la lista de tipos de elección tiene elementos
             if (tiposEleccion.isNotEmpty()) {
                 // Crear un ArrayAdapter para el Spinner con los nombres de los tipos de elección
@@ -681,31 +656,20 @@ class CalendarDialogFragment(private val onDateSelected: (String) -> Unit) : Dia
 data class TipoVotacion(
     var tipoDeVotacion: List<String> = listOf("Rectorado","OTRO"),
     var estadoTipodeVotacion: List<Boolean> = listOf(false,false),
-    //esta parte se envia a firebase
     var tipoVotacionnombre: String,
-    var fechaIni: Timestamp,  // Permite que sea null
-    var fechayHoraFin: Timestamp,  // Permite que sea null
+    var fechaIni: Timestamp,
+    var fechayHoraFin: Timestamp,
     var estado: String,
     var otro: String,
-    var carrerasDestinadas: List<String>, // Lista de carreras a las que está destinada la votación
-    var partidos: MutableList<Partido> // Lista mutable de partidos asociados
+    var carrerasDestinadas: List<String>,
+    var partidos: MutableList<Partido>
 )
 data class Partido(
     val nombre: String,
-    var votos: Int, // Los votos pueden variar
+    var votos: Int,
 )
 data class PreEleccion (
         val nombre: String,
         val estado:Boolean
         )
-
-data class paraEneviar(
-    val tipoDeVotacion: String,
-    val fechaIni: String,
-    val fechaFin: String,
-    val estado: String,
-    var otro: String,
-    val carrerasDestinadas: List<String>,
-    val partidos: MutableList<Partido>
-)
 

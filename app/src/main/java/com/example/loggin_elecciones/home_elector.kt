@@ -63,7 +63,7 @@ class home_elector : AppCompatActivity() {
             signOut()
             Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
         }
-        // Configuración de SwipeRefreshLayout
+        // Configuración de SwipeRefreshLayout (refrescar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout) // Asignación de SwipeRefreshLayout
 
         // Configurar el RecyclerView
@@ -249,24 +249,6 @@ class home_elector : AppCompatActivity() {
             }
         }
     }
-
-
-
-    private fun verificarVotacion(votacionNombre: String, usuarioId: String): Boolean {
-        var yaVoto = false
-        val estadoVotacionRef = db.collection("Votaciones")
-            .document(votacionNombre)  // Aquí se accede al documento de la votación
-            .collection("EstadoVotacion")
-            .document(usuarioId)  // Aquí se accede al estado de votación del usuario
-
-        estadoVotacionRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                yaVoto = document.getBoolean("votacion1") ?: false  // Comprobar si el campo 'votacion1' existe y es verdadero
-            }
-        }
-        return yaVoto
-    }
-
     // Método para mostrar el mensaje cuando la votación YA PASO
     private fun mostrarDialogoYaPaso() {
         val dialogView = layoutInflater.inflate(R.layout.ya_paso, null)
@@ -377,7 +359,7 @@ class home_elector : AppCompatActivity() {
         // Notificar al adaptador que los datos han cambiado para que la vista se actualice
         votacionAdapter.notifyDataSetChanged()
     }
-
+    // Método para obtener los datos del elector
     private fun obtenerDatosElector(userId: String) {
         val estadoTextView: TextView = findViewById(R.id.textView_estado)
         val carreraTextView: TextView = findViewById(R.id.carrera)

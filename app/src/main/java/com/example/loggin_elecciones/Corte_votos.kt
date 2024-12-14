@@ -17,17 +17,12 @@ import android.widget.TextView
 import android.widget.Toast
 import android.os.Build
 import android.provider.Settings
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.loggin_elecciones.R
-import com.example.loggin_elecciones.home_corte
 import com.google.firebase.firestore.FirebaseFirestore
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
@@ -56,8 +51,6 @@ class corte_votos : AppCompatActivity() {
     private lateinit var chartView: AnyChartView
     private lateinit var candidatosAdapter: CandidatosAdapter
     private lateinit var pie: com.anychart.charts.Pie
-    private var candidatosList = mutableListOf<Candidato>()
-
     companion object {
         private const val STORAGE_PERMISSION_CODE = 1001
     }
@@ -138,7 +131,6 @@ class corte_votos : AppCompatActivity() {
             }
         }
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == STORAGE_PERMISSION_CODE) {
@@ -151,7 +143,6 @@ class corte_votos : AppCompatActivity() {
             }
         }
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
